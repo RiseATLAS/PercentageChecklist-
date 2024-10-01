@@ -1,15 +1,27 @@
 // app.js
 
 // Your web app's Firebase configuration
+
+
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_DATABASE_NAME.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
+
+    apiKey: "AIzaSyAicCfg3-F-OSr0r38-fvS2DPMjcFj0L9o",
+  
+    authDomain: "percentagechecklist.firebaseapp.com",
+  
+    databaseURL: "https://percentagechecklist-default-rtdb.europe-west1.firebasedatabase.app",
+  
+    projectId: "percentagechecklist",
+  
+    storageBucket: "percentagechecklist.appspot.com",
+  
+    messagingSenderId: "984819040461",
+  
+    appId: "1:984819040461:web:89faf42e4cf5aec3a32984",
+  
+    measurementId: "G-RY6PR6Y95P"
+  
+  };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -79,7 +91,7 @@ function renderTasks(tasks) {
         li.appendChild(categorySpan);
 
         // Optional: Add edit and delete buttons
-        /*
+        
         const editButton = document.createElement('button');
         editButton.className = 'edit-button';
         editButton.innerHTML = '<img src="edit-icon.png" alt="Edit">';
@@ -94,7 +106,7 @@ function renderTasks(tasks) {
 
         li.appendChild(editButton);
         li.appendChild(deleteButton);
-        */
+        
 
         taskList.appendChild(li);
     }
@@ -125,11 +137,11 @@ function updateStats(tasks) {
 
     // Optionally, display category-wise stats
     // For example:
-    /*
+    
     for (let category in categoryCounts) {
         const cat = categoryCounts[category];
         const catPercentage = Math.round((cat.completed / cat.total) * 100);
         console.log(`${category}: ${catPercentage}% complete`);
     }
-    */
+    
 }
