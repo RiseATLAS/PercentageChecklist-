@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My To-Do List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>My To-Do List</h1>
+        
+        <div class="add-task">
+            <input type="text" id="task-input" placeholder="New task...">
+            <select id="category-select">
+                <option value="Personal">Personal</option>
+                <option value="Work">Work</option>
+                <option value="Shopping">Shopping</option>
+                <!-- Add more categories as needed -->
+            </select>
+            <button id="add-task-button">Add Task</button>
+        </div>
+
+        <div class="stats">
+            <p>Total Tasks: <span id="total-tasks">0</span></p>
+            <p>Completed: <span id="completed-tasks">0</span></p>
+            <p>Overall Completion: <span id="completion-percentage">0%</span></p>
+            <!-- Add category-wise stats as needed -->
+        </div>
+
+        <ul id="task-list">
+            <!-- Tasks will appear here -->
+        </ul>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script src="app.js"></script>
+</body>
+</html>
