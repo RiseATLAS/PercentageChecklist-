@@ -13,10 +13,7 @@
         <div class="add-task">
             <input type="text" id="task-input" placeholder="New task...">
             <select id="category-select">
-                <option value="Personal">Personal</option>
-                <option value="Work">Work</option>
-                <option value="Shopping">Shopping</option>
-                <!-- Add more categories as needed -->
+                <!-- Categories will be populated dynamically -->
             </select>
             <button id="add-task-button">Add Task</button>
         </div>
@@ -25,7 +22,17 @@
             <p>Total Tasks: <span id="total-tasks">0</span></p>
             <p>Completed: <span id="completed-tasks">0</span></p>
             <p>Overall Completion: <span id="completion-percentage">0%</span></p>
-            <!-- Add category-wise stats as needed -->
+        </div>
+
+        <div class="categories-section">
+            <h2>Categories</h2>
+            <div class="add-category">
+                <input type="text" id="category-input" placeholder="New category...">
+                <button id="add-category-button">Add Category</button>
+            </div>
+            <ul id="category-list">
+                <!-- Categories will be listed here -->
+            </ul>
         </div>
 
         <ul id="task-list">
@@ -35,7 +42,7 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <script src="app.js"></script>
 </body>
