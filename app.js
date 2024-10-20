@@ -27,6 +27,8 @@ const addTaskButton = document.getElementById('add-task-button');
 const taskList = document.getElementById('task-list');
 
 const categoryList = document.getElementById('category-list');
+const newCategoryInput = document.getElementById('new-category-input');
+const addCategoryButton = document.getElementById('add-category-button');
 
 const searchInput = document.getElementById('search-input');
 const sortBy = document.getElementById('sort-by');
@@ -71,28 +73,10 @@ const sortable = new Sortable(taskList, {
 // Last inn Kategorier
 function loadCategories() {
     const categoriesRef = database.ref(`categories`);
-    categoriesRef.once('value', snapshot => {
-        if (!snapshot.exists()) {
-            // Initialiser med noen standardkategorier hvis ingen finnes
-            const defaultCategories = {
-                category1: { name: "Arbeid" },
-                category2: { name: "Hjem" },
-                category3: { name: "Personlig" }
-            };
-            categoriesRef.set(defaultCategories)
-                .then(() => {
-                    console.log("Standardkategorier lagt til.");
-                    populateCategorySelect(defaultCategories);
-                    renderCategoriesList(defaultCategories);
-                })
-                .catch(error => {
-                    console.error("Feil ved opprettelse av standardkategorier:", error);
-                });
-        } else {
-            const categories = snapshot.val();
-            populateCategorySelect(categories);
-            renderCategoriesList(categories);
-        }
+    categoriesRef.on('value', snapshot => {
+        const categories = snapshot.val() || {};
+        populateCategorySelect(categories);
+        renderCategoriesList(categories);
     });
 }
 
@@ -188,6 +172,33 @@ function deleteCategory(categoryId) {
         console.error("Feil ved sletting av kategori og oppgaver:", error);
     });
 }
+
+// Legg til Kategori
+addCategoryButton.addEventListener('click', () => {
+    const categoryName = newCategoryInput.value.trim();
+    if (categoryName === "") {
+        alert("Kategorinavnet kan ikke være tomt.");
+        return;
+    }
+
+    // Sjekk for dupliserte kategorinavn
+    database.ref(`categories`).orderByChild('name').equalTo(categoryName).once('value', snapshot => {
+        if (snapshot.exists()) {
+            alert("Kategorinavnet finnes allerede!");
+        } else {
+            // Legg til ny kategori
+            const newCategoryRef = database.ref(`categories`).push();
+            newCategoryRef.set({ name: categoryName })
+                .then(() => {
+                    console.log("Ny kategori lagt til.");
+                    newCategoryInput.value = '';
+                })
+                .catch(error => {
+                    console.error("Feil ved legging til kategori:", error);
+                });
+        }
+    });
+});
 
 // Legg til Oppgave
 addTaskButton.addEventListener('click', () => {
