@@ -56,65 +56,15 @@ header button {
     display: none;
 }
 
-/* Autentiseringsskjemaer */
-#auth-section {
-    max-width: 400px;
-    margin: 50px auto;
-    background-color: var(--secondary-color);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-#auth-section h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-#auth-section input {
-    width: 100%;
-    padding: 12px 15px;
-    margin: 8px 0;
-    border: 1px solid #dddddd;
-    border-radius: 8px;
-    font-size: 16px;
-}
-
-#auth-section button {
-    width: 100%;
-    padding: 12px 0;
-    background-color: var(--primary-color);
-    border: none;
-    color: var(--secondary-color);
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#auth-section button:hover {
-    background-color: #357abd;
-}
-
-#auth-section p {
-    text-align: center;
-    margin-top: 15px;
-}
-
-#auth-section a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
 /* Legg til Oppgave og Kategori */
-.add-task, .add-category {
+.add-task {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
-.add-task input, .add-category input, #category-select, #priority-select, #due-date-input {
+.add-task input, .add-task select, #due-date-input {
     flex: 1;
     padding: 10px 12px;
     border: 1px solid #dddddd;
@@ -123,12 +73,12 @@ header button {
     transition: border-color 0.3s;
 }
 
-.add-task input:focus, .add-category input:focus, #category-select:focus, #priority-select:focus, #due-date-input:focus {
+.add-task input:focus, .add-task select:focus, #due-date-input:focus {
     border-color: var(--primary-color);
     outline: none;
 }
 
-.add-task button, .add-category button {
+.add-task button {
     padding: 10px 20px;
     background-color: var(--primary-color);
     border: none;
@@ -139,19 +89,45 @@ header button {
     transition: background-color 0.3s;
 }
 
-.add-task button:hover, .add-category button:hover {
+.add-task button:hover {
     background-color: #357abd;
 }
 
-/* Søk og Filtre */
-.search-filter, .sort-options {
+/* Søk */
+.search-filter {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
-.search-filter input, .search-filter select, .sort-options select {
+.search-filter input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.search-filter input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+/* Sorteringsalternativer */
+.sort-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.sort-options label {
+    align-self: center;
+}
+
+.sort-options select {
     padding: 10px 12px;
     border: 1px solid #dddddd;
     border-radius: 8px;
@@ -159,15 +135,9 @@ header button {
     flex: 1;
 }
 
-#clear-filters {
-    background-color: var(--danger-color);
-    color: var(--secondary-color);
-    border-radius: 8px;
-    transition: background-color 0.3s;
-}
-
-#clear-filters:hover {
-    background-color: #c0392b;
+.sort-options select:focus {
+    border-color: var(--primary-color);
+    outline: none;
 }
 
 /* Statistikk */
@@ -178,6 +148,12 @@ header button {
 .stats p {
     margin: 8px 0;
     font-size: 16px;
+    color: var(--text-color);
+}
+
+.category-stats p {
+    margin: 4px 0;
+    font-size: 14px;
     color: var(--text-color);
 }
 
@@ -298,75 +274,26 @@ header button {
     text-decoration: underline;
 }
 
-/* Kalender */
-#calendar {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 0 10px;
-    background-color: var(--secondary-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.delete-button {
+    margin-left: 10px;
 }
 
-/* Data Eksport/Import */
-.data-export-import {
-    display: flex;
-    gap: 10px;
-    margin: 20px 0;
-    flex-wrap: wrap;
-}
-
-.data-export-import button {
-    padding: 10px 20px;
-    background-color: var(--primary-color);
-    border: none;
-    color: var(--secondary-color);
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.data-export-import button:hover {
-    background-color: #357abd;
-}
-
-#data-import-button {
-    background-color: var(--accent-color);
-}
-
-#data-import-button:hover {
-    background-color: #27ae60;
-}
-
-#import-file {
-    flex: 1;
-}
-
-/* Logg Ut */
-#logout-button {
-    padding: 10px 20px;
-    background-color: var(--danger-color);
-    border: none;
-    color: var(--secondary-color);
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    width: 100%;
-}
-
-#logout-button:hover {
-    background-color: #c0392b;
-}
-
-/* Responsiv Design */
+/* Responsivt Design */
 @media (max-width: 768px) {
-    .add-task, .add-category, .search-filter, .sort-options, .data-export-import {
+    .add-task, .sort-options, .search-filter {
         flex-direction: column;
     }
 
-    #calendar {
-        max-width: 100%;
+    .add-task input, .add-task select, #due-date-input, .add-task button {
+        flex: unset;
+        width: 100%;
+    }
+
+    .sort-options select {
+        width: 100%;
+    }
+
+    #category-list, #task-list {
+        width: 100%;
     }
 }
