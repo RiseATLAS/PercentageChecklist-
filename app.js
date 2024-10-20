@@ -31,8 +31,6 @@ const categoryList = document.getElementById('category-list');
 const searchInput = document.getElementById('search-input');
 const sortBy = document.getElementById('sort-by');
 
-const clearFiltersButton = document.getElementById('clear-filters'); // Fjernet, så kan fjerne denne linjen om nødvendig
-
 const totalTasksElem = document.getElementById('total-tasks');
 const completedTasksElem = document.getElementById('completed-tasks');
 const completionPercentageElem = document.getElementById('completion-percentage');
@@ -41,17 +39,15 @@ const priorityChartCtx = document.getElementById('priority-chart').getContext('2
 
 const themeToggleButton = document.getElementById('theme-toggle');
 
-// Initialize FullCalendar (Fjernet, som per instruksjon)
-
 // Initialize SortableJS for Drag-and-Drop
 const sortable = new Sortable(taskList, {
     animation: 150,
-    onEnd: function (evt) {
+    onEnd: function(evt) {
         const itemEl = evt.item;
         const newIndex = evt.newIndex;
         const taskId = itemEl.getAttribute('data-id');
         // Oppdater rekkefølgen i databasen
-        const tasksRef = database.ref(`users/tasks`);
+        const tasksRef = database.ref(`tasks`);
         tasksRef.orderByChild('order').once('value', snapshot => {
             const tasks = [];
             snapshot.forEach(child => {
@@ -63,7 +59,7 @@ const sortable = new Sortable(taskList, {
             tasks.splice(newIndex, 0, movedTask);
             // Oppdater 'order' for hver oppgave
             tasks.forEach((task, index) => {
-                database.ref(`users/tasks/${task.id}`).update({ order: index })
+                database.ref(`tasks/${task.id}`).update({ order: index })
                     .catch(error => {
                         console.error('Feil ved oppdatering av oppgave rekkefølge:', error);
                     });
@@ -72,14 +68,9 @@ const sortable = new Sortable(taskList, {
     },
 });
 
-// Gjeldende bruker (fjernet autentisering, så dette er ikke nødvendig)
-// let currentUser = null;
-
-// Autentisering er fjernet
-
 // Last inn Kategorier
 function loadCategories() {
-    const categoriesRef = database.ref(`users/categories`);
+    const categoriesRef = database.ref(`categories`);
     categoriesRef.on('value', snapshot => {
         const categories = snapshot.val() || {};
         populateCategorySelect(categories);
@@ -127,13 +118,13 @@ function renderCategoriesList(categories) {
             }
             if (newName !== categories[id].name) {
                 // Sjekk for dupliserte kategorinavn
-                database.ref(`users/categories`).orderByChild('name').equalTo(newName).once('value', snapshot => {
+                database.ref(`categories`).orderByChild('name').equalTo(newName).once('value', snapshot => {
                     if (snapshot.exists()) {
                         alert("Kategorinavnet finnes allerede!");
                         nameSpan.textContent = categories[id].name;
                     } else {
                         // Oppdater kategorinavn
-                        database.ref(`users/categories/${id}`).update({ name: newName })
+                        database.ref(`categories/${id}`).update({ name: newName })
                             .then(() => {
                                 console.log('Kategori oppdatert');
                             })
@@ -165,7 +156,7 @@ function renderCategoriesList(categories) {
 // Slett Kategori og tilknyttede Oppgaver
 function deleteCategory(categoryId) {
     // Slett alle oppgaver med denne kategoriId
-    const tasksRef = database.ref(`users/tasks`);
+    const tasksRef = database.ref(`tasks`);
     tasksRef.orderByChild('categoryId').equalTo(categoryId).once('value', snapshot => {
         const updates = {};
         snapshot.forEach(child => {
@@ -174,7 +165,7 @@ function deleteCategory(categoryId) {
         return tasksRef.update(updates);
     }).then(() => {
         // Slett kategorien
-        return database.ref(`users/categories/${categoryId}`).remove();
+        return database.ref(`categories/${categoryId}`).remove();
     }).catch(error => {
         console.error("Feil ved sletting av kategori og oppgaver:", error);
     });
@@ -195,7 +186,7 @@ addTaskButton.addEventListener('click', () => {
     const dueDate = dueDateValue ? new Date(dueDateValue).getTime() : null;
 
     // Finn høyeste 'order' for å legge til ny oppgave til slutt
-    const tasksRef = database.ref(`users/tasks`);
+    const tasksRef = database.ref(`tasks`);
     tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
         let order = 0;
         snapshot.forEach(child => {
@@ -222,7 +213,7 @@ addTaskButton.addEventListener('click', () => {
 
 // Last inn Oppgaver
 function loadTasks() {
-    const tasksRef = database.ref(`users/tasks`).orderByChild('order');
+    const tasksRef = database.ref(`tasks`).orderByChild('order');
     tasksRef.on('value', snapshot => {
         const tasks = snapshot.val() || {};
         applyFiltersAndRender(tasks);
@@ -254,7 +245,7 @@ function renderTasks(tasks) {
         checkbox.type = 'checkbox';
         checkbox.checked = task.completed;
         checkbox.addEventListener('change', () => {
-            database.ref(`users/tasks/${task.id}`).update({ completed: checkbox.checked })
+            database.ref(`tasks/${task.id}`).update({ completed: checkbox.checked })
                 .catch(error => {
                     console.error('Feil ved oppdatering av oppgave:', error);
                 });
@@ -283,7 +274,7 @@ function renderTasks(tasks) {
                 return;
             }
             if (newText !== task.text) {
-                database.ref(`users/tasks/${task.id}`).update({ text: newText })
+                database.ref(`tasks/${task.id}`).update({ text: newText })
                     .catch(error => {
                         console.error('Feil ved oppdatering av oppgavetekst:', error);
                     });
@@ -294,7 +285,7 @@ function renderTasks(tasks) {
         const categorySpan = document.createElement('span');
         categorySpan.className = 'task-category';
         if (task.categoryId) {
-            database.ref(`users/categories/${task.categoryId}`).once('value')
+            database.ref(`categories/${task.categoryId}`).once('value')
                 .then(snapshot => {
                     if (snapshot.exists()) {
                         categorySpan.textContent = snapshot.val().name;
@@ -345,7 +336,7 @@ function renderTasks(tasks) {
         deleteButton.title = "Slett Oppgave";
         deleteButton.addEventListener('click', () => {
             if (confirm("Er du sikker på at du vil slette denne oppgaven?")) {
-                database.ref(`users/tasks/${task.id}`).remove()
+                database.ref(`tasks/${task.id}`).remove()
                     .catch(error => {
                         console.error('Feil ved sletting av oppgave:', error);
                     });
@@ -363,211 +354,195 @@ function renderTasks(tasks) {
         taskList.appendChild(li);
     });
 
-    // Applikasjonseksempel: Render oppgaver med filtre
-    function applyFiltersAndRender(tasks) {
-        let filteredTasks = {};
-
-        // Filtrer basert på søk
-        const query = searchInput.value.toLowerCase();
-        for (let id in tasks) {
-            if (tasks[id].text.toLowerCase().includes(query)) {
-                filteredTasks[id] = tasks[id];
-            }
-        }
-
-        // Sorter oppgaver
-        const sortCriterion = sortBy.value;
-        const taskArray = Object.keys(filteredTasks).map(key => ({ id: key, ...filteredTasks[key] }));
-        if (sortCriterion === 'dueDate') {
-            taskArray.sort((a, b) => {
-                if (a.dueDate && b.dueDate) {
-                    return a.dueDate - b.dueDate;
-                } else if (a.dueDate) {
-                    return -1;
-                } else if (b.dueDate) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            });
-        } else if (sortCriterion === 'priority') {
-            const priorityOrder = { 'Høy': 1, 'Middels': 2, 'Lav': 3 };
-            taskArray.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-        } else if (sortCriterion === 'createdAt') {
-            // Anta at 'order' representerer opprettelsesrekkefølgen
-            taskArray.sort((a, b) => a.order - b.order);
-        }
-
-        // Konverter tilbake til objekt
-        const sortedTasks = {};
-        taskArray.forEach(task => {
-            sortedTasks[task.id] = task;
-        });
-
-        renderTasks(sortedTasks);
-    }
-
-    // Eksporter Oppgaver som JSON (Fjernet)
-
-    // Importer Oppgaver fra JSON (Fjernet)
-
-    // Tema-toggle Funksjonalitet
-    // Sjekk for lagret tema i localStorage
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeButton(savedTheme);
-
-    themeToggleButton.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeButton(newTheme);
-    });
-
-    function updateThemeButton(theme) {
-        if (theme === 'dark') {
-            themeToggleButton.textContent = '☀️ Lys Modus';
-        } else {
-            themeToggleButton.textContent = '🌙 Mørk Modus';
-        }
-    }
-
-    // Initialiser og Oppdater Diagrammer
-    function initializeCharts() {
-        completionChart = new Chart(completionChartCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Fullført', 'Ufullført'],
-                datasets: [{
-                    data: [0, 0],
-                    backgroundColor: ['#2ecc71', '#e74c3c'],
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    }
-                }
-            }
-        });
-
-        priorityChart = new Chart(priorityChartCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Høy', 'Middels', 'Lav'],
-                datasets: [{
-                    data: [0, 0, 0],
-                    backgroundColor: ['#e74c3c', '#f1c40f', '#2ecc71'],
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                    }
-                }
-            }
-        });
-    }
-
     // Oppdater Diagrammer
-    function updateCharts(tasks) {
-        let total = 0;
-        let completed = 0;
-        const priorityCounts = { 'Høy': 0, 'Middels': 0, 'Lav': 0 };
+    updateCharts(tasks);
+}
 
-        for (let id in tasks) {
-            total++;
-            if (tasks[id].completed) completed++;
-            if (priorityCounts[tasks[id].priority] !== undefined) {
-                priorityCounts[tasks[id].priority]++;
-            }
+// Applikasjonseksempel: Render oppgaver med filtre og sortering
+function applyFiltersAndRender(tasks) {
+    let filteredTasks = {};
+
+    // Filtrer basert på søk
+    const query = searchInput.value.toLowerCase();
+    for (let id in tasks) {
+        if (tasks[id].text.toLowerCase().includes(query)) {
+            filteredTasks[id] = tasks[id];
         }
-
-        const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
-        totalTasksElem.textContent = total;
-        completedTasksElem.textContent = completed;
-        completionPercentageElem.textContent = `${percentage}%`;
-
-        // Oppdater Completion Chart
-        completionChart.data.datasets[0].data = [completed, total - completed];
-        completionChart.update();
-
-        // Oppdater Priority Chart
-        priorityChart.data.datasets[0].data = [priorityCounts['Høy'], priorityCounts['Middels'], priorityCounts['Lav']];
-        priorityChart.update();
-
-        // Kategoristats
-        updateCategoryStats(tasks);
     }
 
-    // Oppdater Kategoristatistikk
-    function updateCategoryStats(tasks) {
-        const categoriesRef = database.ref(`users/categories`);
-        categoriesRef.once('value', snapshot => {
-            const categories = snapshot.val() || {};
-            const categoryStats = {};
-
-            for (let id in categories) {
-                categoryStats[id] = { name: categories[id].name, total: 0, completed: 0 };
+    // Sorter oppgaver
+    const sortCriterion = sortBy.value;
+    const taskArray = Object.keys(filteredTasks).map(key => ({ id: key, ...filteredTasks[key] }));
+    if (sortCriterion === 'dueDate') {
+        taskArray.sort((a, b) => {
+            if (a.dueDate && b.dueDate) {
+                return a.dueDate - b.dueDate;
+            } else if (a.dueDate) {
+                return -1;
+            } else if (b.dueDate) {
+                return 1;
+            } else {
+                return 0;
             }
+        });
+    } else if (sortCriterion === 'priority') {
+        const priorityOrder = { 'Høy': 1, 'Middels': 2, 'Lav': 3 };
+        taskArray.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    } else if (sortCriterion === 'createdAt') {
+        // Anta at 'order' representerer opprettelsesrekkefølgen
+        taskArray.sort((a, b) => a.order - b.order);
+    }
 
-            for (let id in tasks) {
-                const task = tasks[id];
-                if (task.categoryId && categoryStats[task.categoryId]) {
-                    categoryStats[task.categoryId].total++;
-                    if (task.completed) {
-                        categoryStats[task.categoryId].completed++;
-                    }
+    // Konverter tilbake til objekt
+    const sortedTasks = {};
+    taskArray.forEach(task => {
+        sortedTasks[task.id] = task;
+    });
+
+    renderTasks(sortedTasks);
+}
+
+// Initialize og Oppdater Diagrammer
+let completionChart;
+let priorityChart;
+
+function initializeCharts() {
+    completionChart = new Chart(completionChartCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Fullført', 'Ufullført'],
+            datasets: [{
+                data: [0, 0],
+                backgroundColor: ['#2ecc71', '#e74c3c'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
                 }
             }
-
-            displayCategoryStats(categoryStats);
-        });
-    }
-
-    // Vis Kategoristatistikk
-    function displayCategoryStats(categoryStats) {
-        const statsContainer = document.querySelector('.category-stats');
-        statsContainer.innerHTML = ""; // Tøm eksisterende innhold
-
-        for (let id in categoryStats) {
-            const stat = categoryStats[id];
-            if (stat.total === 0) continue; // Ikke vis kategorier uten oppgaver
-
-            const p = document.createElement('p');
-            const percentage = stat.total === 0 ? 0 : Math.round((stat.completed / stat.total) * 100);
-            p.textContent = `${stat.name}: ${percentage}% fullført (${stat.completed}/${stat.total})`;
-            statsContainer.appendChild(p);
         }
-    }
-
-    // Søkefunksjonalitet
-    searchInput.addEventListener('input', () => {
-        const tasksRef = database.ref(`users/tasks`);
-        tasksRef.once('value', snapshot => {
-            const tasks = snapshot.val() || {};
-            applyFiltersAndRender(tasks);
-        });
     });
 
-    // Sorteringshendelse
-    sortBy.addEventListener('change', () => {
-        const tasksRef = database.ref(`users/tasks`);
-        tasksRef.once('value', snapshot => {
-            const tasks = snapshot.val() || {};
-            applyFiltersAndRender(tasks);
-        });
-    });
-
-    // Initialiser og Oppdater Diagrammer ved oppstart
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeCharts();
-        loadCategories();
-        loadTasks();
+    priorityChart = new Chart(priorityChartCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Høy', 'Middels', 'Lav'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#e74c3c', '#f1c40f', '#2ecc71'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
     });
 }
+
+// Oppdater Diagrammer
+function updateCharts(tasks) {
+    let total = 0;
+    let completed = 0;
+    const priorityCounts = { 'Høy': 0, 'Middels': 0, 'Lav': 0 };
+
+    for (let id in tasks) {
+        total++;
+        if (tasks[id].completed) completed++;
+        if (priorityCounts[tasks[id].priority] !== undefined) {
+            priorityCounts[tasks[id].priority]++;
+        }
+    }
+
+    const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+    totalTasksElem.textContent = total;
+    completedTasksElem.textContent = completed;
+    completionPercentageElem.textContent = `${percentage}%`;
+
+    // Oppdater Completion Chart
+    completionChart.data.datasets[0].data = [completed, total - completed];
+    completionChart.update();
+
+    // Oppdater Priority Chart
+    priorityChart.data.datasets[0].data = [priorityCounts['Høy'], priorityCounts['Middels'], priorityCounts['Lav']];
+    priorityChart.update();
+
+    // Kategoristats
+    updateCategoryStats(tasks);
+}
+
+// Oppdater Kategoristatistikk
+function updateCategoryStats(tasks) {
+    const categoriesRef = database.ref(`categories`);
+    categoriesRef.once('value', snapshot => {
+        const categories = snapshot.val() || {};
+        const categoryStats = {};
+
+        for (let id in categories) {
+            categoryStats[id] = { name: categories[id].name, total: 0, completed: 0 };
+        }
+
+        for (let id in tasks) {
+            const task = tasks[id];
+            if (task.categoryId && categoryStats[task.categoryId]) {
+                categoryStats[task.categoryId].total++;
+                if (task.completed) {
+                    categoryStats[task.categoryId].completed++;
+                }
+            }
+        }
+
+        displayCategoryStats(categoryStats);
+    });
+}
+
+// Vis Kategoristatistikk
+function displayCategoryStats(categoryStats) {
+    const statsContainer = document.querySelector('.category-stats');
+    statsContainer.innerHTML = ""; // Tøm eksisterende innhold
+
+    for (let id in categoryStats) {
+        const stat = categoryStats[id];
+        if (stat.total === 0) continue; // Ikke vis kategorier uten oppgaver
+
+        const p = document.createElement('p');
+        const percentage = stat.total === 0 ? 0 : Math.round((stat.completed / stat.total) * 100);
+        p.textContent = `${stat.name}: ${percentage}% fullført (${stat.completed}/${stat.total})`;
+        statsContainer.appendChild(p);
+    }
+}
+
+// Tema-toggle Funksjonalitet
+// Sjekk for lagret tema i localStorage
+const savedTheme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+updateThemeButton(savedTheme);
+
+themeToggleButton.addEventListener('click', () => {
+    let currentTheme = document.documentElement.getAttribute('data-theme');
+    let newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeButton(newTheme);
+});
+
+function updateThemeButton(theme) {
+    if (theme === 'dark') {
+        themeToggleButton.textContent = '☀️ Lys Modus';
+    } else {
+        themeToggleButton.textContent = '🌙 Mørk Modus';
+    }
+}
+
+// Initialiser og Oppdater Diagrammer ved oppstart
+document.addEventListener('DOMContentLoaded', () => {
+    initializeCharts();
+    loadCategories();
+    loadTasks();
+});
