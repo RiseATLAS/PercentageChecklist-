@@ -71,10 +71,28 @@ const sortable = new Sortable(taskList, {
 // Last inn Kategorier
 function loadCategories() {
     const categoriesRef = database.ref(`categories`);
-    categoriesRef.on('value', snapshot => {
-        const categories = snapshot.val() || {};
-        populateCategorySelect(categories);
-        renderCategoriesList(categories);
+    categoriesRef.once('value', snapshot => {
+        if (!snapshot.exists()) {
+            // Initialiser med noen standardkategorier hvis ingen finnes
+            const defaultCategories = {
+                category1: { name: "Arbeid" },
+                category2: { name: "Hjem" },
+                category3: { name: "Personlig" }
+            };
+            categoriesRef.set(defaultCategories)
+                .then(() => {
+                    console.log("Standardkategorier lagt til.");
+                    populateCategorySelect(defaultCategories);
+                    renderCategoriesList(defaultCategories);
+                })
+                .catch(error => {
+                    console.error("Feil ved opprettelse av standardkategorier:", error);
+                });
+        } else {
+            const categories = snapshot.val();
+            populateCategorySelect(categories);
+            renderCategoriesList(categories);
+        }
     });
 }
 
