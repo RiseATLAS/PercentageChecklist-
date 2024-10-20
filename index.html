@@ -1,136 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My To-Do List</title>
+    <title>Min Oppgaveliste</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- FullCalendar CSS -->
-    <link href='https://unpkg.com/fullcalendar@5.10.1/main.min.css' rel='stylesheet' />
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SortableJS -->
+    <!-- SortableJS for Drag-and-Drop -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- Chart.js for Statistikk -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>My To-Do List</h1>
-            <button id="theme-toggle">🌙 Dark Mode</button>
+            <h1>Min Oppgaveliste</h1>
+            <button id="theme-toggle">🌙 Mørk Modus</button>
         </header>
 
-        <!-- Authentication Section -->
-        <section id="auth-section">
-            <div id="login-form">
-                <h2>Login</h2>
-                <input type="email" id="login-email" placeholder="Email">
-                <input type="password" id="login-password" placeholder="Password">
-                <button id="login-button">Login</button>
-                <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
-            </div>
-            <div id="signup-form" class="hidden">
-                <h2>Sign Up</h2>
-                <input type="email" id="signup-email" placeholder="Email">
-                <input type="password" id="signup-password" placeholder="Password">
-                <button id="signup-button">Sign Up</button>
-                <p>Already have an account? <a href="#" id="show-login">Login</a></p>
-            </div>
-        </section>
+        <!-- Oppgave Input -->
+        <div class="add-task">
+            <input type="text" id="task-input" placeholder="Ny oppgave...">
+            <select id="category-select">
+                <option value="" disabled selected>Velg kategori</option>
+            </select>
+            <select id="priority-select">
+                <option value="Høy">Høy</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Lav">Lav</option>
+            </select>
+            <input type="date" id="due-date-input">
+            <button id="add-task-button">Legg til Oppgave</button>
+        </div>
 
-        <!-- Main App Section -->
-        <section id="app-section" class="hidden">
-            <!-- Task Input -->
-            <div class="add-task">
-                <input type="text" id="task-input" placeholder="New task...">
-                <select id="category-select">
-                    <option value="" disabled selected>Select category</option>
-                </select>
-                <select id="priority-select">
-                    <option value="High">High</option>
-                    <option value="Medium" selected>Medium</option>
-                    <option value="Low">Low</option>
-                </select>
-                <input type="date" id="due-date-input">
-                <button id="add-task-button">Add Task</button>
-            </div>
-
-            <!-- Search and Filters -->
-            <div class="search-filter">
-                <input type="text" id="search-input" placeholder="Search tasks...">
-                <select id="filter-status">
-                    <option value="all">All</option>
-                    <option value="completed">Completed</option>
-                    <option value="incomplete">Incomplete</option>
-                </select>
-                <select id="filter-priority">
-                    <option value="all">All Priorities</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                </select>
-                <button id="clear-filters">Clear Filters</button>
-            </div>
-
-            <!-- Sort Options -->
-            <div class="sort-options">
-                <label for="sort-by">Sort By:</label>
-                <select id="sort-by">
-                    <option value="dueDate">Due Date</option>
-                    <option value="priority">Priority</option>
-                    <option value="createdAt">Creation Date</option>
-                </select>
-            </div>
-
-            <!-- Statistics -->
-            <div class="stats">
-                <p>Total Tasks: <span id="total-tasks">0</span></p>
-                <p>Completed: <span id="completed-tasks">0</span></p>
-                <p>Overall Completion: <span id="completion-percentage">0%</span></p>
-                <canvas id="completion-chart" width="400" height="200"></canvas>
-                <canvas id="priority-chart" width="400" height="200"></canvas>
-            </div>
-
-            <!-- Categories Management -->
-            <div class="categories-section">
-                <h2>Categories</h2>
-                <div class="add-category">
-                    <input type="text" id="category-input" placeholder="New category...">
-                    <button id="add-category-button">Add Category</button>
-                </div>
-                <ul id="category-list">
-                    <!-- Categories will be listed here -->
-                </ul>
-            </div>
-
-            <!-- Task List -->
-            <ul id="task-list">
-                <!-- Tasks will appear here -->
+        <!-- Kategoristatistikk -->
+        <div class="category-stats">
+            <h2>Kategoristatistikk</h2>
+            <ul id="category-stats-list">
+                <!-- Statistikk per kategori vil bli lagt til her -->
             </ul>
+        </div>
 
-            <!-- Calendar Integration -->
-            <div id='calendar'></div>
+        <!-- Oppgaveliste -->
+        <ul id="task-list">
+            <!-- Oppgaver vil bli listet opp her -->
+        </ul>
 
-            <!-- Data Export/Import -->
-            <div class="data-export-import">
-                <button id="export-button">Export Tasks</button>
-                <input type="file" id="import-file" accept=".json">
-                <button id="import-button">Import Tasks</button>
-            </div>
+        <!-- Export/Import -->
+        <div class="data-export-import">
+            <button id="export-button">Eksporter Oppgaver</button>
+            <input type="file" id="import-file" accept=".json">
+            <button id="import-button">Importer Oppgaver</button>
+        </div>
 
-            <!-- Logout Button -->
-            <button id="logout-button">Logout</button>
-        </section>
+        <!-- Logout Button (hvis autentisering brukes) -->
+        <!-- <button id="logout-button">Logg Ut</button> -->
     </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
-    <!-- FullCalendar JS -->
-    <script src='https://unpkg.com/fullcalendar@5.10.1/main.min.js'></script>
-    <!-- Chart.js -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <script src="app.js"></script>
 </body>
 </html>

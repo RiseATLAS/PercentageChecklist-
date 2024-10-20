@@ -1,4 +1,4 @@
-/* CSS Variables for Light and Dark Themes */
+/* CSS Variabler for Lys og Mørk Tema */
 :root {
     --bg-color: #f5f7fa;
     --text-color: #333333;
@@ -56,65 +56,15 @@ header button {
     display: none;
 }
 
-/* Authentication Forms */
-#auth-section {
-    max-width: 400px;
-    margin: 50px auto;
-    background-color: var(--secondary-color);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-#auth-section h2 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-#auth-section input {
-    width: 100%;
-    padding: 12px 15px;
-    margin: 8px 0;
-    border: 1px solid #dddddd;
-    border-radius: 8px;
-    font-size: 16px;
-}
-
-#auth-section button {
-    width: 100%;
-    padding: 12px 0;
-    background-color: var(--primary-color);
-    border: none;
-    color: var(--secondary-color);
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#auth-section button:hover {
-    background-color: darken(var(--primary-color), 10%);
-}
-
-#auth-section p {
-    text-align: center;
-    margin-top: 15px;
-}
-
-#auth-section a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-/* Add Task and Category */
-.add-task, .add-category {
+/* Oppgave og Kategori Input */
+.add-task {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
-.add-task input, .add-category input, #category-select, #priority-select, #due-date-input {
+.add-task input, .add-task select {
     flex: 1;
     padding: 10px 12px;
     border: 1px solid #dddddd;
@@ -123,12 +73,12 @@ header button {
     transition: border-color 0.3s;
 }
 
-.add-task input:focus, .add-category input:focus, #category-select:focus, #priority-select:focus, #due-date-input:focus {
+.add-task input:focus, .add-task select:focus {
     border-color: var(--primary-color);
     outline: none;
 }
 
-.add-task button, .add-category button {
+.add-task button {
     padding: 10px 20px;
     background-color: var(--primary-color);
     border: none;
@@ -139,99 +89,51 @@ header button {
     transition: background-color 0.3s;
 }
 
-.add-task button:hover, .add-category button:hover {
+.add-task button:hover {
     background-color: darken(var(--primary-color), 10%);
 }
 
-/* Search and Filters */
-.search-filter, .sort-options {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.search-filter input, .search-filter select, .sort-options select {
-    padding: 10px 12px;
-    border: 1px solid #dddddd;
-    border-radius: 8px;
-    font-size: 14px;
-    flex: 1;
-}
-
-#clear-filters {
-    background-color: var(--danger-color);
-}
-
-#clear-filters:hover {
-    background-color: darken(var(--danger-color), 10%);
-}
-
-/* Statistics */
-.stats {
+/* Kategoristatistikk */
+.category-stats {
     margin-bottom: 30px;
 }
 
-.stats p {
-    margin: 8px 0;
-    font-size: 16px;
-    color: var(--text-color);
-}
-
-/* Categories Management */
-.categories-section {
-    margin-bottom: 30px;
-}
-
-.categories-section h2 {
+.category-stats h2 {
     margin-bottom: 10px;
+    text-align: center;
 }
 
-#category-list {
+#category-stats-list {
     list-style: none;
     padding: 0;
 }
 
-.category-item {
+.category-stats-item {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
+    padding: 10px 15px;
     border: 1px solid #eeeeee;
     border-radius: 8px;
     margin-bottom: 10px;
     background-color: var(--secondary-color);
-    transition: background-color 0.3s;
 }
 
-.category-item:hover {
+.category-stats-item:hover {
     background-color: #f0f4f8;
 }
 
 .category-name {
-    flex: 1;
     font-size: 16px;
     color: var(--text-color);
-    cursor: text;
 }
 
-.category-name[contenteditable="true"] {
-    border-bottom: 1px dashed var(--primary-color);
+.category-stats-data {
+    font-size: 14px;
+    color: var(--text-color);
 }
 
-.delete-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    color: var(--danger-color);
-    transition: color 0.3s;
-}
-
-.delete-button:hover {
-    color: darken(var(--danger-color), 10%);
-}
-
-/* Task List */
+/* Oppgaveliste */
 #task-list {
     list-style: none;
     padding: 0;
@@ -278,7 +180,31 @@ header button {
     flex-shrink: 0;
 }
 
-.delete-button {
+.task-priority {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 10px;
+    flex-shrink: 0;
+}
+
+.task-priority.Høy {
+    background-color: #e74c3c;
+    color: #ffffff;
+}
+
+.task-priority.Medium {
+    background-color: #f1c40f;
+    color: #ffffff;
+}
+
+.task-priority.Lav {
+    background-color: #2ecc71;
+    color: #ffffff;
+}
+
+.task-due-date {
+    font-size: 12px;
     margin-left: 10px;
 }
 
@@ -293,17 +219,20 @@ header button {
     text-decoration: underline;
 }
 
-/* Calendar */
-#calendar {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 0 10px;
-    background-color: var(--secondary-color);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.delete-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--danger-color);
+    transition: color 0.3s;
 }
 
-/* Data Export/Import */
+.delete-button:hover {
+    color: darken(var(--danger-color), 10%);
+}
+
+/* Export/Import */
 .data-export-import {
     display: flex;
     gap: 10px;
@@ -328,28 +257,31 @@ header button {
 
 #import-file {
     flex: 1;
-}
-
-/* Logout Button */
-#logout-button {
-    padding: 10px 20px;
-    background-color: var(--danger-color);
-    border: none;
-    color: var(--secondary-color);
+    padding: 10px;
+    border: 1px solid #dddddd;
     border-radius: 8px;
     font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    width: 100%;
 }
 
-#logout-button:hover {
-    background-color: darken(var(--danger-color), 10%);
+/* Calendar */
+#calendar {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 10px;
+    background-color: var(--secondary-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Mørk Modus */
+[data-theme="dark"] body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .add-task, .add-category, .search-filter, .sort-options, .data-export-import {
+    .add-task, .category-stats, .data-export-import {
         flex-direction: column;
     }
 
