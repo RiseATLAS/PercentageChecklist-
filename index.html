@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Min Oppgaveliste</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- SortableJS for Drag-and-Drop -->
+    <!-- FullCalendar CSS -->
+    <link href='https://unpkg.com/fullcalendar@5.10.1/main.min.css' rel='stylesheet' />
+    <!-- SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <!-- Chart.js for Statistikk -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -17,49 +17,117 @@
             <button id="theme-toggle">🌙 Mørk Modus</button>
         </header>
 
-        <!-- Oppgave Input -->
-        <div class="add-task">
-            <input type="text" id="task-input" placeholder="Ny oppgave...">
-            <select id="category-select">
-                <option value="" disabled selected>Velg kategori</option>
-            </select>
-            <select id="priority-select">
-                <option value="Høy">Høy</option>
-                <option value="Medium" selected>Medium</option>
-                <option value="Lav">Lav</option>
-            </select>
-            <input type="date" id="due-date-input">
-            <button id="add-task-button">Legg til Oppgave</button>
-        </div>
+        <!-- Autentiseringsseksjon -->
+        <section id="auth-section">
+            <div id="login-form">
+                <h2>Logg Inn</h2>
+                <input type="email" id="login-email" placeholder="E-post">
+                <input type="password" id="login-password" placeholder="Passord">
+                <button id="login-button">Logg Inn</button>
+                <p>Har du ikke en konto? <a href="#" id="show-signup">Registrer deg</a></p>
+            </div>
+            <div id="signup-form" class="hidden">
+                <h2>Registrer Deg</h2>
+                <input type="email" id="signup-email" placeholder="E-post">
+                <input type="password" id="signup-password" placeholder="Passord">
+                <button id="signup-button">Registrer</button>
+                <p>Har du allerede en konto? <a href="#" id="show-login">Logg Inn</a></p>
+            </div>
+        </section>
 
-        <!-- Kategoristatistikk -->
-        <div class="category-stats">
-            <h2>Kategoristatistikk</h2>
-            <ul id="category-stats-list">
-                <!-- Statistikk per kategori vil bli lagt til her -->
+        <!-- Hovedapplikasjon -->
+        <section id="app-section" class="hidden">
+            <!-- Legg til Oppgave -->
+            <div class="add-task">
+                <input type="text" id="task-input" placeholder="Ny oppgave...">
+                <select id="category-select">
+                    <option value="" disabled selected>Velg kategori</option>
+                </select>
+                <select id="priority-select">
+                    <option value="Høy">Høy</option>
+                    <option value="Middels" selected>Middels</option>
+                    <option value="Lav">Lav</option>
+                </select>
+                <input type="date" id="due-date-input">
+                <button id="add-task-button">Legg til Oppgave</button>
+            </div>
+
+            <!-- Søk og Filtre -->
+            <div class="search-filter">
+                <input type="text" id="search-input" placeholder="Søk oppgaver...">
+                <select id="filter-status">
+                    <option value="alle">Alle</option>
+                    <option value="fullført">Fullført</option>
+                    <option value="ufullført">Ufullført</option>
+                </select>
+                <select id="filter-priority">
+                    <option value="alle">Alle Prioriteter</option>
+                    <option value="Høy">Høy</option>
+                    <option value="Middels">Middels</option>
+                    <option value="Lav">Lav</option>
+                </select>
+                <button id="clear-filters">Nullstill Filtre</button>
+            </div>
+
+            <!-- Sorteringsalternativer -->
+            <div class="sort-options">
+                <label for="sort-by">Sorter Etter:</label>
+                <select id="sort-by">
+                    <option value="dueDate">Forfallsdato</option>
+                    <option value="priority">Prioritet</option>
+                    <option value="createdAt">Opprettelsesdato</option>
+                </select>
+            </div>
+
+            <!-- Statistikk -->
+            <div class="stats">
+                <p>Totale Oppgaver: <span id="total-tasks">0</span></p>
+                <p>Fullførte: <span id="completed-tasks">0</span></p>
+                <p>Generell Fullføring: <span id="completion-percentage">0%</span></p>
+                <canvas id="completion-chart" width="400" height="200"></canvas>
+                <canvas id="priority-chart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Kategorihåndtering -->
+            <div class="categories-section">
+                <h2>Kategorier</h2>
+                <div class="add-category">
+                    <input type="text" id="category-input" placeholder="Ny kategori...">
+                    <button id="add-category-button">Legg til Kategori</button>
+                </div>
+                <ul id="category-list">
+                    <!-- Kategorier vil listes her -->
+                </ul>
+            </div>
+
+            <!-- Oppgaveliste -->
+            <ul id="task-list">
+                <!-- Oppgaver vil vises her -->
             </ul>
-        </div>
 
-        <!-- Oppgaveliste -->
-        <ul id="task-list">
-            <!-- Oppgaver vil bli listet opp her -->
-        </ul>
+            <!-- Kalender Integrasjon -->
+            <div id='calendar'></div>
 
-        <!-- Export/Import -->
-        <div class="data-export-import">
-            <button id="export-button">Eksporter Oppgaver</button>
-            <input type="file" id="import-file" accept=".json">
-            <button id="import-button">Importer Oppgaver</button>
-        </div>
+            <!-- Data Eksport/Import -->
+            <div class="data-export-import">
+                <button id="export-button">Eksporter Oppgaver</button>
+                <input type="file" id="import-file" accept=".json">
+                <button id="import-button">Importer Oppgaver</button>
+            </div>
 
-        <!-- Logout Button (hvis autentisering brukes) -->
-        <!-- <button id="logout-button">Logg Ut</button> -->
+            <!-- Logg Ut -->
+            <button id="logout-button">Logg Ut</button>
+        </section>
     </div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
+    <!-- FullCalendar JS -->
+    <script src='https://unpkg.com/fullcalendar@5.10.1/main.min.js'></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
