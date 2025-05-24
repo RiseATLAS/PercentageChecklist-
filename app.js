@@ -574,36 +574,103 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeCharts();
     loadCategories();
     loadTasks();
-});
 
-// Bulk Action: Marker Alle Som Fullført
-document.getElementById('mark-all-complete').addEventListener('click', () => {
-    if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
-        const tasksRef = database.ref('tasks');
-        tasksRef.once('value', snapshot => {
+    // Legg til Oppgave Event Listener
+    addTaskButton.addEventListener('click', () => {
+        const taskText = taskInput.value.trim();
+        const categoryId = categorySelect.value;
+        const priority = prioritySelect.value;
+        const dueDateValue = dueDateInput.value;
+
+        if (taskText === "" || categoryId === "") {
+            alert("Vennligst fyll ut oppgavetekst og velg kategori.");
+            return;
+        }
+
+        const dueDate = dueDateValue ? new Date(dueDateValue).getTime() : null;
+
+        // Finn høyeste 'order' for å legge til ny oppgave til slutt
+        const tasksRef = database.ref(`tasks`);
+        tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
+            let order = 0;
             snapshot.forEach(child => {
-                database.ref(`tasks/${child.key}`).update({ completed: true })
+                order = child.val().order + 1;
+            });
+
+            // Legg til oppgave
+            const newTaskRef = tasksRef.push();
+            newTaskRef.set({
+                text: taskText,
+                categoryId: categoryId,
+                completed: false,
+                priority: priority,
+                dueDate: dueDate,
+                order: order
+            }).then(() => {
+                taskInput.value = '';
+                dueDateInput.value = '';
+            }).catch(error => {
+                console.error('Feil ved legging til oppgave:', error);
+            });
+        });
+    });
+
+    // Legg til Kategori Event Listener
+    addCategoryButton.addEventListener('click', () => {
+        const categoryName = newCategoryInput.value.trim();
+        if (categoryName === "") {
+            alert("Kategorinavnet kan ikke være tomt.");
+            return;
+        }
+
+        // Sjekk for dupliserte kategorinavn
+        database.ref(`categories`).orderByChild('name').equalTo(categoryName).once('value', snapshot => {
+            if (snapshot.exists()) {
+                alert("Kategorinavnet finnes allerede!");
+            } else {
+                // Legg til ny kategori
+                const newCategoryRef = database.ref(`categories`).push();
+                newCategoryRef.set({ name: categoryName })
+                    .then(() => {
+                        console.log("Ny kategori lagt til.");
+                        newCategoryInput.value = '';
+                    })
                     .catch(error => {
-                        console.error('Feil ved oppdatering av oppgave:', error);
+                        console.error("Feil ved legging til kategori:", error);
                     });
-            });
+            }
         });
-    }
-});
+    });
 
-// Bulk Action: Slett Alle Fullførte Oppgaver
-document.getElementById('delete-completed').addEventListener('click', () => {
-    if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
-        const tasksRef = database.ref('tasks');
-        tasksRef.once('value', snapshot => {
-            snapshot.forEach(child => {
-                if (child.val().completed) {
-                    database.ref(`tasks/${child.key}`).remove()
+    // Bulk Action: Marker Alle Som Fullført
+    document.getElementById('mark-all-complete').addEventListener('click', () => {
+        if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
+            const tasksRef = database.ref('tasks');
+            tasksRef.once('value', snapshot => {
+                snapshot.forEach(child => {
+                    database.ref(`tasks/${child.key}`).update({ completed: true })
                         .catch(error => {
-                            console.error('Feil ved sletting av oppgave:', error);
+                            console.error('Feil ved oppdatering av oppgave:', error);
                         });
-                }
+                });
             });
-        });
-    }
+        }
+    });
+
+    // Bulk Action: Slett Alle Fullførte Oppgaver
+    document.getElementById('delete-completed').addEventListener('click', () => {
+        if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
+            const tasksRef = database.ref('tasks');
+            tasksRef.once('value', snapshot => {
+                snapshot.forEach(child => {
+                    if (child.val().completed) {
+                        database.ref(`tasks/${child.key}`).remove()
+                            .catch(error => {
+                                console.error('Feil ved sletting av oppgave:', error);
+                            });
+                    }
+                });
+            });
+        }
+    });
 });
