@@ -575,3 +575,35 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     loadTasks();
 });
+
+// Bulk Action: Marker Alle Som Fullført
+document.getElementById('mark-all-complete').addEventListener('click', () => {
+    if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
+        const tasksRef = database.ref('tasks');
+        tasksRef.once('value', snapshot => {
+            snapshot.forEach(child => {
+                database.ref(`tasks/${child.key}`).update({ completed: true })
+                    .catch(error => {
+                        console.error('Feil ved oppdatering av oppgave:', error);
+                    });
+            });
+        });
+    }
+});
+
+// Bulk Action: Slett Alle Fullførte Oppgaver
+document.getElementById('delete-completed').addEventListener('click', () => {
+    if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
+        const tasksRef = database.ref('tasks');
+        tasksRef.once('value', snapshot => {
+            snapshot.forEach(child => {
+                if (child.val().completed) {
+                    database.ref(`tasks/${child.key}`).remove()
+                        .catch(error => {
+                            console.error('Feil ved sletting av oppgave:', error);
+                        });
+                }
+            });
+        });
+    }
+});

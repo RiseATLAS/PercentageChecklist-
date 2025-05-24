@@ -265,6 +265,29 @@ header button {
     margin-left: 10px;
 }
 
+/* Bulk Actions */
+.bulk-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.bulk-actions button {
+    flex: 1;
+    padding: 10px 20px;
+    background-color: var(--accent-color);
+    border: none;
+    color: var(--secondary-color);
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.bulk-actions button:hover {
+    background-color: #219653;
+}
+
 /* Responsivt Design */
 @media (max-width: 768px) {
     .add-task, .add-category, .sort-options, .search-filter {
