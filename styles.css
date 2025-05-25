@@ -1,23 +1,24 @@
-/* New Modern Styling */
+/* Updated Modern Styling with Black, Beige, and White Color Scheme */
 :root {
-    --bg-color: #f8f9fa;          /* Light background */
-    --text-color: #212529;
-    --primary-color: #007bff;     /* Blue */
-    --secondary-color: #6610f2;   /* Purple */
-    --tertiary-color: #e83e8c;    /* Pink */
-    --accent-color: #28a745;      /* Green (for bulk actions) */
+    --bg-color: #ffffff;          /* White background */
+    --text-color: #000000;        /* Black text */
+    --primary-color: #000000;     /* Black (used for headers and buttons) */
+    --secondary-color: #f5f5dc;   /* Beige for accents */
+    --tertiary-color: #f5f5dc;    /* Beige (optional, same as secondary) */
+    --accent-color: #f5f5dc;      /* Accent color: beige */
     --border-radius: 16px;
     --box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     --font-family: 'Roboto', sans-serif;
 }
 
 [data-theme="dark"] {
-    --bg-color: #343a40;
-    --text-color: #f8f9fa;
-    --primary-color: #375a7f;
-    --secondary-color: #444;
-    --tertiary-color: #a94442;
-    --accent-color: #00bc8c;
+    /* For dark mode, invert colors appropriately */
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --primary-color: #000000;
+    --secondary-color: #f5f5dc;
+    --tertiary-color: #f5f5dc;
+    --accent-color: #f5f5dc;
 }
 
 * {
