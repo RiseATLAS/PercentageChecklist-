@@ -144,7 +144,7 @@ function renderCategoriesList(categories) {
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
-        deleteButton.textContent = '🗑️';
+        deleteButton.textContent = '🚮';
         deleteButton.title = "Slett Kategori";
         deleteButton.addEventListener('click', () => {
             if (confirm(`Er du sikker på at du vil slette kategorien "${categories[id].name}"? Alle tilknyttede oppgaver vil bli slettet.`)) {
@@ -327,7 +327,7 @@ function renderTasks(tasks) {
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
-        deleteButton.textContent = '🗑';
+        deleteButton.textContent = '🚮';
         deleteButton.title = "Slett Oppgave";
         deleteButton.addEventListener('click', () => {
             if (confirm("Er du sikker på at du vil slette denne oppgaven?")) {
