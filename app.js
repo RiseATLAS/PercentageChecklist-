@@ -613,4 +613,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // New: Toggle view button event listener.
+    const toggleViewButton = document.getElementById('toggle-view-button');
+    const container = document.querySelector('.container');
+    if (toggleViewButton && container) {
+        toggleViewButton.addEventListener('click', () => {
+            container.classList.toggle('phone-mode');
+        });
+    }
 });

@@ -30,6 +30,19 @@ body {
     padding: 1rem;
 }
 
+/* Styles for phone-mode view */
+.container.phone-mode {
+    max-width: 375px;
+    margin: 0 auto;
+    border: 1px solid #ddd; /* optional: add border for visual effect */
+    box-shadow: var(--box-shadow);
+}
+
+/* Adjust layout for phone-mode if needed */
+.container.phone-mode .layout {
+    grid-template-columns: 1fr;  /* force single-column view */
+}
+
 /* Top Navigation Bar */
 .top-nav {
     display: flex;
@@ -296,6 +309,21 @@ body {
 .task-category-select {
     border-radius: 50px;
     padding: 0.4rem; /* optional additional padding for clarity */
+}
+
+/* Optional: Style the toggle button */
+#toggle-view-button {
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--baby-blue);
+    color: #000;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background 0.3s;
+}
+#toggle-view-button:hover {
+    background: var(--baby-pink);
 }
 
 /* Responsive */
