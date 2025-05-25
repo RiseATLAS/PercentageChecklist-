@@ -257,6 +257,11 @@ body {
     display: flex;
     justify-content: space-between; /* Moves delete button to end of line */
     align-items: center;
+    background: #fff;               /* same as task-item background */
+    padding: 0.5rem;                /* same padding as tasks */
+    margin-bottom: 0.5rem;          /* spacing between squares */
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 }
 
 /* Responsive */
