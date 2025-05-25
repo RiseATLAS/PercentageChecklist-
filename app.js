@@ -458,6 +458,14 @@ function displayCategoryStats(categoryStats) {
     }
 }
 
+// Add a utility function to bind both click and touchstart events
+function bindTouchClick(element, callback) {
+    if (element) {
+        element.addEventListener('click', callback);
+        element.addEventListener('touchstart', callback);
+    }
+}
+
 // Initialiser og Oppdater Diagrammer ved oppstart
 document.addEventListener('DOMContentLoaded', () => {
     // Get chart contexts here as DOM is ready
@@ -618,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleViewButton = document.getElementById('toggle-view-button');
     const container = document.querySelector('.container');
     if (toggleViewButton && container) {
-        toggleViewButton.addEventListener('click', () => {
+        bindTouchClick(toggleViewButton, () => {
             container.classList.toggle('phone-mode');
         });
     }

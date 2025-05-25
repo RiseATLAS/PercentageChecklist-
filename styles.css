@@ -16,7 +16,7 @@
 
 /* Additional mobile quality fixes */
 * {
-    -webkit-tap-highlight-color: transparent;  // Remove tap highlight on mobile
+    -webkit-tap-highlight-color: transparent;  
 }
 
 body {
@@ -267,7 +267,7 @@ body {
 
 /* Remove blue bar at bottom */
 .site-footer {
-    display: none;  // Hides the footer entirely
+    display: none;  
 }
 
 /* Move trash symbol in the category list to far right */
@@ -438,35 +438,16 @@ body {
     }
 }
 
+/* Additional mobile button size fixes: */
+@media (max-width: 480px) {
+    button, .add-task button, .bulk-section button, #toggle-view-button {
+        padding: 0.3rem 0.4rem !important;
+        font-size: 0.8rem !important;
+    }
+}
 @media (max-width: 320px) {
-    .container.phone-mode {
-        max-width: 280px;
-        padding: 0.2rem;
-    }
-    .top-nav {
-        padding: 0.4rem 0.6rem;
-    }
-    .site-header h1,
-    .sidebar h2,
-    .task-list-section h2 {
-        font-size: 1.4rem;
-        margin: 0.5rem 0;
-    }
-    .add-task input,
-    .add-task select,
-    .add-task button,
-    .filter-section input,
-    .filter-section select {
-        font-size: 0.75rem;
-        padding: 0.15rem;
-    }
-    .task-item {
-        padding: 0.15rem;
-        margin-bottom: 0.15rem;
-    }
-    .delete-button {
-        width: 1.2rem;
-        height: 1.2rem;
-        padding: 0.1rem;
+    button, .add-task button, .bulk-section button, #toggle-view-button {
+        padding: 0.2rem 0.3rem !important;
+        font-size: 0.7rem !important;
     }
 }
