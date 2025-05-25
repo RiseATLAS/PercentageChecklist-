@@ -1,11 +1,11 @@
-/* Updated Modern Styling with Black, Beige, and White Color Scheme */
+/* Updated Modern Styling with Baby Blue, Baby Pink, and Chartreuse Color Scheme */
 :root {
     --bg-color: #ffffff;          /* White background */
     --text-color: #000000;        /* Black text */
-    --primary-color: #000000;     /* Black (used for headers and buttons) */
-    --secondary-color: #f5f5dc;   /* Beige for accents */
-    --tertiary-color: #f5f5dc;    /* Beige (optional, same as secondary) */
-    --accent-color: #f5f5dc;      /* Accent color: beige */
+    --primary-color: #89CFF0;     /* Baby Blue */
+    --secondary-color: #F4C2C2;   /* Baby Pink */
+    --tertiary-color: #7FFF00;    /* Chartreuse */
+    --accent-color: #7FFF00;      /* Use Chartreuse as accent */
     --border-radius: 16px;
     --box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     --font-family: 'Roboto', sans-serif;
@@ -15,10 +15,10 @@
     /* For dark mode, invert colors appropriately */
     --bg-color: #000000;
     --text-color: #ffffff;
-    --primary-color: #000000;
-    --secondary-color: #f5f5dc;
-    --tertiary-color: #f5f5dc;
-    --accent-color: #f5f5dc;
+    --primary-color: #89CFF0;  /* Keeping baby blue */
+    --secondary-color: #F4C2C2; /* Keeping baby pink */
+    --tertiary-color: #7FFF00;  /* Keeping chartreuse */
+    --accent-color: #7FFF00;
 }
 
 * {
