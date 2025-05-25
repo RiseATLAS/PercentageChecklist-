@@ -36,14 +36,14 @@ const completedTasksElem = document.getElementById('completed-tasks');
 const completionPercentageElem = document.getElementById('completion-percentage');
 let completionChartCtx; // Initialized in DOMContentLoaded
 
-// Initialize SortableJS for Drag-and-Drop
-if (taskList) {
+// Initialize SortableJS for Drag-and-Drop only on non-mobile devices
+if (taskList && !window.matchMedia('(pointer: coarse)').matches) {
     const sortable = new Sortable(taskList, {
         animation: 150,
         delay: 0,                // ensure no delay on tap events
         delayOnTouchOnly: true,  // only use delay for dragging, not tapping
         touchStartThreshold: 5,  // reduce threshold so taps register easily
-        fallbackTolerance: 0, // Ensures clicks register on all tasks on both mobile and PC
+        fallbackTolerance: 0,    // Ensures clicks register on all tasks on both mobile and PC
         onEnd: function(evt) {
             const itemEl = evt.item;
             const newIndex = evt.newIndex;
