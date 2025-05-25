@@ -589,6 +589,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-// No changes required here for a compact UI.
+// No structural changes made to app.js; use ...existing code...
 
 

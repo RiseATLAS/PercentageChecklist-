@@ -10,12 +10,23 @@
 </head>
 <body>
     <div class="container">
-        <header class="site-header">
-            <h1>Min Oppgaveliste</h1>
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="logo">
+                <h1>Oppgaveliste</h1>
+            </div>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="#">Hjem</a></li>
+                    <li><a href="#">Statistikk</a></li>
+                    <li><a href="#">Om</a></li>
+                </ul>
+            </nav>
         </header>
+        
+        <!-- Main Layout -->
         <div class="layout">
             <aside class="sidebar">
-                <!-- Categories and Bulk Actions -->
                 <section class="categories-section">
                     <h2>Kategorier</h2>
                     <ul id="category-list">
@@ -34,7 +45,7 @@
                     <div class="stats">
                         <p>Totale Oppgaver: <span id="total-tasks">0</span></p>
                         <p>Fullførte: <span id="completed-tasks">0</span></p>
-                        <p>Generell Fullføring: <span id="completion-percentage">0%</span></p>
+                        <p>Fullføring: <span id="completion-percentage">0%</span></p>
                         <div class="charts">
                             <canvas id="completion-chart" width="300" height="150"></canvas>
                             <canvas id="priority-chart" width="300" height="150"></canvas>
@@ -74,6 +85,11 @@
                 </section>
             </main>
         </div>
+        
+        <!-- Footer -->
+        <footer class="site-footer">
+            <p>&copy; 2023 Min Oppgaveliste. All rights reserved.</p>
+        </footer>
     </div>
     
     <!-- Firebase SDK -->
