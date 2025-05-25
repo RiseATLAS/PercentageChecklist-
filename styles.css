@@ -277,6 +277,17 @@ body {
     cursor: pointer;
 }
 
+/* Task Priority Colors */
+.task-priority.priority-høy {
+    background-color: #ffffe0; /* baby yellow */
+}
+.task-priority.priority-middels {
+    background-color: #d0f0c0; /* baby green */
+}
+.task-priority.priority-lav {
+    background-color: #ffd1dc; /* baby red */
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .layout {

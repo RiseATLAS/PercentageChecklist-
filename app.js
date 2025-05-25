@@ -299,10 +299,29 @@ function renderTasks(tasks) {
 
         li.appendChild(checkboxContainer);
         li.appendChild(taskTextSpan);
-        li.appendChild(categorySelectElem);  // new dropdown added here
+        li.appendChild(categorySelectElem);
         li.appendChild(prioritySpan);
         li.appendChild(deleteButton);
-
+        
+        // New: add listener to toggle completion if click is outside interactive elements.
+        li.addEventListener('click', (e) => {
+            if (!e.target.closest('button') && !e.target.closest('input') && !e.target.closest('select')) {
+                const newStatus = !task.completed;
+                database.ref(`tasks/${task.id}`).update({ completed: newStatus })
+                  .then(() => {
+                      li.classList.toggle('completed', newStatus);
+                      const checkbox = li.querySelector('.checkbox-container input');
+                      if (checkbox) {
+                          checkbox.checked = newStatus;
+                      }
+                      task.completed = newStatus;
+                  })
+                  .catch(error => {
+                      console.error("Error toggling task completion:", error);
+                  });
+            }
+        });
+        
         taskList.appendChild(li);
     });
 
