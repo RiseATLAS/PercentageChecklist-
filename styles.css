@@ -53,12 +53,12 @@ body {
 }
 .nav-menu ul li a {
     text-decoration: none;
-    color: #fff;
+    color: #000;  /* changed from white (#fff) */
     font-size: 1rem;
     transition: color 0.3s ease;
 }
 .nav-menu ul li a:hover {
-    color: var(--chartreuse);
+    color: #000;  /* changed from var(--chartreuse) or white */
 }
 
 /* Header */
@@ -66,7 +66,7 @@ body {
     text-align: center;
     padding: 0.8rem;
     background: var(--baby-blue);
-    color: #fff;
+    color: #000;  /* changed from white (#fff) */
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     margin-top: 1rem;
@@ -118,7 +118,7 @@ body {
 }
 .add-category button {
     background: var(--baby-blue);
-    color: #fff;
+    color: #000;  /* changed from white (#fff) */
     padding: 0.5rem 1rem;
     border: none;
     border-radius: var(--border-radius);
@@ -133,7 +133,7 @@ body {
     flex: 1;
     padding: 0.5rem;
     background: var(--baby-blue);
-    color: #fff;
+    color: #000;  /* changed from white (#fff) */
     border: none;
     border-radius: var(--border-radius);
     cursor: pointer;
@@ -190,7 +190,7 @@ body {
 }
 .add-task button {
     background: var(--baby-blue);
-    color: #fff;
+    color: #000;  /* changed from white (#fff) */
     border: none;
     cursor: pointer;
     transition: background 0.3s;
@@ -241,7 +241,7 @@ body {
 }
 .task-category {
     background: var(--baby-blue);
-    color: #fff;
+    color: #000;  /* changed from white (#fff) */
     padding: 0.35rem 0.7rem;
     border-radius: var(--border-radius);
     font-size: 0.85rem;
@@ -262,6 +262,19 @@ body {
     margin-bottom: 0.5rem;          /* spacing between squares */
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
+}
+.delete-button {
+    background-color: var(--baby-blue); /* or adjust as needed */
+    color: #000;
+    border: none;
+    border-radius: 50%; /* makes the button round */
+    padding: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
 /* Responsive */

@@ -70,11 +70,14 @@ if (taskList) { // Ensure taskList exists before initializing Sortable
 }
 
 
+let categoriesCache = {};  // new global cache for categories
+
 // Last inn Kategorier
 function loadCategories() {
     const categoriesRef = database.ref(`categories`);
     categoriesRef.on('value', snapshot => {
         const categoriesData = snapshot.val() || {};
+        categoriesCache = categoriesData; // store for task dropdowns
         if (categorySelect) { // Ensure categorySelect exists
              populateCategorySelect(categoriesData);
         }
@@ -250,60 +253,38 @@ function renderTasks(tasks) {
         });
 
         // Modify category editing: always allow inline editing.
-        const categorySpan = document.createElement('span');
-        categorySpan.className = 'task-category';
-        if (task.customCategory) {
-            categorySpan.textContent = task.customCategory;
-        } else if (task.categoryId) {
-            categorySpan.textContent = "Loading...";
-            database.ref(`categories/${task.categoryId}`).once('value')
-                .then(catSnapshot => {
-                    const catName = catSnapshot.exists() ? catSnapshot.val().name : "Uten Kategori";
-                    categorySpan.textContent = catName;
-                })
-                .catch(() => {
-                    categorySpan.textContent = "Kategori Feil";
-                });
-        } else {
-            categorySpan.textContent = "Uten Kategori";
+        const categorySelectElem = document.createElement('select');
+        categorySelectElem.className = 'task-category-select';
+        
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = "Uten kategori";
+        categorySelectElem.appendChild(defaultOption);
+        
+        // Populate options from cached categories
+        for (let catId in categoriesCache) {
+            const option = document.createElement('option');
+            option.value = catId;
+            option.textContent = categoriesCache[catId].name;
+            categorySelectElem.appendChild(option);
         }
-        const originalCategory = categorySpan.textContent;
-        categorySpan.addEventListener('dblclick', () => {
-            categorySpan.setAttribute('contenteditable', 'true');
-            categorySpan.focus();
+        
+        // Set the dropdown value to task.categoryId if exists
+        categorySelectElem.value = task.categoryId || "";
+        
+        // When selection changes, update the task's categoryId (and remove any customCategory).
+        categorySelectElem.addEventListener('change', () => {
+            const newCategory = categorySelectElem.value;
+            database.ref(`tasks/${task.id}`).update({ categoryId: newCategory, customCategory: null })
+              .then(() => { console.log("Task category updated via dropdown"); })
+              .catch(error => { console.error("Error updating task category:", error); });
         });
-        categorySpan.addEventListener('blur', () => {
-            categorySpan.removeAttribute('contenteditable');
-            const newCat = categorySpan.textContent.trim();
-            if (newCat === "") {
-                alert("Kategori kan ikke være tomt.");
-                categorySpan.textContent = originalCategory;
-                return;
-            }
-            if (newCat !== originalCategory) {
-                database.ref(`tasks/${task.id}`).update({ customCategory: newCat })
-                    .then(() => { console.log("Task category updated"); })
-                    .catch(error => {
-                        console.error("Error updating task category", error);
-                        categorySpan.textContent = originalCategory;
-                    });
-            }
-        });
-
+        
         const prioritySpan = document.createElement('span');
         prioritySpan.className = `task-priority priority-${(task.priority || 'middels').toLowerCase()}`;
         prioritySpan.textContent = task.priority || 'Middels';
         
-        const dueDateSpan = document.createElement('span');
-        dueDateSpan.className = 'task-due-date';
-        if (task.dueDate) {
-            const dueDateObj = new Date(task.dueDate);
-            dueDateSpan.textContent = `Forfall: ${dueDateObj.toLocaleDateString('no-NO')}`;
-            if (new Date() > dueDateObj && !task.completed) {
-                dueDateSpan.classList.add('overdue');
-            }
-        }
-
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
         // Re-implement x change: set symbol to a stylish "✖"
@@ -318,9 +299,8 @@ function renderTasks(tasks) {
 
         li.appendChild(checkboxContainer);
         li.appendChild(taskTextSpan);
-        li.appendChild(categorySpan);
+        li.appendChild(categorySelectElem);  // new dropdown added here
         li.appendChild(prioritySpan);
-        if (task.dueDate) li.appendChild(dueDateSpan);
         li.appendChild(deleteButton);
 
         taskList.appendChild(li);
@@ -351,17 +331,21 @@ function applyFiltersAndRender(tasks) {
     if (sortBy && sortBy.value) {
         const sortCriterion = sortBy.value;
         if (sortCriterion === 'dueDate') {
-            taskArray.sort((a, b) => {
-                if (a.dueDate && b.dueDate) return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-                if (a.dueDate) return -1; // Tasks with due dates first
-                if (b.dueDate) return 1;
-                return 0;
-            });
+            // Use createdAt instead of dueDate
+            taskArray.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
         } else if (sortCriterion === 'priority') {
             const priorityOrder = { 'Høy': 1, 'Middels': 2, 'Lav': 3 };
             taskArray.sort((a, b) => (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3));
+        } else if (sortCriterion === 'category') {
+            taskArray.sort((a, b) => {
+                const nameA = a.customCategory ||
+                    (a.categoryId && categoriesCache[a.categoryId] ? categoriesCache[a.categoryId].name : "Uten kategori");
+                const nameB = b.customCategory ||
+                    (b.categoryId && categoriesCache[b.categoryId] ? categoriesCache[b.categoryId].name : "Uten kategori");
+                return nameA.toLowerCase().localeCompare(nameB.toLowerCase());
+            });
         } else if (sortCriterion === 'createdAt') {
-            taskArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+            taskArray.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
         }
     }
 
@@ -472,15 +456,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const taskText = taskInput.value.trim();
             const categoryId = categorySelect.value;
             const priority = prioritySelect.value;
-            const dueDateValue = dueDateInput.value;
+            // Use current time as createdAt instead of dueDate:
+            const createdAt = new Date().getTime();
             
-            // Remove category requirement; just validate task text
             if (taskText === "") {
                 alert("Vennligst fyll ut oppgavetekst.");
                 return;
             }
-            // Set due date to today if blank
-            const dueDate = dueDateValue ? new Date(dueDateValue).getTime() : new Date().getTime();
             
             const tasksRef = database.ref(`tasks`);
             tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
@@ -495,15 +477,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newTaskRef = tasksRef.push();
                 newTaskRef.set({
                     text: taskText,
-                    categoryId: categoryId, // now optional; if none chosen, remains empty
+                    categoryId: categoryId, // remains unchanged
                     completed: false,
                     priority: priority,
-                    dueDate: dueDate,
+                    createdAt: createdAt,
                     order: newOrder
                 }).then(() => {
                     if(taskInput) taskInput.value = '';
-                    if(dueDateInput) dueDateInput.value = '';
-                    // Optionally do not reset categorySelect or prioritySelect
+                    // Optionally reset other fields if needed
                 }).catch(error => {
                     console.error('Feil ved legging til oppgave:', error);
                 });
@@ -612,6 +593,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-// No structural changes made to app.js; use ...existing code...
-
-
