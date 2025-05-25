@@ -37,9 +37,13 @@ const completionPercentageElem = document.getElementById('completion-percentage'
 let completionChartCtx; // Initialized in DOMContentLoaded
 
 // Initialize SortableJS for Drag-and-Drop
-if (taskList) { // Ensure taskList exists before initializing Sortable
+if (taskList) {
     const sortable = new Sortable(taskList, {
         animation: 150,
+        delay: 0,                // ensure no delay on tap events
+        delayOnTouchOnly: true,  // only use delay for dragging, not tapping
+        touchStartThreshold: 5,  // reduce threshold so taps register easily
+        fallbackTolerance: 0, // Ensures clicks register on all tasks on both mobile and PC
         onEnd: function(evt) {
             const itemEl = evt.item;
             const newIndex = evt.newIndex;
@@ -90,7 +94,8 @@ function loadCategories() {
 // Populer Kategori-dropdown
 function populateCategorySelect(categories) {
     if (!categorySelect) return;
-    categorySelect.innerHTML = `<option value="" disabled selected>Velg kategori</option>`;
+    // Changed: Removed disabled attribute so that '' is a valid selection.
+    categorySelect.innerHTML = `<option value="" selected>Uten kategori</option>`;
     for (let id in categories) {
         const option = document.createElement('option');
         option.value = id;
