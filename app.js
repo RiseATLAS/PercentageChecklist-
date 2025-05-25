@@ -463,11 +463,10 @@ function displayCategoryStats(categoryStats) {
     }
 }
 
-// Add a utility function to bind both click and touchstart events
-function bindTouchClick(element, callback) {
+// New utility: bindPointerClick ensures immediate response on both mobile and PC
+function bindPointerClick(element, callback) {
     if (element) {
-        element.addEventListener('click', callback);
-        element.addEventListener('touchstart', callback);
+        element.addEventListener('pointerdown', callback);
     }
 }
 
@@ -486,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Replace standard click event listeners with bindTouchClick for better mobile support:
     if (addTaskButton) {
-        bindTouchClick(addTaskButton, () => {
+        bindPointerClick(addTaskButton, () => {
             const taskText = taskInput.value.trim();
             const categoryId = categorySelect.value;
             const priority = prioritySelect.value;
@@ -499,8 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
                 let newOrder = 0;
                 snapshot.forEach(child => {
-                    const lastKnownOrder = child.val().order;
-                    newOrder = (Number.isFinite(lastKnownOrder) ? lastKnownOrder : -1) + 1;
+                    newOrder = (Number.isFinite(child.val().order) ? child.val().order : -1) + 1;
                 });
                 if (snapshot.numChildren() === 0) {
                     newOrder = 0;
@@ -523,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (addCategoryButton) {
-        bindTouchClick(addCategoryButton, () => {
+        bindPointerClick(addCategoryButton, () => {
             const categoryName = newCategoryInput.value.trim();
             if (categoryName === "") {
                 alert("Kategorinavnet kan ikke være tomt.");
@@ -549,7 +547,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const markAllCompleteButton = document.getElementById('mark-all-complete');
     if (markAllCompleteButton) {
-        bindTouchClick(markAllCompleteButton, () => {
+        bindPointerClick(markAllCompleteButton, () => {
             if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
                 const tasksRef = database.ref('tasks');
                 tasksRef.once('value', snapshot => {
@@ -565,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const deleteCompletedButton = document.getElementById('delete-completed');
     if (deleteCompletedButton) {
-        bindTouchClick(deleteCompletedButton, () => {
+        bindPointerClick(deleteCompletedButton, () => {
             if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
                 const tasksRef = database.ref('tasks');
                 tasksRef.orderByChild('completed').equalTo(true).once('value', snapshot => {

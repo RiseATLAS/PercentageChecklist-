@@ -375,75 +375,20 @@ body {
     }
 }
 
+/* Improved mobile design */
 @media (max-width: 480px) {
-    /* Scale the inner layout dynamically so content fits inside the mobile container. Adjust calculation as needed */
-    .container.phone-mode .layout {
-         transform: scale(calc((100vw - 2rem) / 375));
-         transform-origin: top center;
-    }
-    /* Additional mobile fixes for very small screens */
-    .container.phone-mode {
-        max-width: 300px;
-        padding: 0.25rem;
-        /* Scale up the entire container for better readability */
-        transform: scale(1.2);
-        transform-origin: top center;
-    }
-    .top-nav {
-        padding: 0.6rem 0.8rem;
-    }
-    .site-header h1 {
-        font-size: 1.6rem;
-        padding: 0.3rem;
-    }
-    .sidebar, 
-    .main-content {
-        padding: 0.3rem;
-    }
-    .add-task input,
-    .add-task select,
-    .add-task button,
-    .filter-section input,
-    .filter-section select {
-        font-size: 0.8rem;
-        padding: 0.2rem;
+    button, input, select {
+        font-size: 1.2rem;      /* Increase font size */
+        padding: 1rem;          /* Increase padding for larger hit-area */
+        min-height: 48px;       /* Ensure a minimum tap target size */
     }
     .task-item {
-        padding: 0.2rem;
-        margin-bottom: 0.2rem;
+        padding: 0.4rem;
+        margin-bottom: 0.4rem;
     }
-    .delete-button {
-        width: 1.3rem;
-        height: 1.3rem;
-        padding: 0.1rem;
-    }
-    body {
-        margin: 0.5rem;
-    }
-    /* Ensure clickable areas meet minimum tap target size */
-    button, .task-item {
-        min-height: 2rem;
-    }
-    button:active,
-    input:active,
-    select:active {
-         opacity: 0.8; 
-         transition: opacity 0.2s ease;
-    }
-    /* Adjust vertical spacing for interactive buttons */
-    .add-task button,
-    .bulk-section button {
-         margin-top: 0.2rem;
-         margin-bottom: 0.2rem;
-    }
-    /* Enhance placeholder readability on mobile devices */
-    ::-webkit-input-placeholder {
-         font-size: 0.8rem;
-         opacity: 0.8;
-    }
-    ::-moz-placeholder {
-         font-size: 0.8rem;
-         opacity: 0.8;
+    /* Remove unnecessary scaling transforms */
+    .container.phone-mode .layout {
+         transform: none;
     }
 }
 
