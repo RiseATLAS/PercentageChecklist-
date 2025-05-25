@@ -37,8 +37,6 @@ const completionPercentageElem = document.getElementById('completion-percentage'
 let completionChartCtx; // Initialized in DOMContentLoaded
 let priorityChartCtx; // Initialized in DOMContentLoaded
 
-const themeToggleButton = document.getElementById('theme-toggle');
-
 // Initialize SortableJS for Drag-and-Drop
 if (taskList) { // Ensure taskList exists before initializing Sortable
     const sortable = new Sortable(taskList, {
@@ -446,13 +444,6 @@ function displayCategoryStats(categoryStats) {
     }
 }
 
-// Tema-toggle Funksjonalitet
-function updateThemeButton(theme) {
-    if (themeToggleButton) {
-        themeToggleButton.textContent = theme === 'dark' ? '☀️ Lys Modus' : '🌙 Mørk Modus';
-    }
-}
-
 // Initialiser og Oppdater Diagrammer ved oppstart
 document.addEventListener('DOMContentLoaded', () => {
     // Get chart contexts here as DOM is ready
@@ -463,21 +454,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const priorityChartElement = document.getElementById('priority-chart');
     if (priorityChartElement) {
         priorityChartCtx = priorityChartElement.getContext('2d');
-    }
-    
-    // Initialize theme
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeButton(savedTheme);
-
-    if (themeToggleButton) {
-        themeToggleButton.addEventListener('click', () => {
-            let currentTheme = document.documentElement.getAttribute('data-theme');
-            let newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeButton(newTheme);
-        });
     }
     
     // Initialize charts and load data

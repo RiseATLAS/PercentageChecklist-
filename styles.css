@@ -1,25 +1,16 @@
-/* Updated Modern Styling with Baby Blue, Baby Pink, and Chartreuse Color Scheme */
+/* Updated Modern Styling with Baby Blue, Baby Pink, and Chartreuse used differently */
 :root {
     --bg-color: #ffffff;          /* White background */
     --text-color: #000000;        /* Black text */
-    --primary-color: #89CFF0;     /* Baby Blue */
-    --secondary-color: #F4C2C2;   /* Baby Pink */
-    --tertiary-color: #7FFF00;    /* Chartreuse */
-    --accent-color: #7FFF00;      /* Use Chartreuse as accent */
+    --baby-blue: #89CFF0;         /* Baby Blue */
+    --baby-pink: #F4C2C2;         /* Baby Pink */
+    --chartreuse: #7FFF00;        /* Chartreuse */
     --border-radius: 16px;
     --box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     --font-family: 'Roboto', sans-serif;
 }
 
-[data-theme="dark"] {
-    /* For dark mode, invert colors appropriately */
-    --bg-color: #000000;
-    --text-color: #ffffff;
-    --primary-color: #89CFF0;  /* Keeping baby blue */
-    --secondary-color: #F4C2C2; /* Keeping baby pink */
-    --tertiary-color: #7FFF00;  /* Keeping chartreuse */
-    --accent-color: #7FFF00;
-}
+/* Remove dark mode; no dark definitions */
 
 * {
     box-sizing: border-box;
@@ -40,13 +31,13 @@ body {
     padding: 0.25rem;
 }
 
-/* Header */
+/* Header - now uses a gradient from baby blue to chartreuse */
 .site-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(135deg, var(--baby-blue), var(--chartreuse));
     color: #fff;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
@@ -86,6 +77,7 @@ main#app-section {
     gap: 0.25rem;
 }
 
+/* Inputs unchanged */
 .add-task input,
 .add-task select,
 .add-task button,
@@ -99,15 +91,16 @@ main#app-section {
     font-size: 0.8rem;
 }
 
+/* Buttons now use baby pink as default and switch to chartreuse on hover */
 .add-task button, .add-category button {
-    background-color: var(--primary-color);
+    background-color: var(--baby-pink);
     color: #fff;
     border: none;
     cursor: pointer;
 }
 
 .add-task button:hover, .add-category button:hover {
-    background-color: var(--tertiary-color);
+    background-color: var(--chartreuse);
 }
 
 /* Filter Section */
@@ -133,7 +126,7 @@ main#app-section {
     font-size: 1rem;
 }
 
-/* Bulk Actions */
+/* Bulk Actions - using baby pink as background */
 .bulk-actions {
     display: flex;
     gap: 1rem;
@@ -145,7 +138,7 @@ main#app-section {
     padding: 0.85rem;
     border: none;
     border-radius: var(--border-radius);
-    background-color: var(--accent-color);
+    background-color: var(--baby-pink);
     color: #fff;
     cursor: pointer;
     transition: background-color 0.3s;
@@ -153,7 +146,7 @@ main#app-section {
 }
 
 .bulk-actions button:hover {
-    background-color: var(--tertiary-color);
+    background-color: var(--chartreuse);
 }
 
 /* List Section */
@@ -195,10 +188,10 @@ main#app-section {
     cursor: text;
 }
 
-/* Category label inside task */
+/* Category label inside task now uses baby blue */
 .task-category {
     padding: 0.35rem 0.7rem;
-    background-color: var(--primary-color);
+    background-color: var(--baby-blue);
     color: #fff;
     border-radius: var(--border-radius);
     font-size: 0.85rem;
