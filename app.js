@@ -256,14 +256,59 @@ function renderTasks(tasks) {
         if (task.categoryId) {
             database.ref(`categories/${task.categoryId}`).once('value')
                 .then(catSnapshot => {
-                    if (catSnapshot.exists()) {
-                        categorySpan.textContent = catSnapshot.val().name;
-                    } else {
-                        categorySpan.textContent = "Uten Kategori";
+                    let catName = catSnapshot.exists() ? catSnapshot.val().name : "Uten Kategori";
+                    if(task.customCategory) { 
+                        catName = task.customCategory;
                     }
+                    categorySpan.textContent = catName;
+                    const originalCategory = catName;
+                    // Allow editing on double-click:
+                    categorySpan.addEventListener('dblclick', () => {
+                        categorySpan.setAttribute('contenteditable', 'true');
+                        categorySpan.focus();
+                    });
+                    categorySpan.addEventListener('blur', () => {
+                        categorySpan.removeAttribute('contenteditable');
+                        const newCat = categorySpan.textContent.trim();
+                        if(newCat === "") {
+                            alert("Kategori kan ikke være tomt.");
+                            categorySpan.textContent = originalCategory;
+                            return;
+                        }
+                        if(newCat !== originalCategory) {
+                            database.ref(`tasks/${task.id}`).update({ customCategory: newCat })
+                                .then(() => { console.log("Task category updated"); })
+                                .catch(error => {
+                                    console.error("Error updating task category", error);
+                                    categorySpan.textContent = originalCategory;
+                                });
+                        }
+                    });
                 }).catch(() => categorySpan.textContent = "Kategori Feil");
         } else {
-            categorySpan.textContent = "Uten Kategori";
+            categorySpan.textContent = task.customCategory || "Uten Kategori";
+            const originalCategory = categorySpan.textContent;
+            categorySpan.addEventListener('dblclick', () => {
+                categorySpan.setAttribute('contenteditable', 'true');
+                categorySpan.focus();
+            });
+            categorySpan.addEventListener('blur', () => {
+                categorySpan.removeAttribute('contenteditable');
+                const newCat = categorySpan.textContent.trim();
+                if(newCat === "") {
+                    alert("Kategori kan ikke være tomt.");
+                    categorySpan.textContent = originalCategory;
+                    return;
+                }
+                if(newCat !== originalCategory) {
+                    database.ref(`tasks/${task.id}`).update({ customCategory: newCat })
+                        .then(() => { console.log("Task category updated"); })
+                        .catch(error => {
+                            console.error("Error updating task category", error);
+                            categorySpan.textContent = originalCategory;
+                        });
+                }
+            });
         }
 
         const prioritySpan = document.createElement('span');
@@ -282,7 +327,7 @@ function renderTasks(tasks) {
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
-        deleteButton.textContent = '🗑️';
+        deleteButton.textContent = '🗑';
         deleteButton.title = "Slett Oppgave";
         deleteButton.addEventListener('click', () => {
             if (confirm("Er du sikker på at du vil slette denne oppgaven?")) {
@@ -474,39 +519,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const categoryId = categorySelect.value;
             const priority = prioritySelect.value;
             const dueDateValue = dueDateInput.value;
-
-            if (taskText === "" || !categoryId) { // Check if categoryId is empty or null
-                alert("Vennligst fyll ut oppgavetekst og velg kategori.");
+            
+            // Remove category requirement; just validate task text
+            if (taskText === "") {
+                alert("Vennligst fyll ut oppgavetekst.");
                 return;
             }
-            const dueDate = dueDateValue ? new Date(dueDateValue).getTime() : null;
-
+            // Set due date to today if blank
+            const dueDate = dueDateValue ? new Date(dueDateValue).getTime() : new Date().getTime();
+            
             const tasksRef = database.ref(`tasks`);
             tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
-                let newOrder = 0; // Default for the first task
-                snapshot.forEach(child => { // Runs 0 or 1 time
+                let newOrder = 0;
+                snapshot.forEach(child => {
                     const lastKnownOrder = child.val().order;
                     newOrder = (Number.isFinite(lastKnownOrder) ? lastKnownOrder : -1) + 1;
                 });
-                
                 if (snapshot.numChildren() === 0) {
-                    newOrder = 0; // Explicitly set to 0 if no tasks exist
+                    newOrder = 0;
                 }
-
-
                 const newTaskRef = tasksRef.push();
                 newTaskRef.set({
                     text: taskText,
-                    categoryId: categoryId,
+                    categoryId: categoryId, // now optional; if none chosen, remains empty
                     completed: false,
                     priority: priority,
                     dueDate: dueDate,
-                    order: newOrder // Use the calculated newOrder
+                    order: newOrder
                 }).then(() => {
                     if(taskInput) taskInput.value = '';
-                    if (dueDateInput) dueDateInput.value = '';
-                    // categorySelect.value = ''; // Optionally reset category
-                    // prioritySelect.value = 'Middels'; // Optionally reset priority
+                    if(dueDateInput) dueDateInput.value = '';
+                    // Optionally do not reset categorySelect or prioritySelect
                 }).catch(error => {
                     console.error('Feil ved legging til oppgave:', error);
                 });

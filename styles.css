@@ -117,7 +117,7 @@ body {
     font-size: 0.9rem;
 }
 .add-category button {
-    background: var(--chartreuse);
+    background: var(--baby-blue);
     color: #fff;
     padding: 0.5rem 1rem;
     border: none;
@@ -126,10 +126,13 @@ body {
     font-size: 0.9rem;
     transition: background 0.3s;
 }
+.add-category button:hover {
+    background: var(--baby-pink);
+}
 .bulk-section button {
     flex: 1;
     padding: 0.5rem;
-    background: var(--chartreuse);
+    background: var(--baby-blue);
     color: #fff;
     border: none;
     border-radius: var(--border-radius);
@@ -154,7 +157,7 @@ body {
 
 /* Main Content */
 .main-content {
-    background: #fff;
+    background: var(--baby-pink);
     padding: 1rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
@@ -242,16 +245,16 @@ body {
     font-size: 0.85rem;
 }
 
-/* Footer */
+/* Remove blue bar at bottom */
 .site-footer {
-    text-align: center;
-    padding: 1rem;
-    margin-top: 1rem;
-    background: var(--baby-blue);
-    color: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    font-size: 0.9rem;
+    display: none;  // Hides the footer entirely
+}
+
+/* Move trash symbol in the category list to far right */
+.category-item {
+    display: flex;
+    justify-content: space-between; /* Moves delete button to end of line */
+    align-items: center;
 }
 
 /* Responsive */
