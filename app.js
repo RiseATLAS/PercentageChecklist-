@@ -1,3 +1,4 @@
+
 // app.js
 
 // Firebase-konfigurasjon
@@ -15,7 +16,7 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
-const storage = firebase.storage();
+const storage = firebase.storage(); // Initialize Firebase Storage
 
 // DOM-elementer
 const appSection = document.getElementById('app-section');
