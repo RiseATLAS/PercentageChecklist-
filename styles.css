@@ -376,6 +376,11 @@ body {
 }
 
 @media (max-width: 480px) {
+    /* Scale the inner layout dynamically so content fits inside the mobile container. Adjust calculation as needed */
+    .container.phone-mode .layout {
+         transform: scale(calc((100vw - 2rem) / 375));
+         transform-origin: top center;
+    }
     /* Additional mobile fixes for very small screens */
     .container.phone-mode {
         max-width: 300px;
