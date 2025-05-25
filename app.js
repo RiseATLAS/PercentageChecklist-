@@ -35,7 +35,6 @@ const totalTasksElem = document.getElementById('total-tasks');
 const completedTasksElem = document.getElementById('completed-tasks');
 const completionPercentageElem = document.getElementById('completion-percentage');
 let completionChartCtx; // Initialized in DOMContentLoaded
-let priorityChartCtx; // Initialized in DOMContentLoaded
 
 // Initialize SortableJS for Drag-and-Drop
 if (taskList) { // Ensure taskList exists before initializing Sortable
@@ -148,9 +147,7 @@ function renderCategoriesList(categories) {
         deleteButton.textContent = '✖';
         deleteButton.title = "Slett Kategori";
         deleteButton.addEventListener('click', () => {
-            if (confirm(`Er du sikker på at du vil slette kategorien "${categories[id].name}"? Alle tilknyttede oppgaver vil bli slettet.`)) {
-                deleteCategory(id);
-            }
+            deleteCategory(id);
         });
 
         li.appendChild(nameSpan);
@@ -313,12 +310,10 @@ function renderTasks(tasks) {
         deleteButton.textContent = '✖';
         deleteButton.title = "Slett Oppgave";
         deleteButton.addEventListener('click', () => {
-            if (confirm("Er du sikker på at du vil slette denne oppgaven?")) {
-                database.ref(`tasks/${task.id}`).remove()
-                    .catch(error => {
-                        console.error('Feil ved sletting av oppgave:', error);
-                    });
-            }
+            database.ref(`tasks/${task.id}`).remove()
+                .catch(error => {
+                    console.error('Feil ved sletting av oppgave:', error);
+                });
         });
 
         li.appendChild(checkboxContainer);
@@ -381,11 +376,9 @@ function applyFiltersAndRender(tasks) {
 
 // Initialize og Oppdater Diagrammer
 let completionChartInstance;
-let priorityChartInstance;
 
 function initializeCharts() {
     const localCompletionChartCtx = document.getElementById('completion-chart');
-    const localPriorityChartCtx = document.getElementById('priority-chart');
 
     if (localCompletionChartCtx && !completionChartInstance) {
         completionChartInstance = new Chart(localCompletionChartCtx.getContext('2d'), {
@@ -395,19 +388,6 @@ function initializeCharts() {
                 datasets: [{ 
                     data: [0, 0],
                     backgroundColor: ['#89CFF0', '#F4C2C2'] // baby blue & baby pink
-                }]
-            },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-        });
-    }
-    if (localPriorityChartCtx && !priorityChartInstance) {
-        priorityChartInstance = new Chart(localPriorityChartCtx.getContext('2d'), {
-            type: 'pie',
-            data: {
-                labels: ['Høy', 'Middels', 'Lav'],
-                datasets: [{ 
-                    data: [0, 0, 0],
-                    backgroundColor: ['#89CFF0', '#F4C2C2', '#89CFF0'] // alternating baby blue & baby pink
                 }]
             },
             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
@@ -436,11 +416,6 @@ function updateCharts(tasks) {
         completionChartInstance.data.datasets[0].data = [completedCount, total - completedCount];
         completionChartInstance.update();
     }
-    if (priorityChartInstance) {
-        priorityChartInstance.data.datasets[0].data = [priorityCounts['Høy'], priorityCounts['Middels'], priorityCounts['Lav']];
-        priorityChartInstance.update();
-    }
-    updateCategoryStats(tasks);
 }
 
 // Oppdater Kategoristatistikk
@@ -484,10 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const completionChartElement = document.getElementById('completion-chart');
     if (completionChartElement) {
         completionChartCtx = completionChartElement.getContext('2d');
-    }
-    const priorityChartElement = document.getElementById('priority-chart');
-    if (priorityChartElement) {
-        priorityChartCtx = priorityChartElement.getContext('2d');
     }
     
     // Initialize charts and load data
