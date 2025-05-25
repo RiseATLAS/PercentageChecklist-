@@ -637,6 +637,26 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
+
+    // Add Enter key submission for new task input
+    if (taskInput) {
+        taskInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTaskButton.click();
+            }
+        });
+    }
+
+    // Add Enter key submission for new category input
+    if (newCategoryInput) {
+        newCategoryInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addCategoryButton.click();
+            }
+        });
+    }
 });
 // No structural changes made to app.js; use ...existing code...
 

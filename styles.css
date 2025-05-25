@@ -187,14 +187,14 @@ body {
     border-radius: var(--border-radius);
 }
 .add-task button {
-    background: var(--baby-pink);
+    background: var(--baby-blue);
     color: #fff;
     border: none;
     cursor: pointer;
     transition: background 0.3s;
 }
 .add-task button:hover {
-    background: var(--baby-blue);
+    background: var(--baby-pink);
 }
 .filter-section {
     display: flex;
