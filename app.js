@@ -39,16 +39,16 @@ let completionChartCtx; // Initialized in DOMContentLoaded
 // Initialize SortableJS for Drag-and-Drop
 if (taskList) {
     const sortable = new Sortable(taskList, {
-        draggable: '.task-item',       // explicitly set each task item as draggable
         animation: 150,
         delay: 0,                // ensure no delay on tap events
         delayOnTouchOnly: true,  // only use delay for dragging, not tapping
         touchStartThreshold: 5,  // reduce threshold so taps register easily
         fallbackTolerance: 0, // Ensures clicks register on all tasks on both mobile and PC
-        forceFallback: true,           // force HTML5 drag-and-drop fallback for consistent behavior on PC
         onEnd: function(evt) {
             const itemEl = evt.item;
             const newIndex = evt.newIndex;
+            // const taskId = itemEl.getAttribute('data-id'); // taskId not directly used here for reordering all
+            // Oppdater rekkefølgen i databasen
             const tasksRef = database.ref(`tasks`);
             tasksRef.orderByChild('order').once('value', snapshot => {
                 const tasks = [];
@@ -484,20 +484,17 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     loadTasks();
 
-    // Event Listeners for adding items
+    // Replace standard click event listeners with bindTouchClick for better mobile support:
     if (addTaskButton) {
-        addTaskButton.addEventListener('click', () => {
+        bindTouchClick(addTaskButton, () => {
             const taskText = taskInput.value.trim();
             const categoryId = categorySelect.value;
             const priority = prioritySelect.value;
-            // Use current time as createdAt instead of dueDate:
             const createdAt = new Date().getTime();
-            
             if (taskText === "") {
                 alert("Vennligst fyll ut oppgavetekst.");
                 return;
             }
-            
             const tasksRef = database.ref(`tasks`);
             tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
                 let newOrder = 0;
@@ -511,23 +508,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newTaskRef = tasksRef.push();
                 newTaskRef.set({
                     text: taskText,
-                    categoryId: categoryId, // remains unchanged
+                    categoryId: categoryId,
                     completed: false,
                     priority: priority,
                     createdAt: createdAt,
                     order: newOrder
                 }).then(() => {
                     if(taskInput) taskInput.value = '';
-                    // Optionally reset other fields if needed
                 }).catch(error => {
                     console.error('Feil ved legging til oppgave:', error);
                 });
             });
         });
     }
-
+    
     if (addCategoryButton) {
-        addCategoryButton.addEventListener('click', () => {
+        bindTouchClick(addCategoryButton, () => {
             const categoryName = newCategoryInput.value.trim();
             if (categoryName === "") {
                 alert("Kategorinavnet kan ikke være tomt.");
@@ -550,11 +546,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-
-    // Event listeners for bulk actions
+    
     const markAllCompleteButton = document.getElementById('mark-all-complete');
     if (markAllCompleteButton) {
-        markAllCompleteButton.addEventListener('click', () => {
+        bindTouchClick(markAllCompleteButton, () => {
             if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
                 const tasksRef = database.ref('tasks');
                 tasksRef.once('value', snapshot => {
@@ -567,10 +562,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
+    
     const deleteCompletedButton = document.getElementById('delete-completed');
     if (deleteCompletedButton) {
-        deleteCompletedButton.addEventListener('click', () => {
+        bindTouchClick(deleteCompletedButton, () => {
             if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
                 const tasksRef = database.ref('tasks');
                 tasksRef.orderByChild('completed').equalTo(true).once('value', snapshot => {
@@ -624,15 +619,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 addCategoryButton.click();
             }
-        });
-    }
-
-    // New: Toggle view button event listener.
-    const toggleViewButton = document.getElementById('toggle-view-button');
-    const container = document.querySelector('.container');
-    if (toggleViewButton && container) {
-        bindTouchClick(toggleViewButton, () => {
-            container.classList.toggle('phone-mode');
         });
     }
 });
