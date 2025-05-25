@@ -242,8 +242,8 @@ body {
 .task-category {
     background: var(--baby-blue);
     color: #000;  /* changed from white (#fff) */
-    padding: 0.35rem 0.7rem;
-    border-radius: 50px; /* Updated for fully rounded corners */
+    padding: 0.4rem 0.8rem; /* add padding if needed */
+    border-radius: 50px;  /* fully round corners */
     font-size: 0.85rem;
 }
 
@@ -288,7 +288,14 @@ body {
     background-color: #ffd1dc; /* baby red */
 }
 .task-priority {
-    border-radius: 50px; /* Updated for fully rounded corners */
+    padding: 0.5rem 1rem; /* increased padding for bigger colored area */
+    border-radius: 50px;  /* ensure fully rounded corners */
+}
+
+/* For category dropdown in task items */
+.task-category-select {
+    border-radius: 50px;
+    padding: 0.4rem; /* optional additional padding for clarity */
 }
 
 /* Responsive */

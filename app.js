@@ -297,28 +297,30 @@ function renderTasks(tasks) {
                 });
         });
 
+        // Append interactive elements:
         li.appendChild(checkboxContainer);
         li.appendChild(taskTextSpan);
         li.appendChild(categorySelectElem);
         li.appendChild(prioritySpan);
         li.appendChild(deleteButton);
         
-        // New: add listener to toggle completion if click is outside interactive elements.
+        // New listener: Click anywhere on li that is NOT an interactive element toggles completion.
         li.addEventListener('click', (e) => {
-            if (!e.target.closest('button') && !e.target.closest('input') && !e.target.closest('select')) {
-                const newStatus = !task.completed;
-                database.ref(`tasks/${task.id}`).update({ completed: newStatus })
-                  .then(() => {
-                      li.classList.toggle('completed', newStatus);
-                      const checkbox = li.querySelector('.checkbox-container input');
-                      if (checkbox) {
-                          checkbox.checked = newStatus;
-                      }
-                      task.completed = newStatus;
-                  })
-                  .catch(error => {
-                      console.error("Error toggling task completion:", error);
-                  });
+            if (!e.target.closest('button') &&
+                !e.target.closest('input') &&
+                !e.target.closest('select') &&
+                !e.target.closest('textarea')) {
+                    const newStatus = !task.completed;
+                    database.ref(`tasks/${task.id}`).update({ completed: newStatus })
+                      .then(() => {
+                          li.classList.toggle('completed', newStatus);
+                          const checkbox = li.querySelector('.checkbox-container input');
+                          if (checkbox) checkbox.checked = newStatus;
+                          task.completed = newStatus;
+                      })
+                      .catch(error => {
+                          console.error("Error toggling task completion:", error);
+                      });
             }
         });
         
