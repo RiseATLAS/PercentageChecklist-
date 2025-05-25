@@ -1,25 +1,23 @@
-/* Modern theme variables */
+/* New Modern Styling */
 :root {
-    --bg-color: #ffffff;
-    --text-color: #333333;
-    --primary-color: #3498db;  /* blue */
-    --secondary-color: #e74c3c; /* red */
-    --tertiary-color: #f1c40f;  /* yellow */
-    --accent-color: #2ecc71; 
-    --danger-color: #e74c3c;
-    --border-radius: 12px;
-    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --bg-color: #f8f9fa;          /* Light background */
+    --text-color: #212529;
+    --primary-color: #007bff;     /* Blue */
+    --secondary-color: #6610f2;   /* Purple */
+    --tertiary-color: #e83e8c;    /* Pink */
+    --accent-color: #28a745;      /* Green (for bulk actions) */
+    --border-radius: 16px;
+    --box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     --font-family: 'Roboto', sans-serif;
 }
 
 [data-theme="dark"] {
-    --bg-color: #2c3e50;
-    --text-color: #ecf0f1;
-    --primary-color: #2980b9;
-    --secondary-color: #c0392b;
-    --tertiary-color: #f39c12;
-    --accent-color: #27ae60;
-    --danger-color: #c0392b;
+    --bg-color: #343a40;
+    --text-color: #f8f9fa;
+    --primary-color: #375a7f;
+    --secondary-color: #444;
+    --tertiary-color: #a94442;
+    --accent-color: #00bc8c;
 }
 
 * {
@@ -34,10 +32,10 @@ body {
     padding: 0;
 }
 
-/* Container and layout */
+/* Container */
 .container {
     max-width: 1200px;
-    margin: 1rem auto;
+    margin: 2rem auto;
     padding: 1rem;
 }
 
@@ -46,27 +44,27 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #fff;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
 }
 
 .site-header h1 {
     margin: 0;
-    font-size: 2rem;
+    font-size: 2.5rem;
 }
 
-/* Main sections */
+/* Main layout using grid */
 main#app-section {
-    margin-top: 1.5rem;
     display: grid;
     grid-template-areas:
         "input filter"
         "list list"
         "stats stats";
-    grid-gap: 1.5rem;
+    grid-gap: 2rem;
+    margin-top: 2rem;
 }
 
 /* Input Section */
@@ -78,13 +76,13 @@ main#app-section {
 }
 
 .add-task, .add-category {
-    background: #f9f9f9;
+    background: #fff;
     padding: 1rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     display: flex;
-    gap: 1rem;
     flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .add-task input,
@@ -93,21 +91,22 @@ main#app-section {
 .add-category input,
 .add-category button {
     border: 1px solid #ddd;
-    padding: 0.75rem;
+    padding: 0.85rem;
     border-radius: var(--border-radius);
     flex: 1;
     transition: border-color 0.3s;
+    font-size: 1rem;
 }
 
 .add-task button, .add-category button {
     background-color: var(--primary-color);
-    color: var(--bg-color);
+    color: #fff;
     border: none;
     cursor: pointer;
 }
 
 .add-task button:hover, .add-category button:hover {
-    background-color: var(--secondary-color);
+    background-color: var(--tertiary-color);
 }
 
 /* Filter Section */
@@ -115,21 +114,22 @@ main#app-section {
     grid-area: filter;
     display: flex;
     gap: 1rem;
-    flex-wrap: wrap;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .search-filter input,
 .sort-options select {
-    padding: 0.75rem;
+    padding: 0.85rem;
     border: 1px solid #ddd;
     border-radius: var(--border-radius);
     flex: 1;
-    transition: border-color 0.3s;
+    font-size: 1rem;
 }
 
 .sort-options label {
     margin-right: 0.5rem;
+    font-size: 1rem;
 }
 
 /* Bulk Actions */
@@ -141,13 +141,14 @@ main#app-section {
 
 .bulk-actions button {
     flex: 1;
-    padding: 0.75rem;
+    padding: 0.85rem;
     border: none;
     border-radius: var(--border-radius);
     background-color: var(--accent-color);
-    color: var(--bg-color);
+    color: #fff;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-size: 1rem;
 }
 
 .bulk-actions button:hover {
@@ -166,11 +167,11 @@ main#app-section {
 }
 
 .task-item, .category-item {
-    background-color: #fefefe;
-    padding: 1rem;
-    border: 1px solid #eee;
+    background-color: #fff;
+    padding: 1.25rem;
+    border: none;
     border-radius: var(--border-radius);
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     box-shadow: var(--box-shadow);
     display: flex;
     align-items: center;
@@ -179,24 +180,25 @@ main#app-section {
 }
 
 .task-item:hover, .category-item:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
 }
 
+/* Checkbox and interactive text */
 .checkbox-container input {
     transform: scale(1.25);
 }
 
-/* Task text and interactive elements */
 .task-text,
 .category-name {
     flex: 1;
     cursor: text;
 }
 
+/* Category label inside task */
 .task-category {
-    padding: 0.25rem 0.5rem;
+    padding: 0.35rem 0.7rem;
     background-color: var(--primary-color);
-    color: var(--bg-color);
+    color: #fff;
     border-radius: var(--border-radius);
     font-size: 0.85rem;
 }
@@ -204,15 +206,15 @@ main#app-section {
 /* Stats Section */
 .stats-section {
     grid-area: stats;
-    background-color: #f9f9f9;
-    padding: 1.5rem;
+    background-color: #fff;
+    padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
 }
 
 .stats p {
     margin: 0.5rem 0;
-    font-size: 1rem;
+    font-size: 1.1rem;
 }
 
 .charts {
@@ -220,10 +222,10 @@ main#app-section {
     gap: 1rem;
     flex-wrap: wrap;
     justify-content: space-around;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
 }
 
-/* Responsivt Design */
+/* Responsive Design */
 @media (max-width: 768px) {
     main#app-section {
         grid-template-areas:
