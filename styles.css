@@ -14,6 +14,11 @@
     box-sizing: border-box;
 }
 
+/* Additional mobile quality fixes */
+* {
+    -webkit-tap-highlight-color: transparent;  // Remove tap highlight on mobile
+}
+
 body {
     font-family: var(--font-family);
     background: var(--bg-color);
@@ -330,5 +335,138 @@ body {
 @media (max-width: 768px) {
     .layout {
         grid-template-columns: 1fr;
+    }
+    body {
+        font-size: 14px; /* Slightly smaller base font size on mobile */
+    }
+    button,
+    input,
+    select {
+        padding: 0.4rem;
+        font-size: 0.9rem;
+        touch-action: manipulation; /* improves tap responsiveness */
+    }
+    /* Reduce spacing in task input area */
+    .add-task {
+        gap: 0.4rem;
+    }
+    .add-task input,
+    .add-task select,
+    .add-task button {
+        padding: 0.4rem;
+        font-size: 0.9rem;
+    }
+    /* Adjust toggle view button specifically */
+    #toggle-view-button {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+    }
+    /* Optionally decrease margins on task list items */
+    .task-item {
+        padding: 0.4rem;
+        margin-bottom: 0.4rem;
+    }
+    /* Ensure clickable areas do not overlap and are well spaced */
+    .delete-button {
+        width: 1.8rem;
+        height: 1.8rem;
+        padding: 0.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Additional mobile fixes for very small screens */
+    .container.phone-mode {
+        max-width: 300px;
+        padding: 0.25rem;
+    }
+    .top-nav {
+        padding: 0.6rem 0.8rem;
+    }
+    .site-header h1 {
+        font-size: 1.6rem;
+        padding: 0.3rem;
+    }
+    .sidebar, 
+    .main-content {
+        padding: 0.3rem;
+    }
+    .add-task input,
+    .add-task select,
+    .add-task button,
+    .filter-section input,
+    .filter-section select {
+        font-size: 0.8rem;
+        padding: 0.2rem;
+    }
+    .task-item {
+        padding: 0.2rem;
+        margin-bottom: 0.2rem;
+    }
+    .delete-button {
+        width: 1.3rem;
+        height: 1.3rem;
+        padding: 0.1rem;
+    }
+    body {
+        margin: 0.5rem;
+    }
+    /* Ensure clickable areas meet minimum tap target size */
+    button, .task-item {
+        min-height: 2rem;
+    }
+    button:active,
+    input:active,
+    select:active {
+         opacity: 0.8; 
+         transition: opacity 0.2s ease;
+    }
+    /* Adjust vertical spacing for interactive buttons */
+    .add-task button,
+    .bulk-section button {
+         margin-top: 0.2rem;
+         margin-bottom: 0.2rem;
+    }
+    /* Enhance placeholder readability on mobile devices */
+    ::-webkit-input-placeholder {
+         font-size: 0.8rem;
+         opacity: 0.8;
+    }
+    ::-moz-placeholder {
+         font-size: 0.8rem;
+         opacity: 0.8;
+    }
+}
+
+@media (max-width: 320px) {
+    .container.phone-mode {
+        max-width: 280px;
+        padding: 0.2rem;
+    }
+    .top-nav {
+        padding: 0.4rem 0.6rem;
+    }
+    .site-header h1,
+    .sidebar h2,
+    .task-list-section h2 {
+        font-size: 1.4rem;
+        margin: 0.5rem 0;
+    }
+    .add-task input,
+    .add-task select,
+    .add-task button,
+    .filter-section input,
+    .filter-section select {
+        font-size: 0.75rem;
+        padding: 0.15rem;
+    }
+    .task-item {
+        padding: 0.15rem;
+        margin-bottom: 0.15rem;
+    }
+    .delete-button {
+        width: 1.2rem;
+        height: 1.2rem;
+        padding: 0.1rem;
     }
 }
