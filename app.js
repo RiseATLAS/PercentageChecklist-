@@ -364,7 +364,10 @@ function initializeCharts() {
             type: 'doughnut',
             data: {
                 labels: ['Fullført', 'Ufullført'],
-                datasets: [{ data: [0, 0], backgroundColor: ['#2ecc71', '#e74c3c'] }]
+                datasets: [{ 
+                    data: [0, 0],
+                    backgroundColor: ['#89CFF0', '#F4C2C2'] // baby blue & baby pink
+                }]
             },
             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
@@ -374,7 +377,10 @@ function initializeCharts() {
             type: 'pie',
             data: {
                 labels: ['Høy', 'Middels', 'Lav'],
-                datasets: [{ data: [0, 0, 0], backgroundColor: ['#e74c3c', '#f1c40f', '#2ecc71'] }]
+                datasets: [{ 
+                    data: [0, 0, 0],
+                    backgroundColor: ['#89CFF0', '#F4C2C2', '#89CFF0'] // alternating baby blue & baby pink
+                }]
             },
             options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
         });
