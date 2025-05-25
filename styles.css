@@ -87,7 +87,7 @@ body {
     font-size: 0.9rem;
 }
 .add-category button {
-    background: var(--chartreuse);
+    background: var(--baby-pink);
     color: #fff;
     padding: 0.5rem 1rem;
     border: none;
@@ -99,7 +99,7 @@ body {
 .bulk-section button {
     flex: 1;
     padding: 0.5rem;
-    background: var(--chartreuse);
+    background: var(--baby-pink);
     color: #fff;
     border: none;
     border-radius: var(--border-radius);
@@ -159,7 +159,7 @@ body {
     transition: background-color 0.3s ease;
 }
 .add-task button:hover {
-    background: var(--chartreuse);
+    background: var(--baby-blue);
 }
 .filter-section {
     display: flex;
