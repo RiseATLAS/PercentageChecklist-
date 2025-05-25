@@ -39,16 +39,16 @@ let completionChartCtx; // Initialized in DOMContentLoaded
 // Initialize SortableJS for Drag-and-Drop
 if (taskList) {
     const sortable = new Sortable(taskList, {
+        draggable: '.task-item',       // explicitly set each task item as draggable
         animation: 150,
         delay: 0,                // ensure no delay on tap events
         delayOnTouchOnly: true,  // only use delay for dragging, not tapping
         touchStartThreshold: 5,  // reduce threshold so taps register easily
         fallbackTolerance: 0, // Ensures clicks register on all tasks on both mobile and PC
+        forceFallback: true,           // force HTML5 drag-and-drop fallback for consistent behavior on PC
         onEnd: function(evt) {
             const itemEl = evt.item;
             const newIndex = evt.newIndex;
-            // const taskId = itemEl.getAttribute('data-id'); // taskId not directly used here for reordering all
-            // Oppdater rekkefølgen i databasen
             const tasksRef = database.ref(`tasks`);
             tasksRef.orderByChild('order').once('value', snapshot => {
                 const tasks = [];
