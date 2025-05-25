@@ -144,7 +144,8 @@ function renderCategoriesList(categories) {
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
-        deleteButton.textContent = '🚮';
+        // Re-implement x change: set symbol to a stylish "✖"
+        deleteButton.textContent = '✖';
         deleteButton.title = "Slett Kategori";
         deleteButton.addEventListener('click', () => {
             if (confirm(`Er du sikker på at du vil slette kategorien "${categories[id].name}"? Alle tilknyttede oppgaver vil bli slettet.`)) {
@@ -251,65 +252,46 @@ function renderTasks(tasks) {
             }
         });
 
+        // Modify category editing: always allow inline editing.
         const categorySpan = document.createElement('span');
         categorySpan.className = 'task-category';
-        if (task.categoryId) {
+        if (task.customCategory) {
+            categorySpan.textContent = task.customCategory;
+        } else if (task.categoryId) {
+            categorySpan.textContent = "Loading...";
             database.ref(`categories/${task.categoryId}`).once('value')
                 .then(catSnapshot => {
-                    let catName = catSnapshot.exists() ? catSnapshot.val().name : "Uten Kategori";
-                    if(task.customCategory) { 
-                        catName = task.customCategory;
-                    }
+                    const catName = catSnapshot.exists() ? catSnapshot.val().name : "Uten Kategori";
                     categorySpan.textContent = catName;
-                    const originalCategory = catName;
-                    // Allow editing on double-click:
-                    categorySpan.addEventListener('dblclick', () => {
-                        categorySpan.setAttribute('contenteditable', 'true');
-                        categorySpan.focus();
-                    });
-                    categorySpan.addEventListener('blur', () => {
-                        categorySpan.removeAttribute('contenteditable');
-                        const newCat = categorySpan.textContent.trim();
-                        if(newCat === "") {
-                            alert("Kategori kan ikke være tomt.");
-                            categorySpan.textContent = originalCategory;
-                            return;
-                        }
-                        if(newCat !== originalCategory) {
-                            database.ref(`tasks/${task.id}`).update({ customCategory: newCat })
-                                .then(() => { console.log("Task category updated"); })
-                                .catch(error => {
-                                    console.error("Error updating task category", error);
-                                    categorySpan.textContent = originalCategory;
-                                });
-                        }
-                    });
-                }).catch(() => categorySpan.textContent = "Kategori Feil");
+                })
+                .catch(() => {
+                    categorySpan.textContent = "Kategori Feil";
+                });
         } else {
-            categorySpan.textContent = task.customCategory || "Uten Kategori";
-            const originalCategory = categorySpan.textContent;
-            categorySpan.addEventListener('dblclick', () => {
-                categorySpan.setAttribute('contenteditable', 'true');
-                categorySpan.focus();
-            });
-            categorySpan.addEventListener('blur', () => {
-                categorySpan.removeAttribute('contenteditable');
-                const newCat = categorySpan.textContent.trim();
-                if(newCat === "") {
-                    alert("Kategori kan ikke være tomt.");
-                    categorySpan.textContent = originalCategory;
-                    return;
-                }
-                if(newCat !== originalCategory) {
-                    database.ref(`tasks/${task.id}`).update({ customCategory: newCat })
-                        .then(() => { console.log("Task category updated"); })
-                        .catch(error => {
-                            console.error("Error updating task category", error);
-                            categorySpan.textContent = originalCategory;
-                        });
-                }
-            });
+            categorySpan.textContent = "Uten Kategori";
         }
+        const originalCategory = categorySpan.textContent;
+        categorySpan.addEventListener('dblclick', () => {
+            categorySpan.setAttribute('contenteditable', 'true');
+            categorySpan.focus();
+        });
+        categorySpan.addEventListener('blur', () => {
+            categorySpan.removeAttribute('contenteditable');
+            const newCat = categorySpan.textContent.trim();
+            if (newCat === "") {
+                alert("Kategori kan ikke være tomt.");
+                categorySpan.textContent = originalCategory;
+                return;
+            }
+            if (newCat !== originalCategory) {
+                database.ref(`tasks/${task.id}`).update({ customCategory: newCat })
+                    .then(() => { console.log("Task category updated"); })
+                    .catch(error => {
+                        console.error("Error updating task category", error);
+                        categorySpan.textContent = originalCategory;
+                    });
+            }
+        });
 
         const prioritySpan = document.createElement('span');
         prioritySpan.className = `task-priority priority-${(task.priority || 'middels').toLowerCase()}`;
@@ -327,7 +309,8 @@ function renderTasks(tasks) {
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
-        deleteButton.textContent = '🚮';
+        // Re-implement x change: set symbol to a stylish "✖"
+        deleteButton.textContent = '✖';
         deleteButton.title = "Slett Oppgave";
         deleteButton.addEventListener('click', () => {
             if (confirm("Er du sikker på at du vil slette denne oppgaven?")) {
