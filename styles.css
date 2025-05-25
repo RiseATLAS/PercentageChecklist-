@@ -243,7 +243,7 @@ body {
     background: var(--baby-blue);
     color: #000;  /* changed from white (#fff) */
     padding: 0.35rem 0.7rem;
-    border-radius: var(--border-radius);
+    border-radius: 50px; /* Updated for fully rounded corners */
     font-size: 0.85rem;
 }
 
@@ -286,6 +286,9 @@ body {
 }
 .task-priority.priority-lav {
     background-color: #ffd1dc; /* baby red */
+}
+.task-priority {
+    border-radius: 50px; /* Updated for fully rounded corners */
 }
 
 /* Responsive */
