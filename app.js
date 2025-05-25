@@ -613,5 +613,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+// No changes required here for a compact UI.
 
 
