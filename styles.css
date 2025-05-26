@@ -305,9 +305,8 @@ body {
     }
     /* Adjust container on mobile to be narrower */
     .container {
-        max-width: 100%;      /* Constrain container to viewport width */
-        padding: 0.5rem;      /* Reduce inner padding */
-        margin: 0.5rem auto;  /* Reduce outer margins */
+        max-width: 90%;         /* further constrain width on mobile */
+        margin: 0 auto;         /* center container */
     }
 }
 
