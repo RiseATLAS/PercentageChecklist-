@@ -61,13 +61,18 @@
                         <!-- Oppgaver vises her -->
                     </ul>
                 </section>
-                <!-- New Stats Section (Graph Page with Categories) -->
+                <!-- New Stats Section (Graph Page with Categories and Category Stats) -->
                 <section class="stats-section">
                     <h2>Statistikk</h2>
                     <div class="stats">
                         <p>Totale Oppgaver: <span id="total-tasks">0</span></p>
                         <p>Fullførte: <span id="completed-tasks">0</span></p>
                         <p>Fullføring: <span id="completion-percentage">0%</span></p>
+                        <!-- Container for category statistics -->
+                        <div class="category-stats">
+                            <!-- Category stats will be dynamically inserted here via displayCategoryStats() -->
+                        </div>
+                        <!-- Chart container -->
                         <div class="charts">
                             <canvas id="completion-chart" width="300" height="150"></canvas>
                         </div>
@@ -75,7 +80,7 @@
                 </section>
             </main>
         </div>
-        <!-- Footer -->
+        <!-- Footer (if any) -->
         <footer class="site-footer">
         </footer>
     </div>

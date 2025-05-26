@@ -180,10 +180,6 @@ function deleteCategory(categoryId) {
     });
 }
 
-// REMOVED DUPLICATE addCategoryButton Event Listener from here
-
-// REMOVED DUPLICATE addTaskButton Event Listener from here
-
 // Last inn Oppgaver
 function loadTasks() {
     const tasksRef = database.ref(`tasks`).orderByChild('order');
