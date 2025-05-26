@@ -13,16 +13,7 @@
         <!-- Main Layout -->
         <div class="layout">
             <aside class="sidebar">
-                <section class="categories-section">
-                    <h2>Kategorier</h2>
-                    <ul id="category-list">
-                        <!-- Kategorier listes her -->
-                    </ul>
-                    <div class="add-category">
-                        <input type="text" id="new-category-input" placeholder="Ny kategori...">
-                        <button id="add-category-button">Legg til Kategori</button>
-                    </div>
-                </section>
+                <!-- Removed categories section from sidebar -->
                 <section class="bulk-section">
                     <button id="mark-all-complete">Marker Alle Som Fullført</button>
                     <button id="delete-completed">Slett Fullførte Oppgaver</button>
@@ -55,28 +46,35 @@
                         </select>
                     </div>
                 </section>
-                <section class="task-list-section">
+                <section class="task-section">
                     <h2>Oppgaver</h2>
-                    <ul id="task-list">
+                    <ul id="task-list" class="task-list">
                         <!-- Oppgaver vises her -->
                     </ul>
                 </section>
+
+                <!-- Moved Kategorier section here -->
+                <section class="categories-section">
+                    <h2>Kategorier</h2>
+                    <div class="category-input-row">
+                        <input type="text" id="new-category-input" placeholder="Ny kategori..." maxlength="30">
+                        <button id="add-category-button" title="Legg til kategori">+</button>
+                    </div>
+                    <ul id="category-list" class="category-list">
+                        <!-- Kategorier listes her -->
+                    </ul>
+                </section>
+
                 <!-- New Stats Section (Graph Page with Categories and Category Stats) -->
                 <section class="stats-section">
                     <h2>Statistikk</h2>
-                    <div class="stats">
-                        <p>Totale Oppgaver: <span id="total-tasks">0</span></p>
-                        <p>Fullførte: <span id="completed-tasks">0</span></p>
-                        <p>Fullføring: <span id="completion-percentage">0%</span></p>
-                        <!-- Container for category statistics -->
-                        <div class="category-stats">
-                            <!-- Category stats will be dynamically inserted here via displayCategoryStats() -->
-                        </div>
-                        <!-- Chart container -->
-                        <div class="charts">
-                            <canvas id="completion-chart" width="300" height="150"></canvas>
-                        </div>
+                    <div class="stats-row">
+                        <span>Totalt: <span id="total-tasks">0</span></span>
+                        <span>Fullført: <span id="completed-tasks">0</span></span>
+                        <span>Fullført %: <span id="completion-percentage">0%</span></span>
                     </div>
+                    <canvas id="completion-chart" width="200" height="200"></canvas>
+                    <div class="category-stats"></div>
                 </section>
             </main>
         </div>
