@@ -5,7 +5,10 @@
     --baby-blue: #89CFF0;         /* Baby Blue */
     --baby-pink: #F4C2C2;         /* Baby Pink */
     --chartreuse: #7FFF00;        /* Chartreuse */
-    --border-radius: 16px;
+    /* New rounded box variables */
+    --small-border-radius: 8px;
+    --default-border-radius: 16px;
+    --large-border-radius: 32px;
     --box-shadow: 0 4px 8px rgba(0,0,0,0.1);  /* Finer shadow */
     --font-family: 'Roboto', sans-serif;
 }
@@ -26,6 +29,7 @@ body {
     margin: 0;
     padding: 0;
     line-height: 1.5;
+    font-size: clamp(0.9rem, 1vw + 1rem, 1.2rem); /* Example: Using clamp() for fluid typography */
 }
 
 /* Container */
@@ -62,8 +66,8 @@ body {
     max-width: 800px;  /* added constraining element to limit width */
     margin: 0 auto;    /* center main content */
     background: var(--baby-pink);
-    padding: 1rem;
-    border-radius: var(--border-radius);
+    padding: clamp(0.5rem, 1vw, 1rem); /* Example: Fluid padding for main content */
+    border-radius: var(--large-border-radius); /* updated */
     box-shadow: var(--box-shadow);
     display: flex;
     flex-direction: column;
@@ -88,7 +92,7 @@ body {
     padding: 0.5rem;
     font-size: 0.9rem;
     border: 1px solid #ddd;
-    border-radius: var(--border-radius);
+    border-radius: var(--small-border-radius); /* updated */
 }
 .add-task button {
     background: var(--baby-blue);
@@ -111,7 +115,7 @@ body {
     padding: 0.5rem;
     font-size: 0.9rem;
     border: 1px solid #ddd;
-    border-radius: var(--border-radius);
+    border-radius: var(--small-border-radius); /* updated */
 }
 
 /* Task List Section */
@@ -162,7 +166,7 @@ body {
     background: #fff;               /* same as task-item background */
     padding: 0.5rem;                /* same padding as tasks */
     margin-bottom: 0.5rem;          /* spacing between squares */
-    border-radius: var(--border-radius);
+    border-radius: var(--default-border-radius); /* updated */
     box-shadow: var(--box-shadow);
 }
 .delete-button {
@@ -207,7 +211,7 @@ body {
     background: var(--baby-blue);
     color: #000;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: var(--small-border-radius); /* updated */
     cursor: pointer;
     transition: background 0.3s;
 }
