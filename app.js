@@ -210,7 +210,7 @@ function renderTasks(tasks) {
         li.className = 'task-item';
         li.setAttribute('data-id', task.id);
         if (task.completed) {
-            li.classList.add('completed');
+            li.classList.add('completed-task'); // Changed from 'completed'
         }
 
         const checkboxContainer = document.createElement('div');
@@ -314,7 +314,7 @@ function renderTasks(tasks) {
                     const newStatus = !task.completed;
                     database.ref(`tasks/${task.id}`).update({ completed: newStatus })
                       .then(() => {
-                          li.classList.toggle('completed', newStatus);
+                          li.classList.toggle('completed-task', newStatus); // Changed from 'completed'
                           const checkbox = li.querySelector('.checkbox-container input');
                           if (checkbox) checkbox.checked = newStatus;
                           task.completed = newStatus;

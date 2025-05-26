@@ -332,6 +332,20 @@ body {
     background: var(--baby-pink);
 }
 
+/* New style for completed tasks */
+.completed-task {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* New style for category stats container in the stats section */
+.category-stats {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .layout {
