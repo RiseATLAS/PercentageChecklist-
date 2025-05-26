@@ -29,7 +29,7 @@ body {
     margin: 0;
     padding: 0;
     line-height: 1.5;
-    font-size: clamp(0.9rem, 1vw + 1rem, 1.2rem); /* Example: Using clamp() for fluid typography */
+    font-size: clamp(0.9rem, 1vw + 1rem, 1.2rem) !important; /* Example: Using clamp() for fluid typography */
 }
 
 /* Container */
@@ -231,112 +231,4 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .layout {
-        grid-template-columns: 1fr;
-    }
-    body {
-        font-size: 14px; /* Slightly smaller base font size on mobile */
-    }
-    button,
-    input,
-    select {
-        padding: 0.4rem;
-        font-size: 0.9rem;
-        touch-action: manipulation; /* improves tap responsiveness */
-    }
-    /* Reduce spacing in task input area */
-    .add-task {
-        gap: 0.4rem;
-    }
-    .add-task input,
-    .add-task select,
-    .add-task button {
-        padding: 0.4rem;
-        font-size: 0.9rem;
-    }
-    /* Adjust toggle view button specifically */
-    #toggle-view-button {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
-    }
-    /* Optionally decrease margins on task list items */
-    .task-item {
-        padding: 0.4rem;
-        margin-bottom: 0.4rem;
-    }
-    /* Ensure clickable areas do not overlap and are well spaced */
-    .delete-button {
-        width: 1.8rem;
-        height: 1.8rem;
-        padding: 0.3rem;
-    }
-}
-
-/* Improved mobile design - now only adjusting font sizes and inner spacings, not the overall layout */
-@media (max-width: 480px) {
-    /* Removed layout-altering rules:
-    .container {
-        max-width: 100%;
-        padding: 0.5rem;
-    }
-    .main-content {
-        max-width: 100%;
-        padding: 0.5rem;
-    }
-    */
-    /* Keep adjustments for buttons, inputs, and inner spacing */
-    .add-task,
-    .filter-section,
-    .task-item {
-        gap: 0.3rem;
-        padding: 0.3rem;
-    }
-    button, input, select {
-        font-size: 1.2rem;
-        padding: 1rem;
-        min-height: 48px;
-    }
-    .container.phone-mode .layout {
-         transform: none;
-    }
-    /* Adjust container on mobile to be narrower */
-    .container {
-        max-width: 90%;         /* further constrain width on mobile */
-        margin: 0 auto;         /* center container */
-    }
-}
-
-@media (max-width: 350px) {
-    /* Removed changes affecting .container and .main-content size:
-    .container { padding: 0.3rem; }
-    .main-content { padding: 0.3rem; }
-    */
-    body {
-        font-size: 0.9rem;
-    }
-    .add-task,
-    .filter-section,
-    .task-item {
-        gap: 0.2rem;
-        padding: 0.2rem;
-    }
-    button, input, select {
-        font-size: 1rem;
-        padding: 0.8rem;
-        min-height: 40px;
-    }
-    /* New adjustments for devices up to 350px */
-    .container {
-        max-width: 350px;
-    }
-}
-
-@media (max-width: 400px) {
-    /* Removed .main-content margin adjustments to maintain consistent layout:
-    .main-content { max-width: 100%; margin: 0 0.5rem; }
-    */
 }
