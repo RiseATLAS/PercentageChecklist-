@@ -299,6 +299,12 @@ body {
     .container.phone-mode .layout {
          transform: none;
     }
+    /* Adjust container on mobile to be narrower */
+    .container {
+        max-width: 100%;      /* Constrain container to viewport width */
+        padding: 0.5rem;      /* Reduce inner padding */
+        margin: 0.5rem auto;  /* Reduce outer margins */
+    }
 }
 
 @media (max-width: 350px) {
@@ -319,6 +325,10 @@ body {
         font-size: 1rem;
         padding: 0.8rem;
         min-height: 40px;
+    }
+    /* New adjustments for devices up to 350px */
+    .container {
+        max-width: 350px;
     }
 }
 
