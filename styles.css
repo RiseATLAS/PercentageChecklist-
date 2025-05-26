@@ -1,15 +1,15 @@
 /* Updated Modern Styling with Enhanced Layout and Complex Design */
 :root {
-    --bg-color: #ffffff;          /* White background */
+    --bg-color: #ffffff;
     --text-color: #000;
-    --baby-blue: #89CFF0;         /* Baby Blue */
-    --baby-pink: #F4C2C2;         /* Baby Pink */
-    --chartreuse: #7FFF00;        /* Chartreuse */
+    --baby-blue: #89CFF0;
+    --baby-pink: #F4C2C2;
+    --chartreuse: #7FFF00;
     /* New rounded box variables */
     --small-border-radius: 8px;
     --default-border-radius: 16px;
     --large-border-radius: 32px;
-    --box-shadow: 0 4px 8px rgba(0,0,0,0.1);  /* Finer shadow */
+    --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     --font-family: 'Roboto', sans-serif;
 }
 
@@ -23,13 +23,14 @@
 }
 
 body {
+    /* Base typography with clamp() for fluid size */
     font-family: var(--font-family);
     background: var(--bg-color);
     color: var(--text-color);
     margin: 0;
     padding: 0;
     line-height: 1.5;
-    font-size: clamp(0.9rem, 1vw + 1rem, 1.2rem) !important; /* Example: Using clamp() for fluid typography */
+    font-size: clamp(0.9rem, 1vw + 1rem, 1.2rem) !important;
 }
 
 /* Container */
@@ -63,11 +64,11 @@ body {
 
 /* Main Content */
 .main-content {
-    max-width: 800px;  /* added constraining element to limit width */
-    margin: 0 auto;    /* center main content */
+    max-width: 800px;
+    margin: 0 auto;
     background: var(--baby-pink);
-    padding: clamp(0.5rem, 1vw, 1rem); /* Example: Fluid padding for main content */
-    border-radius: var(--large-border-radius); /* updated */
+    padding: clamp(0.5rem, 1vw, 1rem);
+    border-radius: var(--large-border-radius);
     box-shadow: var(--box-shadow);
     display: flex;
     flex-direction: column;
@@ -231,4 +232,47 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
+}
+
+/* Responsive Design: Normal systems for mobile & smaller viewports */
+@media (max-width: 768px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+    body {
+        font-size: clamp(0.9rem, 1vw + 1rem, 1.1rem);
+    }
+    .container {
+        max-width: 95%;
+        padding: 0.75rem;
+    }
+    .main-content {
+        max-width: 95%;
+        padding: clamp(0.5rem, 1vw, 0.8rem);
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: clamp(0.9rem, 1vw + 0.8rem, 1rem);
+    }
+    .container {
+        max-width: 100%;
+        margin: 0.5rem auto;
+        padding: 0.5rem;
+    }
+    .main-content {
+        max-width: 100%;
+        padding: clamp(0.4rem, 1vw, 0.8rem);
+    }
+    /* Optionally adjust buttons and interactive elements here */
+}
+
+@media (max-width: 350px) {
+    body {
+        font-size: clamp(0.9rem, 1vw + 0.6rem, 0.9rem);
+    }
+    .container {
+        max-width: 350px;
+    }
 }

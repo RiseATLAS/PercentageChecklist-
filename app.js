@@ -468,17 +468,16 @@ function simpleTouchHandler(element, callback) {
 
 // Initialiser og Oppdater Diagrammer ved oppstart
 document.addEventListener('DOMContentLoaded', () => {
-    // Get chart contexts here as DOM is ready
+    // Get chart context and initialize chart
     const completionChartElement = document.getElementById('completion-chart');
     if (completionChartElement) {
         completionChartCtx = completionChartElement.getContext('2d');
     }
-    
-    // Initialize charts and load data
+    // In order: Initialize chart, load categories, and load tasks
     initializeCharts();
     loadCategories();
     loadTasks();
-
+    // Setup event listeners in order (e.g., task input, category input, bulk buttons, etc.)
     // Replace standard click event listeners with bindTouchClick for better mobile support:
     if (addTaskButton) {
         simpleTouchHandler(addTaskButton, () => {
