@@ -49,10 +49,10 @@ body {
     grid-template-columns: 1fr;  /* force single-column view */
 }
 
-/* Layout: Sidebar and Main Content */
+/* Layout: Main Content Only (updated since sidebar removed) */
 .layout {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 1fr; /* updated from 300px 1fr */
     gap: 1rem;
     margin-top: 1rem;
 }
