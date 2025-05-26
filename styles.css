@@ -59,6 +59,8 @@ body {
 
 /* Main Content */
 .main-content {
+    max-width: 800px;  /* added constraining element to limit width */
+    margin: 0 auto;    /* center main content */
     background: var(--baby-pink);
     padding: 1rem;
     border-radius: var(--border-radius);
@@ -181,7 +183,7 @@ body {
 .task-priority.priority-høy {
     background-color: #ffffe0; /* baby yellow */
 }
-.task-priority.priority-middels {
+.task-priority.priority-mid {
     background-color: #d0f0c0; /* baby green */
 }
 .task-priority.priority-lav {
@@ -272,14 +274,28 @@ body {
 
 /* Improved mobile design */
 @media (max-width: 480px) {
+    .container {
+        max-width: 100%;
+        padding: 0.5rem; /* reduce padding */
+    }
+    .main-content {
+        max-width: 100%;
+        padding: 0.5rem; /* reduce padding in main content */
+    }
+    body {
+        font-size: 1rem; /* adjust base font size for small screens */
+    }
+    /* Optionally reduce spacing in task input and list items */
+    .add-task,
+    .filter-section,
+    .task-item {
+        gap: 0.3rem;
+        padding: 0.3rem;
+    }
     button, input, select {
         font-size: 1.2rem;      /* Increase font size */
         padding: 1rem;          /* Increase padding for larger hit-area */
         min-height: 48px;       /* Ensure a minimum tap target size */
-    }
-    .task-item {
-        padding: 0.4rem;
-        margin-bottom: 0.4rem;
     }
     /* Remove unnecessary scaling transforms */
     .container.phone-mode .layout {
