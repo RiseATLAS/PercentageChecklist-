@@ -268,11 +268,18 @@ body {
     /* Optionally adjust buttons and interactive elements here */
 }
 
+/* Updated media query for devices up to 350px to enforce lowest working size */
 @media (max-width: 350px) {
-    body {
-        font-size: clamp(0.9rem, 1vw + 0.6rem, 0.9rem);
-    }
     .container {
-        max-width: 350px;
+        max-width: 350px !important;
+        padding: 0.3rem !important;
+        margin: 0.3rem auto !important;
+    }
+    .main-content {
+        max-width: 350px !important;
+        padding: clamp(0.3rem, 1vw, 0.6rem) !important;
+    }
+    body {
+        font-size: clamp(0.9rem, 1vw + 0.6rem, 0.9rem) !important;
     }
 }
