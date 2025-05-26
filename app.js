@@ -16,7 +16,6 @@ const database = firebase.database();
 const storage = firebase.storage(); // Initialize Firebase Storage
 
 // DOM-elementer
-const appSection = document.getElementById('app-section');
 const taskInput = document.getElementById('task-input');
 const categorySelect = document.getElementById('category-select');
 const prioritySelect = document.getElementById('priority-select');
