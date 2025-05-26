@@ -337,3 +337,11 @@ body {
         min-height: 40px;
     }
 }
+
+/* New media query for devices up to 400px to constrain the pink container */
+@media (max-width: 400px) {
+    .main-content {
+        max-width: 100%;
+        margin: 0 0.5rem; /* adds slight horizontal margins */
+    }
+}
