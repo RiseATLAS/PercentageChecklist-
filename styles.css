@@ -313,3 +313,27 @@ body {
         transform-origin: top center;
     }
 }
+
+/* New media query for screens up to 350px */
+@media (max-width: 350px) {
+    .container {
+        padding: 0.3rem;
+    }
+    .main-content {
+        padding: 0.3rem;
+    }
+    body {
+        font-size: 0.9rem;
+    }
+    .add-task,
+    .filter-section,
+    .task-item {
+        gap: 0.2rem;
+        padding: 0.2rem;
+    }
+    button, input, select {
+        font-size: 1rem;
+        padding: 0.8rem;
+        min-height: 40px;
+    }
+}
