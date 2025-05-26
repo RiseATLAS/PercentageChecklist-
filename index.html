@@ -14,11 +14,7 @@
         <div class="layout">
             <aside class="sidebar">
                 <!-- Removed categories section from sidebar -->
-                <section class="bulk-section">
-                    <button id="mark-all-complete">Marker Alle Som Fullført</button>
-                    <button id="delete-completed">Slett Fullførte Oppgaver</button>
-                </section>
-                <!-- Removed stats-section from the sidebar -->
+                <!-- Removed bulk-section from sidebar -->
             </aside>
             <main class="main-content">
                 <section class="task-input-section">
@@ -51,6 +47,11 @@
                     <ul id="task-list" class="task-list">
                         <!-- Oppgaver vises her -->
                     </ul>
+                    <!-- Moved bulk buttons from sidebar to here -->
+                    <div class="bulk-section">
+                        <button id="mark-all-complete">Marker Alle Som Fullført</button>
+                        <button id="delete-completed">Slett Fullførte Oppgaver</button>
+                    </div>
                 </section>
 
                 <!-- Moved Kategorier section here -->
