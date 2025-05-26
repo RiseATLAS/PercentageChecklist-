@@ -27,16 +27,7 @@
                     <button id="mark-all-complete">Marker Alle Som Fullført</button>
                     <button id="delete-completed">Slett Fullførte Oppgaver</button>
                 </section>
-                <section class="stats-section">
-                    <div class="stats">
-                        <p>Totale Oppgaver: <span id="total-tasks">0</span></p>
-                        <p>Fullførte: <span id="completed-tasks">0</span></p>
-                        <p>Fullføring: <span id="completion-percentage">0%</span></p>
-                        <div class="charts">
-                            <canvas id="completion-chart" width="300" height="150"></canvas>
-                        </div>
-                    </div>
-                </section>
+                <!-- Removed stats-section from the sidebar -->
             </aside>
             <main class="main-content">
                 <section class="task-input-section">
@@ -48,7 +39,7 @@
                         </select>
                         <select id="priority-select">
                             <option value="Høy">Høy</option>
-                            <option value="Middels" selected>Middels</option>
+                            <option value="Mid" selected>Middels</option>
                             <option value="Lav">Lav</option>
                         </select>
                         <input type="date" id="due-date-input">
@@ -70,9 +61,20 @@
                         <!-- Oppgaver vises her -->
                     </ul>
                 </section>
+                <!-- New Stats Section (Graph Page with Categories) -->
+                <section class="stats-section">
+                    <h2>Statistikk</h2>
+                    <div class="stats">
+                        <p>Totale Oppgaver: <span id="total-tasks">0</span></p>
+                        <p>Fullførte: <span id="completed-tasks">0</span></p>
+                        <p>Fullføring: <span id="completion-percentage">0%</span></p>
+                        <div class="charts">
+                            <canvas id="completion-chart" width="300" height="150"></canvas>
+                        </div>
+                    </div>
+                </section>
             </main>
         </div>
-        
         <!-- Footer -->
         <footer class="site-footer">
         </footer>

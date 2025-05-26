@@ -463,10 +463,11 @@ function displayCategoryStats(categoryStats) {
     }
 }
 
-// New utility: bindPointerClick ensures immediate response on both mobile and PC
-function bindPointerClick(element, callback) {
+// Add a simpler event handler:
+function simpleTouchHandler(element, callback) {
     if (element) {
-        element.addEventListener('pointerdown', callback);
+        element.addEventListener('click', callback);
+        element.addEventListener('touchstart', callback);
     }
 }
 
@@ -485,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Replace standard click event listeners with bindTouchClick for better mobile support:
     if (addTaskButton) {
-        bindPointerClick(addTaskButton, () => {
+        simpleTouchHandler(addTaskButton, () => {
             const taskText = taskInput.value.trim();
             const categoryId = categorySelect.value;
             const priority = prioritySelect.value;
@@ -521,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (addCategoryButton) {
-        bindPointerClick(addCategoryButton, () => {
+        simpleTouchHandler(addCategoryButton, () => {
             const categoryName = newCategoryInput.value.trim();
             if (categoryName === "") {
                 alert("Kategorinavnet kan ikke være tomt.");
@@ -544,10 +545,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-    
     const markAllCompleteButton = document.getElementById('mark-all-complete');
     if (markAllCompleteButton) {
-        bindPointerClick(markAllCompleteButton, () => {
+        simpleTouchHandler(markAllCompleteButton, () => {
             if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
                 const tasksRef = database.ref('tasks');
                 tasksRef.once('value', snapshot => {
@@ -560,10 +560,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
     const deleteCompletedButton = document.getElementById('delete-completed');
     if (deleteCompletedButton) {
-        bindPointerClick(deleteCompletedButton, () => {
+        simpleTouchHandler(deleteCompletedButton, () => {
             if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
                 const tasksRef = database.ref('tasks');
                 tasksRef.orderByChild('completed').equalTo(true).once('value', snapshot => {
@@ -576,7 +575,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
     // Listener for search input
     if (searchInput) {
         searchInput.addEventListener('input', () => {
