@@ -10,8 +10,8 @@
 </head>
 <body>
     <div class="container">
+        <!-- Updated: layout now only contains the main content -->
         <div class="layout">
-            <!-- Moved Main Content and Side Panel as siblings -->
             <main class="main-content">
                 <section class="task-input-section">
                     <div class="add-task">
@@ -50,31 +50,32 @@
                     </div>
                 </section>
             </main>
-            <div class="side-panel">
-                <!-- Moved Kategorier section here -->
-                <section class="categories-section">
-                    <h2>Kategorier</h2>
-                    <div class="category-input-row">
-                        <input type="text" id="new-category-input" placeholder="Ny kategori..." maxlength="30">
-                        <button id="add-category-button" title="Legg til kategori">+</button>
-                    </div>
-                    <ul id="category-list" class="category-list">
-                        <!-- Kategorier listes her -->
-                    </ul>
-                </section>
+        </div>
+        <!-- side-panel pulled out of the layout container -->
+        <div class="side-panel">
+            <!-- Moved Kategorier section here -->
+            <section class="categories-section">
+                <h2>Kategorier</h2>
+                <div class="category-input-row">
+                    <input type="text" id="new-category-input" placeholder="Ny kategori..." maxlength="30">
+                    <button id="add-category-button" title="Legg til kategori">+</button>
+                </div>
+                <ul id="category-list" class="category-list">
+                    <!-- Kategorier listes her -->
+                </ul>
+            </section>
 
-                <!-- Moved Stats Section here -->
-                <section class="stats-section">
-                    <h2>Statistikk</h2>
-                    <div class="stats-row">
-                        <span>Totalt: <span id="total-tasks">0</span></span>
-                        <span>Fullført: <span id="completed-tasks">0</span></span>
-                        <span>Fullført %: <span id="completion-percentage">0%</span></span>
-                    </div>
-                    <canvas id="completion-chart" width="200" height="200"></canvas>
-                    <div class="category-stats"></div>
-                </section>
-            </div>
+            <!-- Moved Stats Section here -->
+            <section class="stats-section">
+                <h2>Statistikk</h2>
+                <div class="stats-row">
+                    <span>Totalt: <span id="total-tasks">0</span></span>
+                    <span>Fullført: <span id="completed-tasks">0</span></span>
+                    <span>Fullført %: <span id="completion-percentage">0%</span></span>
+                </div>
+                <canvas id="completion-chart" width="200" height="200"></canvas>
+                <div class="category-stats"></div>
+            </section>
         </div>
         <!-- Footer (if any) -->
         <footer class="site-footer">
