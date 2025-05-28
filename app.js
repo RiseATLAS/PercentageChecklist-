@@ -282,8 +282,8 @@ function renderTasks(tasks) {
         });
         
         const prioritySpan = document.createElement('span');
-        prioritySpan.className = `task-priority priority-${(task.priority || 'middels').toLowerCase()}`;
-        prioritySpan.textContent = task.priority || 'Middels';
+        prioritySpan.className = `task-priority priority-${(task.priority || 'mid').toLowerCase()}`;
+        prioritySpan.textContent = task.priority || 'Mid';
         
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
@@ -355,7 +355,7 @@ function applyFiltersAndRender(tasks) {
             // Use createdAt instead of dueDate
             taskArray.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
         } else if (sortCriterion === 'priority') {
-            const priorityOrder = { 'Høy': 1, 'Middels': 2, 'Lav': 3 };
+            const priorityOrder = { 'Høy': 1, 'Mid': 2, 'Lav': 3 };
             taskArray.sort((a, b) => (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3));
         } else if (sortCriterion === 'category') {
             taskArray.sort((a, b) => {
