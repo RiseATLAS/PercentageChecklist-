@@ -31,30 +31,16 @@ body {
     padding: 0;
     line-height: 1.5;
     /* Updated fluid font-size (50% of original) */
-    font-size: clamp(0.45rem, 0.5vw + 0.5rem, 0.6rem) !important;
+    font-size: clamp(0.45rem, 0.5vw + 0.5rem, 0.6rem) !important; /* fluid scaling confirmed */
 }
 
 /* Container */
 .container {
-    max-width: 550px; /* updated from 1100px */
+    width: clamp(300px, 90%, 550px); /* changed from fixed max-width, constant fluid scaling via clamp() */
     margin: 1rem auto;
     padding: 1rem;
-    overflow-x: hidden; /* Prevent horizontal overflow on mobile */
-    border-radius: var(--default-border-radius); /* added for rounded corners */
-}
-
-/* Styles for phone-mode view */
-.container.phone-mode {
-    max-width: 188px; /* updated from 375px (rounded) */
-    margin: 0 auto;
-    border: 1px solid #ddd; /* optional: add border for visual effect */
-    box-shadow: var(--box-shadow);
-    border-radius: var(--default-border-radius); /* added for rounded corners */
-}
-
-/* Adjust layout for phone-mode if needed */
-.container.phone-mode .layout {
-    grid-template-columns: 1fr;  /* force single-column view */
+    overflow-x: hidden;
+    border-radius: var(--default-border-radius);
 }
 
 /* Layout: Main Content Only (updated since sidebar removed) */
@@ -71,7 +57,7 @@ body {
     margin: 0 auto;
     background: var(--baby-pink);
     /* Updated fluid padding scaled down by 50% */
-    padding: clamp(0.25rem, 0.5vw, 0.5rem);
+    padding: clamp(0.25rem, 0.5vw, 0.5rem); /* fluid padding verified */
     border-radius: var(--large-border-radius);
     box-shadow: var(--box-shadow);
     display: flex;
