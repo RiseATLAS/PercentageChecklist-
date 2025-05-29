@@ -385,7 +385,7 @@ let completionChartInstance;
 function initializeCharts() {
     const localCompletionChartCtx = document.getElementById('completion-chart');
 
-    if (localCompletionChartCtx && !completionChartInstance) {
+    if (localCompletionChartCtx) {
         completionChartInstance = new Chart(localCompletionChartCtx.getContext('2d'), {
             type: 'doughnut',
             data: {
@@ -401,6 +401,8 @@ function initializeCharts() {
                 plugins: { legend: { position: 'bottom' } } 
             }
         });
+    } else {
+        console.error("Could not find completion-chart canvas element.");
     }
 }
 
@@ -422,6 +424,8 @@ function updateCharts(tasks) {
     if (completionChartInstance) {
         completionChartInstance.data.datasets[0].data = [completedCount, total - completedCount];
         completionChartInstance.update();
+    } else {
+        console.error("completionChartInstance is not initialized.");
     }
 }
 

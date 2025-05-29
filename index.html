@@ -72,7 +72,9 @@
                         <span>Fullført: <span id="completed-tasks">0</span></span>
                         <span>Fullført %: <span id="completion-percentage">0%</span></span>
                     </div>
-                    <canvas id="completion-chart" width="200" height="200"></canvas>
+                    <div class="percentage-graph-container">
+                        <canvas id="completion-chart" width="200" height="200"></canvas>
+                    </div>
                     <div class="category-stats"></div>
                 </section>
             </div>
@@ -82,7 +84,6 @@
 
         </footer>
     </div>
-
 
     <!-- Firebase SDK --> 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
