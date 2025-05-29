@@ -236,5 +236,18 @@ body {
     gap: 1rem;
 }
 
+/* New three-columns container styling */
+.three-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+/* Optionally we can define column-specific rules if needed */
+.tasks-column,
+.categories-column,
+.graphs-column {
+    /* Ensure each column scales fluidly in the grid; no fixed widths */
+}
+
 /* All sizing properties are using clamp() or relative units for constant scaling. */
 /* No further changes are required. */
