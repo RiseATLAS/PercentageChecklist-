@@ -332,7 +332,7 @@ function renderTasks(tasks) {
 
 // Applikasjonseksempel: Render oppgaver med filtre og sortering
 function applyFiltersAndRender(tasks) {
-    let filteredTasks = { ...tasks }; // Start with all tasks
+    let filteredTasks = { ...tasks }; // Start with all tasks 
 
     // Filtrer basert på søk 
     if (searchInput && searchInput.value) {

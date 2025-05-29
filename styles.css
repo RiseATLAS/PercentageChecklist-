@@ -50,7 +50,7 @@ body {
     gap: 1rem;
     margin-top: 1rem;
 }
-s
+
 /* Main Content */
 .main-content {
     max-width: 400px; /* updated from 800px */
@@ -243,11 +243,6 @@ s
     gap: 1rem;
 }
 /* Optionally we can define column-specific rules if needed */
-.tasks-column,
-.categories-column,
-.graphs-column {
-    /* Ensure each column scales fluidly in the grid; no fixed widths */
-}
 
 /* All sizing properties are using clamp() or relative units for constant scaling. */
 /* No further changes are required. */
