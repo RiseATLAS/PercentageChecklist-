@@ -395,7 +395,11 @@ function initializeCharts() {
                     backgroundColor: ['#89CFF0', '#F4C2C2'] // baby blue & baby pink
                 }]
             },
-            options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, // Add this line
+                plugins: { legend: { position: 'bottom' } } 
+            }
         });
     }
 }
@@ -404,12 +408,10 @@ function initializeCharts() {
 function updateCharts(tasks) {
     let total = 0;
     let completedCount = 0;
-    const priorityCounts = { 'Høy': 0, 'Middels': 0, 'Lav': 0 };
 
     for (let id in tasks) {
         total++;
         if (tasks[id].completed) completedCount++;
-        priorityCounts[tasks[id].priority] = (priorityCounts[tasks[id].priority] || 0) + 1;
     }
 
     const percentage = total === 0 ? 0 : Math.round((completedCount / total) * 100);

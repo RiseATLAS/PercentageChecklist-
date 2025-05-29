@@ -256,3 +256,22 @@ body {
 // .categories-column { background: var(--chartreuse); }
 // .graphs-column { background: var(--baby-blue); }
 */
+
+/* Enhance graphs column */
+.graphs-column {
+    background: var(--baby-blue);
+    padding: 1rem;
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--box-shadow);
+    height: 300px; /* Set a specific height */
+    display: flex;
+    align-items: center; /* Vertically center content */
+    justify-content: center; /* Horizontally center content */
+}
+
+/* Style for the graph container */
+.percentage-graph-container {
+    width: 80%; /* Adjust as needed */
+    height: 80%; /* Adjust as needed */
+    position: relative; /* For absolute positioning of elements within */
+}
