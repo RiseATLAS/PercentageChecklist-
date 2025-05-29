@@ -242,7 +242,26 @@ body {
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
 }
-/* Optionally we can define column-specific rules if needed */
+
+/* Standardize each column container */
+.three-columns > div {
+    /* Currently all use the same background */
+    background: var(--bg-color); /* all columns have the same color by default */
+    padding: 1rem;
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+/* To assign different colors for each column, you can add specific rules: */
+.tasks-column {
+    background: var(--baby-pink); /* for example, pink for tasks */
+}
+.categories-column {
+    background: var(--chartreuse); /* for example, chartreuse for categories */
+}
+.graphs-column {
+    background: var(--baby-blue); /* for example, baby blue for graphs */
+}
 
 /* All sizing properties are using clamp() or relative units for constant scaling. */
 /* No further changes are required. */
