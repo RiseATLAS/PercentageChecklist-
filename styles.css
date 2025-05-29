@@ -236,7 +236,7 @@ body {
     gap: 1rem;
 }
 
-/* New three-columns container styling */
+/* New three-columns container styling */ 
 .three-columns {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

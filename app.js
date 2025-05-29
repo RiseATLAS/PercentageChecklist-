@@ -200,7 +200,7 @@ function renderTasks(tasks) {
         emptyMessage.style.textAlign = 'center';
         emptyMessage.style.color = '#888888';
         taskList.appendChild(emptyMessage);
-        updateCharts(tasks); // Update charts even if empty
+        updateCharts(tasks); // Update charts even if empty 
         return;
     }
 
