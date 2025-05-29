@@ -334,7 +334,7 @@ function renderTasks(tasks) {
 function applyFiltersAndRender(tasks) {
     let filteredTasks = { ...tasks }; // Start with all tasks
 
-    // Filtrer basert på søk
+    // Filtrer basert på søk 
     if (searchInput && searchInput.value) {
         const query = searchInput.value.toLowerCase();
         const tempFiltered = {};
