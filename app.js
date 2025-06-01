@@ -43,21 +43,18 @@ if (taskList && !window.matchMedia('(pointer: coarse)').matches) {
         touchStartThreshold: 5,  // reduce threshold so taps register easily
         fallbackTolerance: 0,    // Ensures clicks register on all tasks on both mobile and PC
         onEnd: function(evt) {
-            const itemEl = evt.item;
-            const newIndex = evt.newIndex;
-            // const taskId = itemEl.getAttribute('data-id'); // taskId not directly used here for reordering all
-            // Oppdater rekkefølgen i databasen
+            // If no change in position, do nothing
+            if (evt.oldIndex === evt.newIndex) return;
             const tasksRef = database.ref(`tasks`);
             tasksRef.orderByChild('order').once('value', snapshot => {
                 const tasks = [];
                 snapshot.forEach(child => {
                     tasks.push({ id: child.key, ...child.val() });
                 });
-                // Fjern oppgaven som ble flyttet
+                // Remove the moved task and insert it at the new index
                 const movedTask = tasks.splice(evt.oldIndex, 1)[0];
-                // Sett oppgaven inn på den nye posisjonen
-                tasks.splice(newIndex, 0, movedTask);
-                // Oppdater 'order' for hver oppgave
+                tasks.splice(evt.newIndex, 0, movedTask);
+                // Update order for each task
                 const updates = {};
                 tasks.forEach((task, index) => {
                     updates[`tasks/${task.id}/order`] = index;
