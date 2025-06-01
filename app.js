@@ -38,6 +38,23 @@ let completionChartCtx; // Initialized in DOMContentLoaded
 let isReordering = false;
 let categoriesCache = {};
 
+// Add global variable to hold previous tasks data
+let previousTasksData = null;
+
+// Helper function to shallowly compare objects
+function shallowEqual(obj1, obj2) {
+    if (obj1 === obj2) return true;
+    if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 == null || obj2 == null) {
+        return false;
+    }
+    let keys1 = Object.keys(obj1), keys2 = Object.keys(obj2);
+    if (keys1.length !== keys2.length) return false;
+    for (let key of keys1) {
+        if (obj1[key] !== obj2[key]) return false;
+    }
+    return true;
+}
+
 // Initialize SortableJS for Drag-and-Drop
 if (taskList) {
     const sortable = new Sortable(taskList, {
@@ -185,13 +202,30 @@ function deleteCategory(categoryId) {
 // Last inn Oppgaver
 function loadTasks() {
     const tasksRef = database.ref('tasks').orderByChild('order');
-    // Remove any previous listeners to prevent duplicate renders
     tasksRef.off();
     tasksRef.on('value', snapshot => {
         const tasksData = snapshot.val() || {};
-        applyFiltersAndRender(tasksData);
+        if (shallowEqual(tasksData, previousTasksData)) {
+            return; // Do nothing if data hasn't changed
+        }
+        previousTasksData = tasksData;
+        debouncedApplyFiltersAndRender(tasksData);
     });
 }
+
+// Add a debounce function to limit rapid re-renders.
+function debounce(func, delay) {
+    let timer;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
+
+// Wrap the existing function
+const debouncedApplyFiltersAndRender = debounce(applyFiltersAndRender, 300);
 
 // Render Oppgaver
 function renderTasks(tasks) {
