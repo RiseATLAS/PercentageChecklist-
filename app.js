@@ -15,6 +15,34 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const storage = firebase.storage(); // Initialize Firebase Storage
 
+// ---------------------
+// Moved debug declarations to the top
+const DEBUG_MODE = true;  // set to false to disable debug logging and counters
+let eventCounters = {
+    loadTasks: 0,
+    renderTasks: 0,
+    loadCategories: 0,
+    addTask: 0,
+    addCategory: 0,
+    markAllComplete: 0,
+    deleteCompleted: 0
+};
+
+function updateEventCounters() {
+    if (!DEBUG_MODE) return;
+    const counterEl = document.getElementById("event-counters");
+    if (counterEl) {
+        counterEl.innerText =
+            "loadTasks: " + eventCounters.loadTasks +
+            " | renderTasks: " + eventCounters.renderTasks +
+            " | addTask: " + eventCounters.addTask +
+            " | addCategory: " + eventCounters.addCategory +
+            " | markAllComplete: " + eventCounters.markAllComplete +
+            " | deleteCompleted: " + eventCounters.deleteCompleted;
+    }
+}
+// ---------------------
+
 // DOM-elementer
 const taskInput = document.getElementById('task-input');
 const categorySelect = document.getElementById('category-select');
@@ -204,9 +232,13 @@ function loadTasks() {
     const tasksRef = database.ref('tasks').orderByChild('order');
     tasksRef.off();
     tasksRef.on('value', snapshot => {
+        if (DEBUG_MODE) {
+            eventCounters.loadTasks++;
+            updateEventCounters();
+        }
         const tasksData = snapshot.val() || {};
         if (shallowEqual(tasksData, previousTasksData)) {
-            return; // Do nothing if data hasn't changed
+            return; // Data unchanged, do not re-render
         }
         previousTasksData = tasksData;
         debouncedApplyFiltersAndRender(tasksData);
@@ -229,6 +261,10 @@ const debouncedApplyFiltersAndRender = debounce(applyFiltersAndRender, 300);
 
 // Render Oppgaver
 function renderTasks(tasks) {
+    if (DEBUG_MODE) {
+        eventCounters.renderTasks++;
+        updateEventCounters();
+    }
     if (!taskList) return;
     taskList.innerHTML = "";
     const taskArray = Object.keys(tasks).map(key => ({ id: key, ...tasks[key] }));
@@ -575,6 +611,10 @@ if (!window.__INITIALIZED__) {
 
 // Handler functions defined here (or imported from another module)
 function addTaskHandler() {
+    if (DEBUG_MODE) {
+        eventCounters.addTask++;
+        updateEventCounters();
+    }
     const taskText = taskInput.value.trim();
     const categoryId = categorySelect.value;
     const priority = prioritySelect.value;
@@ -609,6 +649,10 @@ function addTaskHandler() {
 }
 
 function addCategoryHandler() {
+    if (DEBUG_MODE) {
+        eventCounters.addCategory++;
+        updateEventCounters();
+    }
     const categoryName = newCategoryInput.value.trim();
     if (categoryName === "") {
         alert("Kategorinavnet kan ikke være tomt.");
@@ -632,6 +676,10 @@ function addCategoryHandler() {
 }
 
 function markAllCompleteHandler() {
+    if (DEBUG_MODE) {
+        eventCounters.markAllComplete++;
+        updateEventCounters();
+    }
     if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
         const tasksRef = database.ref('tasks');
         tasksRef.once('value', snapshot => {
@@ -646,6 +694,10 @@ function markAllCompleteHandler() {
 }
 
 function deleteCompletedHandler() {
+    if (DEBUG_MODE) {
+        eventCounters.deleteCompleted++;
+        updateEventCounters();
+    }
     if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
         const tasksRef = database.ref('tasks');
         tasksRef.orderByChild('completed').equalTo(true).once('value', snapshot => {
