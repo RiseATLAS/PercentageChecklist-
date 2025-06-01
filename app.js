@@ -486,167 +486,169 @@ function simpleTouchHandler(element, callback) {
     }
 }
 
-// Initialiser og Oppdater Diagrammer ved oppstart
-document.addEventListener('DOMContentLoaded', () => {
-    // Get chart context and initialize chart
-    const completionChartElement = document.getElementById('completion-chart');
-    if (completionChartElement) {
-        completionChartCtx = completionChartElement.getContext('2d');
-    }
-    // Initialize chart, load categories and tasks
-    initializeCharts();
-    loadCategories();
-    loadTasks();
+// Global initialization guard
+if (!window.__INITIALIZED__) {
+	window.__INITIALIZED__ = true;
+	
+	document.addEventListener('DOMContentLoaded', () => {
+		// Get chart context and initialize chart
+		const completionChartElement = document.getElementById('completion-chart');
+		if (completionChartElement) {
+			completionChartCtx = completionChartElement.getContext('2d');
+		}
+		// Initialize chart, load categories and tasks
+		initializeCharts();
+		loadCategories();
+		loadTasks();
 
-    // Setup event listeners only once:
-    if (addTaskButton) {
-        addTaskButton.removeEventListener('click', addTaskHandler);
-        addTaskButton.addEventListener('click', addTaskHandler);
+		// Setup event listeners only once:
+		if (addTaskButton) {
+			addTaskButton.removeEventListener('click', addTaskHandler);
+			addTaskButton.addEventListener('click', addTaskHandler);
+		}
+		if (addCategoryButton) {
+			addCategoryButton.removeEventListener('click', addCategoryHandler);
+			addCategoryButton.addEventListener('click', addCategoryHandler);
+		}
+		const markAllCompleteButton = document.getElementById('mark-all-complete');
+		const deleteCompletedButton = document.getElementById('delete-completed');
+		if (markAllCompleteButton) {
+			markAllCompleteButton.addEventListener('click', markAllCompleteHandler);
+		}
+		if (deleteCompletedButton) {
+			deleteCompletedButton.addEventListener('click', deleteCompletedHandler);
+		}
+		if (searchInput) {
+			searchInput.removeEventListener('input', searchInputHandler);
+			searchInput.addEventListener('input', searchInputHandler);
+		}
+		if (sortBy) {
+			sortBy.removeEventListener('change', sortByHandler);
+			sortBy.addEventListener('change', sortByHandler);
+		}
+		if (taskInput) {
+			taskInput.removeEventListener('keydown', taskInputKeydownHandler);
+			taskInput.addEventListener('keydown', taskInputKeydownHandler);
+		}
+		if (newCategoryInput) {
+			newCategoryInput.removeEventListener('keydown', newCategoryInputKeydownHandler);
+			newCategoryInput.addEventListener('keydown', newCategoryInputKeydownHandler);
+		}
+		// Optional log to verify initialization happens only once.
+		console.log("Initialization complete – single instance of listeners attached.");
+	});
+}
+
+// Handler functions defined here (or imported from another module)
+function addTaskHandler() {
+    const taskText = taskInput.value.trim();
+    const categoryId = categorySelect.value;
+    const priority = prioritySelect.value;
+    const createdAt = new Date().getTime();
+    if (taskText === "") {
+        alert("Vennligst fyll ut oppgavetekst.");
+        return;
     }
-    if (addCategoryButton) {
-        addCategoryButton.removeEventListener('click', addCategoryHandler);
-        addCategoryButton.addEventListener('click', addCategoryHandler);
-    }
-    const markAllCompleteButton = document.getElementById('mark-all-complete');
-    const deleteCompletedButton = document.getElementById('delete-completed');
-    
-    if (markAllCompleteButton) {
-        markAllCompleteButton.addEventListener('click', markAllCompleteHandler);
-    }
-    if (deleteCompletedButton) {
-        deleteCompletedButton.addEventListener('click', deleteCompletedHandler);
-    }
-    if (searchInput) {
-        searchInput.removeEventListener('input', searchInputHandler);
-        searchInput.addEventListener('input', searchInputHandler);
-    }
-    if (sortBy) {
-        sortBy.removeEventListener('change', sortByHandler);
-        sortBy.addEventListener('change', sortByHandler);
-    }
-    if (taskInput) {
-        taskInput.removeEventListener('keydown', taskInputKeydownHandler);
-        taskInput.addEventListener('keydown', taskInputKeydownHandler);
-    }
-    if (newCategoryInput) {
-        newCategoryInput.removeEventListener('keydown', newCategoryInputKeydownHandler);
-        newCategoryInput.addEventListener('keydown', newCategoryInputKeydownHandler);
-    }
-    // Handler functions defined here (or imported from another module)
-    function addTaskHandler() {
-        const taskText = taskInput.value.trim();
-        const categoryId = categorySelect.value;
-        const priority = prioritySelect.value;
-        const createdAt = new Date().getTime();
-        if (taskText === "") {
-            alert("Vennligst fyll ut oppgavetekst.");
-            return;
+    const tasksRef = database.ref(`tasks`);
+    tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
+        let newOrder = 0;
+        snapshot.forEach(child => {
+            newOrder = (Number.isFinite(child.val().order) ? child.val().order : -1) + 1;
+        });
+        if (snapshot.numChildren() === 0) {
+            newOrder = 0;
         }
-        const tasksRef = database.ref(`tasks`);
-        tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
-            let newOrder = 0;
+        const newTaskRef = tasksRef.push();
+        newTaskRef.set({
+            text: taskText,
+            categoryId: categoryId,
+            completed: false,
+            priority: priority,
+            createdAt: createdAt,
+            order: newOrder
+        }).then(() => {
+            if(taskInput) taskInput.value = '';
+        }).catch(error => {
+            console.error('Feil ved legging til oppgave:', error);
+        });
+    });
+}
+
+function addCategoryHandler() {
+    const categoryName = newCategoryInput.value.trim();
+    if (categoryName === "") {
+        alert("Kategorinavnet kan ikke være tomt.");
+        return;
+    }
+    database.ref(`categories`).orderByChild('name').equalTo(categoryName).once('value', nameSnapshot => {
+        if (nameSnapshot.exists()) {
+            alert("Kategorinavnet finnes allerede!");
+        } else {
+            const newCategoryRef = database.ref(`categories`).push();
+            newCategoryRef.set({ name: categoryName })
+                .then(() => {
+                    console.log("Ny kategori lagt til.");
+                    if(newCategoryInput) newCategoryInput.value = '';
+                })
+                .catch(error => {
+                    console.error("Feil ved legging til kategori:", error);
+                });
+        }
+    });
+}
+
+function markAllCompleteHandler() {
+    if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
+        const tasksRef = database.ref('tasks');
+        tasksRef.once('value', snapshot => {
+            const updates = {};
             snapshot.forEach(child => {
-                newOrder = (Number.isFinite(child.val().order) ? child.val().order : -1) + 1;
+                updates[`${child.key}/completed`] = true;
             });
-            if (snapshot.numChildren() === 0) {
-                newOrder = 0;
-            }
-            const newTaskRef = tasksRef.push();
-            newTaskRef.set({
-                text: taskText,
-                categoryId: categoryId,
-                completed: false,
-                priority: priority,
-                createdAt: createdAt,
-                order: newOrder
-            }).then(() => {
-                if(taskInput) taskInput.value = '';
-            }).catch(error => {
-                console.error('Feil ved legging til oppgave:', error);
-            });
+            tasksRef.update(updates)
+                .catch(error => console.error('Feil ved bulk oppdatering av oppgaver:', error));
         });
     }
-    
-    function addCategoryHandler() {
-        const categoryName = newCategoryInput.value.trim();
-        if (categoryName === "") {
-            alert("Kategorinavnet kan ikke være tomt.");
-            return;
-        }
-        database.ref(`categories`).orderByChild('name').equalTo(categoryName).once('value', nameSnapshot => {
-            if (nameSnapshot.exists()) {
-                alert("Kategorinavnet finnes allerede!");
-            } else {
-                const newCategoryRef = database.ref(`categories`).push();
-                newCategoryRef.set({ name: categoryName })
-                    .then(() => {
-                        console.log("Ny kategori lagt til.");
-                        if(newCategoryInput) newCategoryInput.value = '';
-                    })
-                    .catch(error => {
-                        console.error("Feil ved legging til kategori:", error);
-                    });
-            }
-        });
-    }
+}
 
-    function markAllCompleteHandler() {
-        if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
-            const tasksRef = database.ref('tasks');
-            tasksRef.once('value', snapshot => {
-                const updates = {};
-                snapshot.forEach(child => {
-                    updates[`${child.key}/completed`] = true;
-                });
-                tasksRef.update(updates)
-                    .catch(error => console.error('Feil ved bulk oppdatering av oppgaver:', error));
+function deleteCompletedHandler() {
+    if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
+        const tasksRef = database.ref('tasks');
+        tasksRef.orderByChild('completed').equalTo(true).once('value', snapshot => {
+            const updates = {};
+            snapshot.forEach(child => {
+                updates[child.key] = null;
             });
-        }
-    }
-
-    function deleteCompletedHandler() {
-        if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
-            const tasksRef = database.ref('tasks');
-            tasksRef.orderByChild('completed').equalTo(true).once('value', snapshot => {
-                const updates = {};
-                snapshot.forEach(child => {
-                    updates[child.key] = null;
-                });
-                tasksRef.update(updates).catch(error => console.error('Feil ved bulk sletting av oppgaver:', error));
-            });
-        }
-    }
-    
-    function searchInputHandler() {
-        const tasksRef = database.ref(`tasks`).orderByChild('order');
-        tasksRef.once('value', snapshot => {
-            const tasksData = snapshot.val() || {};
-            applyFiltersAndRender(tasksData);
+            tasksRef.update(updates).catch(error => console.error('Feil ved bulk sletting av oppgaver:', error));
         });
     }
+}
 
-    function sortByHandler() {
-        const tasksRef = database.ref(`tasks`).orderByChild('order');
-        tasksRef.once('value', snapshot => {
-            const tasksData = snapshot.val() || {};
-            applyFiltersAndRender(tasksData);
-        });
-    }
+function searchInputHandler() {
+    const tasksRef = database.ref(`tasks`).orderByChild('order');
+    tasksRef.once('value', snapshot => {
+        const tasksData = snapshot.val() || {};
+        applyFiltersAndRender(tasksData);
+    });
+}
 
-    function taskInputKeydownHandler(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addTaskButton.click();
-        }
-    }
-    function newCategoryInputKeydownHandler(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            addCategoryButton.click();
-        }
-    }
-    // Optionally, add a log here so you can track how often renderTasks is invoked:
-    console.log("Initialization complete – single instance of event listeners attached.");
-});
+function sortByHandler() {
+    const tasksRef = database.ref(`tasks`).orderByChild('order');
+    tasksRef.once('value', snapshot => {
+        const tasksData = snapshot.val() || {};
+        applyFiltersAndRender(tasksData);
+    });
+}
 
-// [Removed duplicate global declarations, function definitions, and SortableJS initialization]
+function taskInputKeydownHandler(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addTaskButton.click();
+    }
+}
+function newCategoryInputKeydownHandler(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addCategoryButton.click();
+    }
+}

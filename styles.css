@@ -42,7 +42,7 @@ body {
     padding: 1rem;
     overflow-x: hidden;
     border-radius: var(--default-border-radius);
-    max-height: calc(100vh - 2rem); /* limit vertical height accounting for margins */
+    max-height: calc(100vh - 2rem) !important;  /* add !important to enforce constraint */
     overflow-y: auto;
 }
 
