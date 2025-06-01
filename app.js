@@ -78,14 +78,16 @@ if (taskList) {
 
 // Last inn Kategorier
 function loadCategories() {
-    const categoriesRef = database.ref(`categories`);
+    const categoriesRef = database.ref('categories');
+    // Ensure this listener is only added once
+    categoriesRef.off();
     categoriesRef.on('value', snapshot => {
         const categoriesData = snapshot.val() || {};
-        categoriesCache = categoriesData; // store for task dropdowns
-        if (categorySelect) { // Ensure categorySelect exists
-             populateCategorySelect(categoriesData);
+        categoriesCache = categoriesData;
+        if (categorySelect) {
+            populateCategorySelect(categoriesData);
         }
-        if (categoryList) { // Ensure categoryList exists
+        if (categoryList) {
             renderCategoriesList(categoriesData);
         }
     });
@@ -182,7 +184,9 @@ function deleteCategory(categoryId) {
 
 // Last inn Oppgaver
 function loadTasks() {
-    const tasksRef = database.ref(`tasks`).orderByChild('order');
+    const tasksRef = database.ref('tasks').orderByChild('order');
+    // Remove any previous listeners to prevent duplicate renders
+    tasksRef.off();
     tasksRef.on('value', snapshot => {
         const tasksData = snapshot.val() || {};
         applyFiltersAndRender(tasksData);
@@ -494,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
     loadTasks();
 
-    // Remove duplicate event listeners and re-add using named functions
+    // Setup event listeners only once:
     if (addTaskButton) {
         addTaskButton.removeEventListener('click', addTaskHandler);
         addTaskButton.addEventListener('click', addTaskHandler);
@@ -641,6 +645,8 @@ document.addEventListener('DOMContentLoaded', () => {
             addCategoryButton.click();
         }
     }
+    // Optionally, add a log here so you can track how often renderTasks is invoked:
+    console.log("Initialization complete – single instance of event listeners attached.");
 });
 
 // [Removed duplicate global declarations, function definitions, and SortableJS initialization]
