@@ -29,10 +29,6 @@ const addCategoryButton = document.getElementById('add-category-button');
 const searchInput = document.getElementById('search-input');
 const sortBy = document.getElementById('sort-by');
 
-// Add missing element selectors:
-const markAllCompleteButton = document.getElementById('mark-all-complete');
-const deleteCompletedButton = document.getElementById('delete-completed');
-
 const totalTasksElem = document.getElementById('total-tasks');
 const completedTasksElem = document.getElementById('completed-tasks');
 const completionPercentageElem = document.getElementById('completion-percentage');
@@ -505,6 +501,9 @@ document.addEventListener('DOMContentLoaded', () => {
         addCategoryButton.removeEventListener('click', addCategoryHandler);
         addCategoryButton.addEventListener('click', addCategoryHandler);
     }
+    const markAllCompleteButton = document.getElementById('mark-all-complete');
+    const deleteCompletedButton = document.getElementById('delete-completed');
+    
     if (markAllCompleteButton) {
         markAllCompleteButton.removeEventListener('click', markAllCompleteHandler);
         markAllCompleteButton.addEventListener('click', markAllCompleteHandler);
