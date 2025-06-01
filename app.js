@@ -280,18 +280,21 @@ function renderTasks(tasks) {
     }
     if (!taskList) return;
     taskList.innerHTML = "";
+    // Ensure taskArray is defined
     const taskArray = Object.keys(tasks).map(key => ({ id: key, ...tasks[key] }));
-
+    
     if (taskArray.length === 0) {
         const emptyMessage = document.createElement('p');
-        emptyMessage.textContent = searchInput && searchInput.value ? 'Ingen oppgaver matchet søket ditt.' : 'Ingen oppgaver ennå. Legg til en!';
+        emptyMessage.textContent = searchInput && searchInput.value 
+            ? 'Ingen oppgaver matchet søket ditt.' 
+            : 'Ingen oppgaver ennå. Legg til en!';
         emptyMessage.style.textAlign = 'center';
         emptyMessage.style.color = '#888888';
         taskList.appendChild(emptyMessage);
-        updateCharts(tasks); // Update charts even if empty 
+        updateCharts(tasks);
         return;
     }
-
+    
     taskArray.forEach(task => {
         const li = document.createElement('li');
         li.className = 'task-item';
@@ -394,7 +397,7 @@ function renderTasks(tasks) {
         
         taskList.appendChild(li);
     });
-
+    
     updateCharts(tasks);
 }
 
