@@ -483,142 +483,154 @@ document.addEventListener('DOMContentLoaded', () => {
     if (completionChartElement) {
         completionChartCtx = completionChartElement.getContext('2d');
     }
-    // In order: Initialize chart, load categories, and load tasks
+    // Initialize chart, load categories and tasks
     initializeCharts();
     loadCategories();
     loadTasks();
-    // Setup event listeners in order (e.g., task input, category input, bulk buttons, etc.)
-    // Replace standard click event listeners with bindTouchClick for better mobile support:
+
+    // Remove duplicate event listeners and re-add using named functions
     if (addTaskButton) {
-        simpleTouchHandler(addTaskButton, () => {
-            const taskText = taskInput.value.trim();
-            const categoryId = categorySelect.value;
-            const priority = prioritySelect.value;
-            const createdAt = new Date().getTime();
-            if (taskText === "") {
-                alert("Vennligst fyll ut oppgavetekst.");
-                return;
+        addTaskButton.removeEventListener('click', addTaskHandler);
+        addTaskButton.addEventListener('click', addTaskHandler);
+    }
+    if (addCategoryButton) {
+        addCategoryButton.removeEventListener('click', addCategoryHandler);
+        addCategoryButton.addEventListener('click', addCategoryHandler);
+    }
+    if (markAllCompleteButton) {
+        markAllCompleteButton.removeEventListener('click', markAllCompleteHandler);
+        markAllCompleteButton.addEventListener('click', markAllCompleteHandler);
+    }
+    if (deleteCompletedButton) {
+        deleteCompletedButton.removeEventListener('click', deleteCompletedHandler);
+        deleteCompletedButton.addEventListener('click', deleteCompletedHandler);
+    }
+    if (searchInput) {
+        searchInput.removeEventListener('input', searchInputHandler);
+        searchInput.addEventListener('input', searchInputHandler);
+    }
+    if (sortBy) {
+        sortBy.removeEventListener('change', sortByHandler);
+        sortBy.addEventListener('change', sortByHandler);
+    }
+    if (taskInput) {
+        taskInput.removeEventListener('keydown', taskInputKeydownHandler);
+        taskInput.addEventListener('keydown', taskInputKeydownHandler);
+    }
+    if (newCategoryInput) {
+        newCategoryInput.removeEventListener('keydown', newCategoryInputKeydownHandler);
+        newCategoryInput.addEventListener('keydown', newCategoryInputKeydownHandler);
+    }
+    // Handler functions defined here (or imported from another module)
+    function addTaskHandler() {
+        const taskText = taskInput.value.trim();
+        const categoryId = categorySelect.value;
+        const priority = prioritySelect.value;
+        const createdAt = new Date().getTime();
+        if (taskText === "") {
+            alert("Vennligst fyll ut oppgavetekst.");
+            return;
+        }
+        const tasksRef = database.ref(`tasks`);
+        tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
+            let newOrder = 0;
+            snapshot.forEach(child => {
+                newOrder = (Number.isFinite(child.val().order) ? child.val().order : -1) + 1;
+            });
+            if (snapshot.numChildren() === 0) {
+                newOrder = 0;
             }
-            const tasksRef = database.ref(`tasks`);
-            tasksRef.orderByChild('order').limitToLast(1).once('value', snapshot => {
-                let newOrder = 0;
-                snapshot.forEach(child => {
-                    newOrder = (Number.isFinite(child.val().order) ? child.val().order : -1) + 1;
-                });
-                if (snapshot.numChildren() === 0) {
-                    newOrder = 0;
-                }
-                const newTaskRef = tasksRef.push();
-                newTaskRef.set({
-                    text: taskText,
-                    categoryId: categoryId,
-                    completed: false,
-                    priority: priority,
-                    createdAt: createdAt,
-                    order: newOrder
-                }).then(() => {
-                    if(taskInput) taskInput.value = '';
-                }).catch(error => {
-                    console.error('Feil ved legging til oppgave:', error);
-                });
+            const newTaskRef = tasksRef.push();
+            newTaskRef.set({
+                text: taskText,
+                categoryId: categoryId,
+                completed: false,
+                priority: priority,
+                createdAt: createdAt,
+                order: newOrder
+            }).then(() => {
+                if(taskInput) taskInput.value = '';
+            }).catch(error => {
+                console.error('Feil ved legging til oppgave:', error);
             });
         });
     }
     
-    if (addCategoryButton) {
-        simpleTouchHandler(addCategoryButton, () => {
-            const categoryName = newCategoryInput.value.trim();
-            if (categoryName === "") {
-                alert("Kategorinavnet kan ikke være tomt.");
-                return;
-            }
-            database.ref(`categories`).orderByChild('name').equalTo(categoryName).once('value', nameSnapshot => {
-                if (nameSnapshot.exists()) {
-                    alert("Kategorinavnet finnes allerede!");
-                } else {
-                    const newCategoryRef = database.ref(`categories`).push();
-                    newCategoryRef.set({ name: categoryName })
-                        .then(() => {
-                            console.log("Ny kategori lagt til.");
-                            if(newCategoryInput) newCategoryInput.value = '';
-                        })
-                        .catch(error => {
-                            console.error("Feil ved legging til kategori:", error);
-                        });
-                }
-            });
-        });
-    }
-    const markAllCompleteButton = document.getElementById('mark-all-complete');
-    if (markAllCompleteButton) {
-        simpleTouchHandler(markAllCompleteButton, () => {
-            if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
-                const tasksRef = database.ref('tasks');
-                tasksRef.once('value', snapshot => {
-                    const updates = {};
-                    snapshot.forEach(child => {
-                        updates[`${child.key}/completed`] = true;
+    function addCategoryHandler() {
+        const categoryName = newCategoryInput.value.trim();
+        if (categoryName === "") {
+            alert("Kategorinavnet kan ikke være tomt.");
+            return;
+        }
+        database.ref(`categories`).orderByChild('name').equalTo(categoryName).once('value', nameSnapshot => {
+            if (nameSnapshot.exists()) {
+                alert("Kategorinavnet finnes allerede!");
+            } else {
+                const newCategoryRef = database.ref(`categories`).push();
+                newCategoryRef.set({ name: categoryName })
+                    .then(() => {
+                        console.log("Ny kategori lagt til.");
+                        if(newCategoryInput) newCategoryInput.value = '';
+                    })
+                    .catch(error => {
+                        console.error("Feil ved legging til kategori:", error);
                     });
-                    tasksRef.update(updates).catch(error => console.error('Feil ved bulk oppdatering av oppgaver:', error));
+            }
+        });
+    }
+
+    function markAllCompleteHandler() {
+        if (confirm("Er du sikker på at du vil markere alle oppgaver som fullført?")) {
+            const tasksRef = database.ref('tasks');
+            tasksRef.once('value', snapshot => {
+                const updates = {};
+                snapshot.forEach(child => {
+                    updates[`${child.key}/completed`] = true;
                 });
-            }
-        });
+                tasksRef.update(updates).catch(error => console.error('Feil ved bulk oppdatering av oppgaver:', error));
+            });
+        }
     }
-    const deleteCompletedButton = document.getElementById('delete-completed');
-    if (deleteCompletedButton) {
-        simpleTouchHandler(deleteCompletedButton, () => {
-            if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
-                const tasksRef = database.ref('tasks');
-                tasksRef.orderByChild('completed').equalTo(true).once('value', snapshot => {
-                    const updates = {};
-                    snapshot.forEach(child => {
-                        updates[child.key] = null;
-                    });
-                    tasksRef.update(updates).catch(error => console.error('Feil ved bulk sletting av oppgaver:', error));
+
+    function deleteCompletedHandler() {
+        if (confirm("Er du sikker på at du vil slette alle fullførte oppgaver?")) {
+            const tasksRef = database.ref('tasks');
+            tasksRef.orderByChild('completed').equalTo(true).once('value', snapshot => {
+                const updates = {};
+                snapshot.forEach(child => {
+                    updates[child.key] = null;
                 });
+                tasksRef.update(updates).catch(error => console.error('Feil ved bulk sletting av oppgaver:', error));
             }
-        });
+        }
     }
-    // Listener for search input
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            // Re-fetch or re-filter tasks. For simplicity, re-load and re-apply.
-             const tasksRef = database.ref(`tasks`).orderByChild('order');
-             tasksRef.once('value', snapshot => { // Use once to avoid re-registering 'on'
-                const tasksData = snapshot.val() || {};
-                applyFiltersAndRender(tasksData);
-            });
+    
+    function searchInputHandler() {
+        const tasksRef = database.ref(`tasks`).orderByChild('order');
+        tasksRef.once('value', snapshot => {
+            const tasksData = snapshot.val() || {};
+            applyFiltersAndRender(tasksData);
         });
     }
 
-    // Listener for sort select
-    if (sortBy) {
-        sortBy.addEventListener('change', () => {
-            const tasksRef = database.ref(`tasks`).orderByChild('order');
-             tasksRef.once('value', snapshot => { 
-                const tasksData = snapshot.val() || {};
-                applyFiltersAndRender(tasksData);
-            });
+    function sortByHandler() {
+        const tasksRef = database.ref(`tasks`).orderByChild('order');
+        tasksRef.once('value', snapshot => {
+            const tasksData = snapshot.val() || {};
+            applyFiltersAndRender(tasksData);
         });
     }
 
-    // Add Enter key submission for new task input
-    if (taskInput) {
-        taskInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addTaskButton.click();
-            }
-        });
+    function taskInputKeydownHandler(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTaskButton.click();
+        }
     }
-
-    // Add Enter key submission for new category input
-    if (newCategoryInput) {
-        newCategoryInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addCategoryButton.click();
-            }
-        });
+    function newCategoryInputKeydownHandler(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addCategoryButton.click();
+        }
     }
 });
