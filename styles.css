@@ -40,10 +40,8 @@ body {
     width: clamp(300px, 90%, 550px);
     margin: 1rem auto;
     padding: 1rem;
-    overflow-x: hidden;
     border-radius: var(--default-border-radius);
     max-height: calc(100vh - 2rem) !important;  /* add !important to enforce constraint */
-    overflow-y: auto;
 }
 
 /* Layout: Main Content Only (updated since sidebar removed) */
@@ -67,7 +65,6 @@ body {
     flex-direction: column;
     gap: 1rem;
     max-height: calc(100vh - 4rem); /* restrict height for inner content */
-    overflow-y: auto;
 }
 
 /* Task Input Section */
@@ -258,11 +255,6 @@ body {
     box-shadow: var(--box-shadow);
 }
 
-/* Optionally, if you want different colors per column, define them separately:
-// .tasks-column { background: var(--baby-pink); }
-// .categories-column { background: var(--chartreuse); }
-// .graphs-column { background: var(--baby-blue); }
-*/
 
 /* Enhance graphs column */
 .graphs-column {
@@ -271,7 +263,6 @@ body {
     border-radius: var(--default-border-radius);
     box-shadow: var(--box-shadow);
     max-height: calc(100vh - 4rem);
-    overflow-y: auto;
     display: flex;
     flex-direction: column; /* Stack stats and chart vertically */
     align-items: center;
