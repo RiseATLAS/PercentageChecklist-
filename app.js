@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updates[child.key] = null;
                 });
                 tasksRef.update(updates).catch(error => console.error('Feil ved bulk sletting av oppgaver:', error));
-            }
+            });
         }
     }
     
