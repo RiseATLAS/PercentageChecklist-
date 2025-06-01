@@ -34,42 +34,47 @@ const completedTasksElem = document.getElementById('completed-tasks');
 const completionPercentageElem = document.getElementById('completion-percentage');
 let completionChartCtx; // Initialized in DOMContentLoaded
 
-// Initialize SortableJS for Drag-and-Drop only on non-mobile devices
-if (taskList && !window.matchMedia('(pointer: coarse)').matches) {
+// Global declarations
+let isReordering = false;
+let categoriesCache = {};
+
+// Initialize SortableJS for Drag-and-Drop
+if (taskList) {
     const sortable = new Sortable(taskList, {
         animation: 150,
         delay: 0,                // ensure no delay on tap events
         delayOnTouchOnly: true,  // only use delay for dragging, not tapping
         touchStartThreshold: 5,  // reduce threshold so taps register easily
-        fallbackTolerance: 0,    // Ensures clicks register on all tasks on both mobile and PC
+        fallbackTolerance: 0,
         onEnd: function(evt) {
-            // If no change in position, do nothing
             if (evt.oldIndex === evt.newIndex) return;
+            if (isReordering) return;
+            isReordering = true;
             const tasksRef = database.ref(`tasks`);
             tasksRef.orderByChild('order').once('value', snapshot => {
                 const tasks = [];
                 snapshot.forEach(child => {
                     tasks.push({ id: child.key, ...child.val() });
                 });
-                // Remove the moved task and insert it at the new index
                 const movedTask = tasks.splice(evt.oldIndex, 1)[0];
                 tasks.splice(evt.newIndex, 0, movedTask);
-                // Update order for each task
                 const updates = {};
                 tasks.forEach((task, index) => {
-                    updates[`tasks/${task.id}/order`] = index;
+                    if (task.order !== index) {
+                        updates[`tasks/${task.id}/order`] = index;
+                    }
                 });
                 database.ref().update(updates)
                     .catch(error => {
                         console.error('Feil ved oppdatering av oppgave rekkefølge:', error);
+                    })
+                    .finally(() => {
+                        isReordering = false;
                     });
             });
         },
     });
 }
-
-
-let categoriesCache = {};  // new global cache for categories
 
 // Last inn Kategorier
 function loadCategories() {
@@ -637,3 +642,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// [Removed duplicate global declarations, function definitions, and SortableJS initialization]
