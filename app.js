@@ -37,26 +37,29 @@ let eventCounters = {
 
 function updateEventCounters() {
     if (!DEBUG_MODE) return;
-    const counterEl = document.getElementById("event-counters");
-    if (counterEl) {
-        counterEl.innerText =
-            "loadTasks: " + eventCounters.loadTasks +
-            " | renderTasks: " + eventCounters.renderTasks +
-            " | loadCategories: " + eventCounters.loadCategories +
-            " | addTask: " + eventCounters.addTask +
-            " | addCategory: " + eventCounters.addCategory +
-            " | markAllComplete: " + eventCounters.markAllComplete +
-            " | deleteCompleted: " + eventCounters.deleteCompleted +
-            " | updateCharts: " + eventCounters.updateCharts +
-            " | applyFilters: " + eventCounters.applyFilters +
-            " | renderCategories: " + eventCounters.renderCategoriesList +
-            " | sortBy: " + eventCounters.sortBy +
-            " | taskInputKeydown: " + eventCounters.taskInputKeydown +
-            " | newCategoryKeydown: " + eventCounters.newCategoryInputKeydown +
-            " | sortableOnEnd: " + eventCounters.sortableOnEnd;
+    const ids = {
+        loadTasks: "counter-loadTasks",
+        renderTasks: "counter-renderTasks",
+        loadCategories: "counter-loadCategories",
+        addTask: "counter-addTask",
+        addCategory: "counter-addCategory",
+        markAllComplete: "counter-markAllComplete",
+        deleteCompleted: "counter-deleteCompleted",
+        updateCharts: "counter-updateCharts",
+        applyFilters: "counter-applyFilters",
+        renderCategoriesList: "counter-renderCategoriesList",
+        sortBy: "counter-sortBy",
+        taskInputKeydown: "counter-taskInputKeydown",
+        newCategoryInputKeydown: "counter-newCategoryInputKeydown",
+        sortableOnEnd: "counter-sortableOnEnd"
+    };
+    for (let key in ids) {
+        const el = document.getElementById(ids[key]);
+        if (el) {
+            el.innerText = eventCounters[key];
+        }
     }
 }
-// ---------------------
 
 // DOM-elementer
 const taskInput = document.getElementById('task-input');
