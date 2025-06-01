@@ -30,6 +30,10 @@ const addCategoryButton = document.getElementById('add-category-button');
 const searchInput = document.getElementById('search-input');
 const sortBy = document.getElementById('sort-by');
 
+// Add missing element selectors:
+const markAllCompleteButton = document.getElementById('mark-all-complete');
+const deleteCompletedButton = document.getElementById('delete-completed');
+
 const totalTasksElem = document.getElementById('total-tasks');
 const completedTasksElem = document.getElementById('completed-tasks');
 const completionPercentageElem = document.getElementById('completion-percentage');
@@ -453,18 +457,23 @@ function updateCategoryStats(tasks) {
 // Vis Kategoristatistikk
 function displayCategoryStats(categoryStats) {
     const statsContainer = document.querySelector('.category-stats');
-     if (!statsContainer) {
+    if (!statsContainer) {
         console.error("Could not find .category-stats element.");
         return;
     }
     statsContainer.innerHTML = "";
+    let hasStats = false;
     for (let id in categoryStats) {
         const stat = categoryStats[id];
         if (stat.total === 0) continue;
+        hasStats = true;
         const p = document.createElement('p');
         const percentage = stat.total === 0 ? 0 : Math.round((stat.completed / stat.total) * 100);
         p.textContent = `${stat.name}: ${percentage}% fullført (${stat.completed}/${stat.total})`;
         statsContainer.appendChild(p);
+    }
+    if (!hasStats) {
+        statsContainer.innerHTML = '<p>Ingen statistikk tilgjengelig.</p>';
     }
 }
 

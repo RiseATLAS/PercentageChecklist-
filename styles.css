@@ -42,7 +42,8 @@ body {
     padding: 1rem;
     overflow-x: hidden;
     border-radius: var(--default-border-radius);
-    /* Removed any fixed height */
+    max-height: 100vh; /* Constrain container height */
+    overflow-y: auto; /* Enable vertical scrolling if needed */
 }
 
 /* Layout: Main Content Only (updated since sidebar removed) */
