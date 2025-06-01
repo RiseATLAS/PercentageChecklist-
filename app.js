@@ -267,23 +267,10 @@ function loadTasks() {
             return; // Data unchanged, do not re-render
         }
         previousTasksData = tasksData;
-        debouncedApplyFiltersAndRender(tasksData);
+        // Call applyFiltersAndRender directly instead of the debounced version.
+        applyFiltersAndRender(tasksData);
     });
 }
-
-// Add a debounce function to limit rapid re-renders.
-function debounce(func, delay) {
-    let timer;
-    return function(...args) {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-            func.apply(this, args);
-        }, delay);
-    };
-}
-
-// Wrap the existing function
-const debouncedApplyFiltersAndRender = debounce(applyFiltersAndRender, 300);
 
 // Render Oppgaver
 function renderTasks(tasks) {
