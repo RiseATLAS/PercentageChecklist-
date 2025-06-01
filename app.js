@@ -427,6 +427,7 @@ function updateCharts(tasks) {
     } else {
         console.error("completionChartInstance is not initialized.");
     }
+    updateCategoryStats(tasks); // Call updateCategoryStats here
 }
 
 // Oppdater Kategoristatistikk
@@ -452,7 +453,10 @@ function updateCategoryStats(tasks) {
 // Vis Kategoristatistikk
 function displayCategoryStats(categoryStats) {
     const statsContainer = document.querySelector('.category-stats');
-    if (!statsContainer) return;
+     if (!statsContainer) {
+        console.error("Could not find .category-stats element.");
+        return;
+    }
     statsContainer.innerHTML = "";
     for (let id in categoryStats) {
         const stat = categoryStats[id];

@@ -265,6 +265,7 @@ body {
     box-shadow: var(--box-shadow);
     height: 300px; /* Set a specific height */
     display: flex;
+    flex-direction: column; /* Changed to column */
     align-items: center; /* Vertically center content */
     justify-content: center; /* Horizontally center content */
 }
