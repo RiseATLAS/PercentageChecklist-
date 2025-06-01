@@ -505,11 +505,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteCompletedButton = document.getElementById('delete-completed');
     
     if (markAllCompleteButton) {
-        markAllCompleteButton.removeEventListener('click', markAllCompleteHandler);
         markAllCompleteButton.addEventListener('click', markAllCompleteHandler);
     }
     if (deleteCompletedButton) {
-        deleteCompletedButton.removeEventListener('click', deleteCompletedHandler);
         deleteCompletedButton.addEventListener('click', deleteCompletedHandler);
     }
     if (searchInput) {
@@ -594,7 +592,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 snapshot.forEach(child => {
                     updates[`${child.key}/completed`] = true;
                 });
-                tasksRef.update(updates).catch(error => console.error('Feil ved bulk oppdatering av oppgaver:', error));
+                tasksRef.update(updates)
+                    .catch(error => console.error('Feil ved bulk oppdatering av oppgaver:', error));
             });
         }
     }
