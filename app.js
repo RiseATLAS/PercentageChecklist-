@@ -297,7 +297,7 @@ function renderTasks(tasks) {
         li.className = 'task-item';
         li.setAttribute('data-id', task.id);
         if (task.completed) {
-            li.classList.add('completed-task'); // Changed from 'completed'
+            li.classList.add('completed-task');
         }
 
         const checkboxContainer = document.createElement('div');
@@ -391,26 +391,6 @@ function renderTasks(tasks) {
         li.appendChild(categorySelectElem);
         li.appendChild(prioritySpan);
         li.appendChild(deleteButton);
-        
-        // New listener: Click anywhere on li that is NOT an interactive element toggles completion.
-        li.addEventListener('click', (e) => {
-            if (!e.target.closest('button') &&
-                !e.target.closest('input') &&
-                !e.target.closest('select') &&
-                !e.target.closest('textarea')) {
-                    const newStatus = !task.completed;
-                    database.ref(`tasks/${task.id}`).update({ completed: newStatus })
-                      .then(() => {
-                          li.classList.toggle('completed-task', newStatus); // Changed from 'completed'
-                          const checkbox = li.querySelector('.checkbox-container input');
-                          if (checkbox) checkbox.checked = newStatus;
-                          task.completed = newStatus;
-                      })
-                      .catch(error => {
-                          console.error("Error toggling task completion:", error);
-                      });
-            }
-        });
         
         taskList.appendChild(li);
     });
@@ -763,3 +743,131 @@ function newCategoryInputKeydownHandler(e) {
         addCategoryButton.click();
     }
 }
+
+// In renderTasks, remove the li.addEventListener('click', ...) block:
+// ...existing code...
+taskArray.forEach(task => {
+    const li = document.createElement('li');
+    li.className = 'task-item';
+    li.setAttribute('data-id', task.id);
+    if (task.completed) {
+        li.classList.add('completed-task');
+    }
+
+    const checkboxContainer = document.createElement('div');
+    checkboxContainer.className = 'checkbox-container';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = task.completed;
+    checkbox.addEventListener('change', () => {
+        database.ref(`tasks/${task.id}`).update({ completed: checkbox.checked })
+            .catch(error => {
+                console.error('Feil ved oppdatering av oppgave:', error);
+            });
+    });
+    checkboxContainer.appendChild(checkbox);
+
+    const taskTextSpan = document.createElement('span');
+    taskTextSpan.className = 'task-text';
+    taskTextSpan.textContent = task.text;
+    taskTextSpan.setAttribute('contenteditable', 'false');
+
+    taskTextSpan.addEventListener('dblclick', () => {
+        taskTextSpan.setAttribute('contenteditable', 'true');
+        taskTextSpan.focus();
+    });
+
+    taskTextSpan.addEventListener('blur', () => {
+        taskTextSpan.setAttribute('contenteditable', 'false');
+        const newText = taskTextSpan.textContent.trim();
+        if (newText === "") {
+            alert("Oppgaveteksten kan ikke være tom.");
+            taskTextSpan.textContent = task.text;
+            return;
+        }
+        if (newText !== task.text) {
+            database.ref(`tasks/${task.id}`).update({ text: newText })
+                .catch(error => {
+                    console.error('Feil ved oppdatering av oppgavetekst:', error);
+                    taskTextSpan.textContent = task.text; // Revert on error
+                });
+        }
+    });
+
+    // Modify category editing: always allow inline editing.
+    const categorySelectElem = document.createElement('select');
+    categorySelectElem.className = 'task-category-select';
+    
+    // Add default option
+    const defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "Uten kategori";
+    categorySelectElem.appendChild(defaultOption);
+    
+    // Populate options from cached categories
+    for (let catId in categoriesCache) {
+        const option = document.createElement('option');
+        option.value = catId;
+        option.textContent = categoriesCache[catId].name;
+        categorySelectElem.appendChild(option);
+    }
+    
+    // Set the dropdown value to task.categoryId if exists
+    categorySelectElem.value = task.categoryId || "";
+    
+    // When selection changes, update the task's categoryId (and remove any customCategory).
+    categorySelectElem.addEventListener('change', () => {
+        const newCategory = categorySelectElem.value;
+        database.ref(`tasks/${task.id}`).update({ categoryId: newCategory, customCategory: null })
+          .then(() => { console.log("Task category updated via dropdown"); })
+          .catch(error => { console.error("Error updating task category:", error); });
+    });
+    
+    const prioritySpan = document.createElement('span');
+    prioritySpan.className = `task-priority priority-${(task.priority || 'mid').toLowerCase()}`;
+    prioritySpan.textContent = task.priority || 'Mid';
+    
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'delete-button';
+    // Re-implement x change: set symbol to a stylish "✖"
+    deleteButton.textContent = '✖';
+    deleteButton.title = "Slett Oppgave";
+    deleteButton.addEventListener('click', () => {
+        database.ref(`tasks/${task.id}`).remove()
+            .catch(error => {
+                console.error('Feil ved sletting av oppgave:', error);
+            });
+    });
+
+    // Append interactive elements:
+    li.appendChild(checkboxContainer);
+    li.appendChild(taskTextSpan);
+    li.appendChild(categorySelectElem);
+    li.appendChild(prioritySpan);
+    li.appendChild(deleteButton);
+    
+    taskList.appendChild(li);
+});
+
+// Add one delegated click listener on taskList:
+taskList.addEventListener("click", function(e) {
+    // Exclude interactive elements
+    const excluded = ["BUTTON", "INPUT", "SELECT", "TEXTAREA"];
+    if (excluded.includes(e.target.tagName)) return;
+    // Identify the closest task item
+    const li = e.target.closest("li.task-item");
+    if (!li) return;
+    const taskId = li.getAttribute("data-id");
+    // Find checkbox to infer current state
+    const checkbox = li.querySelector(".checkbox-container input");
+    if (!checkbox) return;
+    const newStatus = !checkbox.checked;
+    database.ref(`tasks/${taskId}`).update({ completed: newStatus })
+      .then(() => {
+          li.classList.toggle('completed-task', newStatus);
+          checkbox.checked = newStatus;
+      })
+      .catch(error => {
+          console.error("Error toggling task completion:", error);
+      });
+});
