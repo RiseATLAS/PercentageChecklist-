@@ -1,153 +1,292 @@
-/* Base styling */
+/* Updated Modern Styling with Enhanced Layout and Complex Design */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000;
+    --baby-blue: #89CFF0;
+    --baby-pink: #F4C2C2;
+    --chartreuse: #7FFF00;
+    /* New rounded box variables */
+    --small-border-radius: 8px;
+    --default-border-radius: 16px;
+    --large-border-radius: 32px;
+    --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    --font-family: 'Roboto', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Additional mobile quality fixes */
+* {
+    -webkit-tap-highlight-color: transparent;  
+}
+
 body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  background: #f5f5f5;
-  color: #333;
-}
-h1 {
-  font-size: 1.5rem;
-  margin: 1rem 0;
-  text-align: center;
-}
-h2 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-#progress-text {
-  margin: 0.5rem 0;
-  font-weight: 500;
+    /* Base typography with clamp() for fluid size */
+    font-family: var(--font-family);
+    background: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    /* Updated fluid font-size (50% of original) */
+    font-size: clamp(0.45rem, 0.5vw + 0.5rem, 0.6rem) !important; /* fluid scaling confirmed */
+    min-height: 100vh; /* Makes sure body fills at least the viewport */
 }
 
-/* Layout and responsiveness */
-main {
-  max-width: 800px;
-  margin: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-@media (min-width: 700px) {
-  main {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-}
-#task-section, #templates-section {
-  flex: 1;
-}
-@media (min-width: 700px) {
-  #task-section { flex: 2; }
-  #templates-section { flex: 1; }
+/* Container */
+.container {
+    width: clamp(300px, 90%, 550px);
+    margin: 1rem auto;
+    padding: 1rem;
+    overflow-x: hidden;
+    border-radius: var(--default-border-radius);
+    max-height: calc(100vh - 2rem) !important;  /* add !important to enforce constraint */
+    overflow-y: auto;
 }
 
-/* Forms */
-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-#task-form input[type="text"] {
-  flex: 1;
-}
-input, button {
-  font: inherit;
-}
-input {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-input:focus {
-  outline: none;
-  border-color: #777;
-}
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  padding: 0.5rem 1rem;
-  font-weight: 600;
-}
-.btn-primary {
-  background: #2196F3;
-  color: #fff;
-}
-.btn-primary:hover {
-  background: #1e88e5;
-}
-.btn-danger {
-  background: none;
-  border: 2px solid #f44336;
-  color: #f44336;
-  padding: 0.4rem 0.8rem;
-}
-.btn-danger:hover {
-  background: #f44336;
-  color: #fff;
+/* Layout: Main Content Only (updated since sidebar removed) */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr; /* updated from 300px 1fr */
+    gap: 1rem;
+    margin-top: 1rem;
 }
 
-/* Lists of tasks and templates */
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-li {
-  background: #fff;
-  border-radius: 5px;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-}
-li label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.due-date {
-  font-size: 0.9rem;
-  color: #555;
-}
-li.completed .task-name,
-li.completed .due-date {
-  text-decoration: line-through;
-  color: #777;
-}
-li.overdue .due-date {
-  color: #d32f2f;
+/* Main Content */
+.main-content {
+    max-width: 400px; /* updated from 800px */
+    margin: 0 auto;
+    background: var(--baby-pink);
+    /* Updated fluid padding scaled down by 50% */
+    padding: clamp(0.25rem, 0.5vw, 0.5rem); /* fluid padding verified */
+    border-radius: var(--large-border-radius);
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: calc(100vh - 4rem); /* restrict height for inner content */
+    overflow-y: auto;
 }
 
-/* Buttons in list items */
-.delete-task-btn {
-  background: none;
-  border: none;
-  color: #f44336;
-  font-size: 1.2rem;
-  line-height: 1;
-  padding: 0 0.5rem;
-  cursor: pointer;
+/* Task Input Section */
+.task-input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
-.delete-task-btn:hover {
-  color: #d32f2f;
+.add-task {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
-.use-template-btn {
-  margin-right: 0.5rem;
+.add-task input,
+.add-task select,
+.add-task button {
+    flex: 1;
+    /* Reduced size by 50% */
+    padding: 0.25rem;
+    font-size: 0.45rem;
+    border: 1px solid #ddd;
+    border-radius: var(--small-border-radius); /* updated */
+}
+.add-task button {
+    background: var(--baby-blue);
+    color: #000;  /* changed from white (#fff) */
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.add-task button:hover {
+    background: var(--baby-pink);
+}
+.filter-section {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.filter-section input,
+.filter-section select {
+    flex: 1;
+    /* Reduced size by 50% */
+    padding: 0.25rem;
+    font-size: 0.45rem;
+    border: 1px solid #ddd;
+    border-radius: var(--small-border-radius); /* updated */
 }
 
-/* Accessibility helpers */
-.visually-hidden {
-  position: absolute;
-  left: -10000px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
+/* Task List Section */
+.task-list-section ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.task-item {
+    background: #fff;
+    /* Reduced size by 50% */
+    padding: 0.25rem;
+    margin-bottom: 0.25rem;
+    border-radius: var(--default-border-radius); /* updated for consistency */
+    box-shadow: var(--box-shadow);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem; /* was 0.5rem */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-width: 0; /* added to reduce minimum width */
+    margin-left: 0; /* removed indent */
+}
+.task-item:hover {
+    transform: translateY(-3px);
+}
+.checkbox-container input {
+    transform: scale(1.25);
+}
+.task-text {
+    flex: 1;
+    min-width: 0; /* added to allow the text container to shrink */
+    cursor: text;
+    text-indent: 0; /* ensure no text indent */
+}
+.task-category {
+    background: var(--baby-blue);
+    color: #000;  /* changed from white (#fff) */
+    /* Reduced size by 50% */
+    padding: 0.2rem 0.4rem; /* was 0.4rem 0.8rem */
+    border-radius: 50px;  /* fully round corners */
+    font-size: 0.425rem;    /* was 0.85rem */
+}
+
+/* Remove blue bar at bottom */
+.site-footer {
+    display: none;  
+}
+
+/* Move trash symbol in the category list to far right */
+.category-item {
+    display: flex;
+    justify-content: space-between; /* Moves delete button to end of line */
+    align-items: center;
+    background: #fff;               /* same as task-item background */
+    /* Reduced size by 50% */
+    padding: 0.25rem;      /* was 0.5rem */
+    margin-bottom: 0.25rem; /* was 0.5rem */
+    border-radius: var(--default-border-radius); /* updated */
+    box-shadow: var(--box-shadow);
+}
+.delete-button {
+    background-color: var(--baby-blue); /* or adjust as needed */
+    color: #000;
+    border: none;
+    border-radius: 50%; /* makes the button round */
+    /* Reduced size by 50% */
+    padding: 0.25rem; /* was 0.5rem */
+    width: 1rem;      /* was 2rem */
+    height: 1rem;     /* was 2rem */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Task Priority Colors */
+.task-priority.priority-høy {
+    background-color: #ffffe0; /* baby yellow */
+}
+.task-priority.priority-mid {
+    background-color: #d0f0c0; /* baby green */
+}
+.task-priority.priority-lav {
+    background-color: #ffd1dc; /* baby red */
+}
+.task-priority {
+    /* Reduced size by 50% */
+    padding: 0.25rem 0.5rem; /* was 0.5rem 1rem */
+    border-radius: 50px;  /* ensure fully rounded corners */
+}
+
+/* For category dropdown in task items */
+.task-category-select {
+    border-radius: 50px;
+    padding: 0.4rem; /* optional additional padding for clarity */
+}
+
+/* Optional: Style the toggle button */
+#toggle-view-button {
+    margin-bottom: 1rem;
+    /* Reduced size by 50% */
+    padding: 0.25rem 0.5rem; /* was 0.5rem 1rem */
+    background: var(--baby-blue);
+    color: #000;
+    border: none;
+    border-radius: var(--small-border-radius); /* updated */
+    cursor: pointer;
+    transition: background 0.3s;
+}
+#toggle-view-button:hover {
+    background: var(--baby-pink);
+}
+
+/* New style for completed tasks */
+.completed-task {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+/* New style for category stats container in the stats section */
+.category-stats {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    min-height: 2rem; /* added to prevent collapse */
+    padding: 0.5rem; /* extra spacing */
+}
+
+/* New three-columns container styling */ 
+.three-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+/* Standardize each column container to have a baby pink background */
+.three-columns > div {
+    background: var(--baby-pink); /* now all columns have baby pink background */
+    padding: 1rem;
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+/* Optionally, if you want different colors per column, define them separately:
+// .tasks-column { background: var(--baby-pink); }
+// .categories-column { background: var(--chartreuse); }
+// .graphs-column { background: var(--baby-blue); }
+*/
+
+/* Enhance graphs column */
+.graphs-column {
+    background: var(--baby-blue);
+    padding: 1rem;
+    border-radius: var(--default-border-radius);
+    box-shadow: var(--box-shadow);
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column; /* Stack stats and chart vertically */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Style for the graph container */
+.percentage-graph-container {
+    width: 100%; /* Adjust as needed */
+    height: 100%; /* Adjust as needed */
+    position: relative; /* For absolute positioning of elements within */
+}
+
+/* Style the canvas element to fill its container */
+#completion-chart {
+    width: 100%;
+    height: 100%;
 }
