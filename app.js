@@ -26,7 +26,6 @@ const taskList = document.getElementById('task-list');
 const categoryList = document.getElementById('category-list');
 const newCategoryInput = document.getElementById('new-category-input');
 const addCategoryButton = document.getElementById('add-category-button');
-
 const searchInput = document.getElementById('search-input');
 const sortBy = document.getElementById('sort-by');
 
