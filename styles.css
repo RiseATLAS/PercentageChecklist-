@@ -37,13 +37,13 @@ body {
 
 /* Container */
 .container {
-    width: clamp(300px, 90%, 550px); /* changed from fixed max-width, constant fluid scaling via clamp() */
+    width: clamp(300px, 90%, 550px);
     margin: 1rem auto;
     padding: 1rem;
     overflow-x: hidden;
     border-radius: var(--default-border-radius);
-    max-height: 100vh; /* Constrain container height */
-    overflow-y: auto; /* Enable vertical scrolling if needed */
+    height: 100vh; /* fixed height so it does not grow indefinitely */
+    overflow-y: auto; /* scroll content if needed */
 }
 
 /* Layout: Main Content Only (updated since sidebar removed) */
