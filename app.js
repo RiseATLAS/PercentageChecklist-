@@ -16,7 +16,7 @@ const database = firebase.database();
 const storage = firebase.storage(); // Initialize Firebase Storage
 
 // ---------------------
-// Moved debug declarations to the top
+// Updated debug declarations with additional events
 const DEBUG_MODE = true;  // set to false to disable debug logging and counters
 let eventCounters = {
     loadTasks: 0,
@@ -25,7 +25,14 @@ let eventCounters = {
     addTask: 0,
     addCategory: 0,
     markAllComplete: 0,
-    deleteCompleted: 0
+    deleteCompleted: 0,
+    updateCharts: 0,
+    applyFilters: 0,
+    renderCategoriesList: 0,
+    sortBy: 0,
+    taskInputKeydown: 0,
+    newCategoryInputKeydown: 0,
+    sortableOnEnd: 0
 };
 
 function updateEventCounters() {
@@ -35,10 +42,18 @@ function updateEventCounters() {
         counterEl.innerText =
             "loadTasks: " + eventCounters.loadTasks +
             " | renderTasks: " + eventCounters.renderTasks +
+            " | loadCategories: " + eventCounters.loadCategories +
             " | addTask: " + eventCounters.addTask +
             " | addCategory: " + eventCounters.addCategory +
             " | markAllComplete: " + eventCounters.markAllComplete +
-            " | deleteCompleted: " + eventCounters.deleteCompleted;
+            " | deleteCompleted: " + eventCounters.deleteCompleted +
+            " | updateCharts: " + eventCounters.updateCharts +
+            " | applyFilters: " + eventCounters.applyFilters +
+            " | renderCategories: " + eventCounters.renderCategoriesList +
+            " | sortBy: " + eventCounters.sortBy +
+            " | taskInputKeydown: " + eventCounters.taskInputKeydown +
+            " | newCategoryKeydown: " + eventCounters.newCategoryInputKeydown +
+            " | sortableOnEnd: " + eventCounters.sortableOnEnd;
     }
 }
 // ---------------------
@@ -95,6 +110,10 @@ if (taskList) {
             if (evt.oldIndex === evt.newIndex) return;
             if (isReordering) return;
             isReordering = true;
+            if (DEBUG_MODE) {
+                eventCounters.sortableOnEnd++;
+                updateEventCounters();
+            }
             const tasksRef = database.ref(`tasks`);
             tasksRef.orderByChild('order').once('value', snapshot => {
                 const tasks = [];
@@ -153,6 +172,10 @@ function populateCategorySelect(categories) {
 
 // Render Kategoriliste
 function renderCategoriesList(categories) {
+    if (DEBUG_MODE) {
+        eventCounters.renderCategoriesList++;
+        updateEventCounters();
+    }
     if (!categoryList) return;
     categoryList.innerHTML = "";
     for (let id in categories) {
@@ -719,6 +742,10 @@ function searchInputHandler() {
 }
 
 function sortByHandler() {
+    if (DEBUG_MODE) {
+        eventCounters.sortBy++;
+        updateEventCounters();
+    }
     const tasksRef = database.ref(`tasks`).orderByChild('order');
     tasksRef.once('value', snapshot => {
         const tasksData = snapshot.val() || {};
@@ -727,12 +754,20 @@ function sortByHandler() {
 }
 
 function taskInputKeydownHandler(e) {
+    if (DEBUG_MODE) {
+        eventCounters.taskInputKeydown++;
+        updateEventCounters();
+    }
     if (e.key === 'Enter') {
         e.preventDefault();
         addTaskButton.click();
     }
 }
 function newCategoryInputKeydownHandler(e) {
+    if (DEBUG_MODE) {
+        eventCounters.newCategoryInputKeydown++;
+        updateEventCounters();
+    }
     if (e.key === 'Enter') {
         e.preventDefault();
         addCategoryButton.click();
