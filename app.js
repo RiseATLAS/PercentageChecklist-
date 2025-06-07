@@ -17,13 +17,14 @@
  * 
  * 4. Categories:
  *    - Add tasks to categories
+ *    - categories name can be edited.
  *    - Filter by category
  *    - Tasks can be assigned to categories, and the UI should allow filtering tasks by category.
  *    - Categories can conttain tasks, and tasks can be assigned to categories.
  *   -  a button on the categories allows all realated tasks to be store and retrieved.
  *   - when a task is completed, a small pig should run across the screen.
  *   - when a full category is completed, goats should run across the screen.
- * 
+ *  
  */
 
 // Firebase config
@@ -145,18 +146,20 @@ const utils = {
         if (filter) filter.innerHTML = dropdownHTML;
         if (select) select.innerHTML = dropdownHTML;
 
-        // Update category list
+        // Update category list with editable names
         const categoryList = document.getElementById('categoryList');
         if (categoryList) {
             categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
-                <div class="category-item">
-                    <span class="category-name">${cat.name}</span>
+                <div class="category-item" data-category="${id}">
+                    <span class="category-name" contenteditable="true" 
+                          onfocus="this.dataset.original = this.textContent"
+                          onblur="categories.updateName('${id}', this)">${cat.name}</span>
                     <div class="category-actions">
                         <button class="store-btn" onclick="categories.storeTasksForCategory('${id}')">
-                            Store 📥
+                            Save Tasks 💾
                         </button>
                         <button class="load-btn" onclick="categories.loadStoredTasks('${id}')">
-                            Load 📤
+                            Load Tasks 📂
                         </button>
                     </div>
                 </div>
@@ -263,6 +266,23 @@ const categories = {
             }
         } catch (error) {
             utils.showError('Error loading stored tasks');
+        }
+    },
+
+    async updateName(categoryId, element) {
+        const newName = element.textContent.trim();
+        const originalName = element.dataset.original;
+        
+        if (newName && newName !== originalName) {
+            try {
+                await utils.dbRef(`categories/${categoryId}/name`).set(newName);
+                this.data[categoryId].name = newName;
+                utils.updateCategoryFilter(this.data);
+                utils.showError('Category name updated', 'success', 1000);
+            } catch (error) {
+                element.textContent = originalName;
+                utils.showError('Error updating category name');
+            }
         }
     }
 };

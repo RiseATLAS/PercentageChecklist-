@@ -1,22 +1,57 @@
+/*
+requirements
+- WHite, baby blue, baby pink are primary colors
+- rounded corners of all boxes
+- modern design, usable for both phone computer, focus on phone  */
+
 /* Basic Setup */
 :root {
-    --primary-color: #89CFF0;
-    --secondary-color: #F4C2C2;
+    --primary-color: #89CFF0;    /* baby blue */
+    --secondary-color: #F4C2C2;  /* baby pink */
+    --accent-color: white;
     --success-color: #4CAF50;
-    --error-color: #ff4444;
-    --warning-color: #FFC107;
-    --border-radius: 4px;
-    --baby-blue: #89CFF0;
-    --baby-pink: #F4C2C2;
-    --success: #4CAF50;
+    --border-radius: 8px;        /* increased for modern look */
 }
 
 /* Base Styles */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
     line-height: 1.5;
+    background: var(--accent-color);
+}
+
+.container {
+    max-width: 800px;
+    margin: 10px auto;
+    padding: 10px;
+}
+
+/* Mobile-first Forms */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input, select, button {
+    padding: 12px;    /* larger for touch */
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    font-size: 16px;  /* minimum size for iOS */
+}
+
+button {
+    background: var(--primary-color);
+    color: var(--accent-color);
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: var(--secondary-color);
 }
 
 /* Container */
@@ -65,9 +100,21 @@ input, select, button {
     border-radius: var(--border-radius);
 }
 
-.category-actions {
-    display: flex;
-    gap: 5px;
+/* Editable Category Names */
+.category-name {
+    padding: 5px;
+    border-radius: var(--border-radius);
+    min-width: 100px;
+}
+
+.category-name:focus {
+    background: var(--accent-color);
+    outline: 2px solid var(--primary-color);
+}
+
+.category-name:hover {
+    background: var(--accent-color);
+    cursor: text;
 }
 
 /* Core Task Styles - Updated for clarity */
@@ -322,7 +369,7 @@ input, select, button {
     top: 20px;
     right: 20px;
     padding: 10px 20px;
-    border-radius: 4px;
+    border-radius: var(--radius);
     z-index: 1000;
     transition: all 0.3s ease;
 }
@@ -335,15 +382,64 @@ input, select, button {
 .celebration-pig, .celebration-goats {
     position: fixed;
     bottom: 20px;
-    left: -50px;
     z-index: 1000;
     pointer-events: none;
 }
 
-.celebration-pig { animation: run-across 1.5s ease-in-out forwards; }
-.celebration-goats { animation: run-across 2.5s ease-in-out forwards; }
+.celebration-pig { 
+    animation: run-across 1.5s ease-in-out forwards;
+    content: '🐷';
+}
+
+.celebration-goats { 
+    animation: run-across 2.5s ease-in-out forwards;
+    content: '🐐🐐🐐';
+}
 
 @keyframes run-across {
     from { left: -50px; }
     to { left: calc(100vw + 50px); }
+}
+
+/* Media Queries */
+@media (min-width: 768px) {
+    form {
+        flex-direction: row;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .category-item {
+        flex-direction: row;
+    }
+
+    .task-item {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    .category-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .category-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+/* Animations - Mobile Safe */
+.celebration-pig, .celebration-goats {
+    font-size: 24px;
+    line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .celebration-pig, .celebration-goats {
+        animation-duration: 0.5s;
+    }
 }

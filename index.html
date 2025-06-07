@@ -12,43 +12,41 @@
 <body>
     <div class="container">
         <!-- Error Messages -->
-        <div id="errorMessages"></div>
+        <div id="errorMessages" class="message-box"></div>
 
         <div class="main-section">
             <!-- Task Section -->
-            <div class="task-input">
+            <div class="tasks">
                 <!-- Task Form -->
                 <form id="taskForm" class="input-form">
                     <input type="text" placeholder="Legg til ny oppgave" required>
                     <select id="categorySelect"></select>
                     <button type="submit">Legg til oppgave</button>
                 </form>
+                <!-- Main Task List -->
+                <ul id="taskList" class="task-list"></ul>
             </div>
 
             <!-- Category Section -->
-            <div class="category-management">
+            <div class="categories">
                 <!-- Category Form -->
                 <form id="categoryForm" class="input-form">
                     <input type="text" placeholder="Legg til ny kategori" required>
                     <button type="submit">Legg til kategori</button>
                 </form>
-
-                <div class="category-controls">
+                <div class="filter-bar">
                     <!-- Category Filter -->
                     <select id="categoryFilter" class="category-filter"></select>
-                    <!-- Category List -->
-                    <div id="categoryList" class="category-list"></div>
                 </div>
+                <!-- Category List -->
+                <div id="categoryList" class="category-list"></div>
             </div>
 
             <!-- Progress Section -->
-            <div class="progress-section">
+            <div class="progress">
                 <div class="progress-bar"></div>
                 <div class="progress-text"></div>
             </div>
-
-            <!-- Main Task List -->
-            <ul id="taskList" class="task-list"></ul>
         </div>
 
         <!-- Import/Export -->
