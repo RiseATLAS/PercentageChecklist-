@@ -177,7 +177,7 @@ body {
     background-color: var(--baby-blue);
     color: #000;
     border: none;
-    border-radius: 0;
+    border-radius: var(--small-border-radius);
     padding: 0.25rem;
     width: 1rem;
     height: 1rem;
@@ -186,6 +186,19 @@ body {
     justify-content: center;
     /* Change cursor from pointer to default */
     cursor: auto; /* Changed from default to auto */
+}
+
+/* Update all inputs and selects to have consistent rounding */
+input[type="text"],
+input[type="date"],
+select,
+button {
+    border-radius: var(--default-border-radius);
+}
+
+/* Update checkbox container */
+.checkbox-container input[type="checkbox"] {
+    border-radius: var(--small-border-radius);
 }
 
 /* Task Priority Colors */
@@ -206,7 +219,7 @@ body {
 
 /* For category dropdown in task items */
 .task-category-select {
-    border-radius: 50px;
+    border-radius: var(--default-border-radius);
     padding: 0.4rem; /* optional additional padding for clarity */
 }
 
@@ -292,6 +305,7 @@ body {
     visibility: hidden;
     height: 0;
     overflow: hidden;
+    border-radius: var(--default-border-radius);
 }
 
 .debug-panel.visible {

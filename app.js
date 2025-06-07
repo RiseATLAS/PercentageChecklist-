@@ -159,6 +159,70 @@ function loadTasks() {
     });
 }
 
+// Add this function after loadTasks but before renderTasks
+function applyFiltersAndRender(tasksData) {
+    if (!tasksData) return;
+    
+    let filteredTasks = { ...tasksData };
+    
+    // Apply search filter if search input exists and has value
+    if (searchInput && searchInput.value.trim()) {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        filteredTasks = Object.keys(filteredTasks)
+            .filter(key => {
+                const task = filteredTasks[key];
+                return task.text.toLowerCase().includes(searchTerm);
+            })
+            .reduce((obj, key) => {
+                obj[key] = filteredTasks[key];
+                return obj;
+            }, {});
+    }
+
+    // Apply sort if sort selection exists
+    if (sortBy && sortBy.value) {
+        const tasks = Object.keys(filteredTasks).map(key => ({
+            id: key,
+            ...filteredTasks[key]
+        }));
+
+        switch (sortBy.value) {
+            case 'dueDate':
+                tasks.sort((a, b) => (a.dueDate || '') - (b.dueDate || ''));
+                break;
+            case 'priority':
+                const priorityOrder = { 'Høy': 0, 'Mid': 1, 'Lav': 2 };
+                tasks.sort((a, b) => 
+                    (priorityOrder[a.priority || 'Mid'] || 1) - 
+                    (priorityOrder[b.priority || 'Mid'] || 1)
+                );
+                break;
+            case 'category':
+                tasks.sort((a, b) => 
+                    (categoriesCache[a.categoryId]?.name || '') 
+                    .localeCompare(categoriesCache[b.categoryId]?.name || '')
+                );
+                break;
+            case 'createdAt':
+                tasks.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                break;
+        }
+
+        filteredTasks = tasks.reduce((obj, task) => {
+            obj[task.id] = task;
+            return obj;
+        }, {});
+    }
+
+    if (DEBUG_MODE) {
+        eventCounters.applyFilters++;
+        updateEventCounters();
+    }
+
+    renderTasks(filteredTasks);
+    updateCategoryStats(filteredTasks);
+}
+
 // Render Oppgaver
 function renderTasks(tasks) {
     if (DEBUG_MODE) {
