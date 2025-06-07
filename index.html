@@ -11,76 +11,47 @@
 
 <body>
     <div class="container">
-        <div class="three-columns">
-            <div class="tasks-column">
-                <main class="main-content">
-                    <section class="task-input-section">
-                        <div class="add-task">
-                            <input type="text" id="task-input" placeholder="Ny oppgave...">
-                            <select id="category-select">
-                                <option value="" selected>Uten kategori</option>
-                                <!-- Kategorier fylles ut -->
-                            </select>
-                            <select id="priority-select">
-                                <option value="Høy">Høy</option>
-                                <option value="Mid" selected>Mid</option>
-                                <option value="Lav">Lav</option>
-                            </select>
-                            <input type="date" id="due-date-input">
-                            <button id="add-task-button">Legg til Oppgave</button>
-                        </div>
-                        <div class="filter-section">
-                            <input type="text" id="search-input" placeholder="Søk oppgaver...">
-                            <select id="sort-by">
-                                <option value="dueDate">Forfallsdato</option>
-                                <option value="priority">Prioritet</option>
-                                <option value="category">Kategori</option>
-                                <option value="createdAt">Opprettelsesdato</option>
-                            </select>
-                        </div>
-                    </section>
-                    <section class="task-section">
-                        <h2 class="text-lg weight-bold">Oppgaver</h2>
-                        <ul id="task-list" class="task-list">
-                            <!-- Oppgaver vises her -->
-                        </ul>
-                        <div class="bulk-section">
-                            <button id="mark-all-complete" class="text-sm">Marker Alle Som Fullført</button>
-                            <button id="delete-completed" class="text-sm">Slett Fullførte Oppgaver</button>
-                        </div>
-                    </section>
-                </main>
+        <!-- Stats Dashboard -->
+        <div class="stats-container"></div>
+
+        <!-- Advanced Search -->
+        <form class="search-form">
+            <div class="filter-group">
+                <input type="text" id="searchInput" placeholder="Søk oppgaver...">
+                <select id="priorityFilter">
+                    <option value="">Alle prioriteringer</option>
+                    <option value="high">Høy</option>
+                    <option value="mid">Medium</option>
+                    <option value="low">Lav</option>
+                </select>
+                <select id="statusFilter">
+                    <option value="all">Alle statusser</option>
+                    <option value="completed">Fullført</option>
+                    <option value="pending">Ventende</option>
+                </select>
+                <select id="categoryFilter" multiple>
+                    <!-- Populated dynamically -->
+                </select>
+                <button type="submit">Søk</button>
             </div>
-            <div class="categories-column">
-                <section class="categories-section">
-                    <h2 class="text-lg weight-bold">Kategorier</h2>
-                    <div class="category-input-row">
-                        <input type="text" id="new-category-input" placeholder="Ny kategori..." maxlength="30">
-                        <button id="add-category-button" title="Legg til kategori">+</button>
-                    </div>
-                    <ul id="category-list" class="category-list">
-                        <!-- Kategorier listes her -->
-                    </ul>
-                </section>
-            </div>
-            <div class="graphs-column">
-                <section class="stats-section">
-                    <h2 class="text-lg weight-bold">Statistikk</h2>
-                    <div class="stats-row text-sm">
-                        <span>Totalt: <span id="total-tasks">0</span></span>
-                        <span>Fullført: <span id="completed-tasks">0</span></span>
-                        <span>Fullført %: <span id="completion-percentage">0%</span></span>
-                    </div>
-                    <div class="percentage-graph-container">
-                        <canvas id="completion-chart" width="200" height="200"></canvas>
-                    </div>
-                    <div class="category-stats"></div>
-                </section>
-            </div>
+        </form>
+
+        <!-- Main Task List -->
+        <div id="taskList"></div>
+
+        <!-- Import/Export -->
+        <div class="action-buttons">
+            <button onclick="utils.handlers.onImportClick()">Importer</button>
+            <button onclick="utils.handlers.onExportClick()">Eksporter</button>
         </div>
     </div>
-    <!-- Debug panel will be injected here if DEBUG_MODE is true -->
-    <div id="debug-panel-container"></div>
+
+    <!-- Loader -->
+    <div class="loader" style="display: none;"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -90,6 +61,9 @@
     <!-- SortableJS -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="app.js"></script>
+
+    <!-- Debug panel will be injected here if DEBUG_MODE is true -->
+    <div id="debug-panel-container"></div>
 </body>
 
 </html>
