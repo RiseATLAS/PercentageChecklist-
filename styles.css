@@ -172,18 +172,19 @@ body {
     box-shadow: var(--box-shadow);
 }
 .delete-button {
-    background-color: var(--baby-blue); /* or adjust as needed */
+    background-color: var(--baby-blue);
     color: #000;
     border: none;
-    /* Remove round effect by replacing 50% with a fixed value */
-    border-radius: var(--small-border-radius); /* changed from 50% */
+    /* Remove rounding by setting border-radius to 0 */
+    border-radius: 0;
     padding: 0.25rem;
     width: 1rem;
     height: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    /* Change cursor from pointer to default */
+    cursor: default;
 }
 
 /* Task Priority Colors */

@@ -279,23 +279,38 @@ function renderTasks(tasks) {
         updateEventCounters();
     }
     if (!taskList) return;
-    taskList.innerHTML = "";
-    // Ensure taskArray is defined
+
     const taskArray = Object.keys(tasks).map(key => ({ id: key, ...tasks[key] }));
-    
+
     if (taskArray.length === 0) {
+        taskList.innerHTML = ""; // Clear existing content
         const emptyMessage = document.createElement('p');
-        emptyMessage.textContent = searchInput && searchInput.value 
-            ? 'Ingen oppgaver matchet søket ditt.' 
-            : 'Ingen oppgaver ennå. Legg til en!';
+        emptyMessage.textContent = searchInput && searchInput.value ? 'Ingen oppgaver matchet søket ditt.' : 'Ingen oppgaver ennå. Legg til en!';
         emptyMessage.style.textAlign = 'center';
         emptyMessage.style.color = '#888888';
         taskList.appendChild(emptyMessage);
         updateCharts(tasks);
         return;
     }
-    
+
+    // Create a document fragment to batch DOM updates
+    const fragment = document.createDocumentFragment();
+    const existingTaskIds = new Set(); // Track existing task IDs
+
+    // Iterate through existing task items to collect their IDs
+    for (let i = 0; i < taskList.children.length; i++) {
+        const child = taskList.children[i];
+        if (child.classList.contains('task-item')) {
+            existingTaskIds.add(child.getAttribute('data-id'));
+        }
+    }
+
     taskArray.forEach(task => {
+        // Skip if task item already exists
+        if (existingTaskIds.has(task.id)) {
+            return;
+        }
+
         const li = document.createElement('li');
         li.className = 'task-item';
         li.setAttribute('data-id', task.id);
@@ -343,42 +358,36 @@ function renderTasks(tasks) {
             }
         });
 
-        // Modify category editing: always allow inline editing.
         const categorySelectElem = document.createElement('select');
         categorySelectElem.className = 'task-category-select';
-        
-        // Add default option
         const defaultOption = document.createElement('option');
         defaultOption.value = "";
         defaultOption.textContent = "Uten kategori";
         categorySelectElem.appendChild(defaultOption);
-        
-        // Populate options from cached categories
         for (let catId in categoriesCache) {
             const option = document.createElement('option');
             option.value = catId;
             option.textContent = categoriesCache[catId].name;
             categorySelectElem.appendChild(option);
         }
-        
-        // Set the dropdown value to task.categoryId if exists
         categorySelectElem.value = task.categoryId || "";
-        
-        // When selection changes, update the task's categoryId (and remove any customCategory).
         categorySelectElem.addEventListener('change', () => {
             const newCategory = categorySelectElem.value;
             database.ref(`tasks/${task.id}`).update({ categoryId: newCategory, customCategory: null })
-              .then(() => { console.log("Task category updated via dropdown"); })
-              .catch(error => { console.error("Error updating task category:", error); });
+                .then(() => {
+                    console.log("Task category updated via dropdown");
+                })
+                .catch(error => {
+                    console.error("Error updating task category:", error);
+                });
         });
-        
+
         const prioritySpan = document.createElement('span');
         prioritySpan.className = `task-priority priority-${(task.priority || 'mid').toLowerCase()}`;
         prioritySpan.textContent = task.priority || 'Mid';
-        
+
         const deleteButton = document.createElement('button');
         deleteButton.className = 'delete-button';
-        // Re-implement x change: set symbol to a stylish "✖"
         deleteButton.textContent = '✖';
         deleteButton.title = "Slett Oppgave";
         deleteButton.addEventListener('click', () => {
@@ -388,16 +397,16 @@ function renderTasks(tasks) {
                 });
         });
 
-        // Append interactive elements:
         li.appendChild(checkboxContainer);
         li.appendChild(taskTextSpan);
         li.appendChild(categorySelectElem);
         li.appendChild(prioritySpan);
         li.appendChild(deleteButton);
-        
-        taskList.appendChild(li);
+
+        fragment.appendChild(li);
     });
-    
+
+    taskList.appendChild(fragment); // Append all new items at once
     updateCharts(tasks);
 }
 
