@@ -132,34 +132,30 @@ const utils = {
     },
 
     updateCategoryFilter(categories) {
+        // Update filter dropdown
         const filter = document.getElementById('categoryFilter');
         if (filter) {
             filter.innerHTML = `
                 <option value="">All Categories</option>
-                ${Object.entries(categories).map(([id, cat]) => `
-                    <div class="category-item">
-                        <option value="${id}">${cat.name}</option>
-                        <span class="category-actions">
-                            <button class="store-category" onclick="categories.storeTasksForCategory('${id}')">📥</button>
-                            <button class="load-category" onclick="categories.loadStoredTasks('${id}')">📤</button>
-                        </span>
-                    </div>
-                `).join('')}
+                ${Object.entries(categories).map(([id, cat]) => 
+                    `<option value="${id}">${cat.name}</option>`
+                ).join('')}
             `;
         }
 
-        // Add category buttons container
-        const categoryButtons = document.createElement('div');
-        categoryButtons.className = 'category-buttons';
-        Object.entries(categories).forEach(([id, cat]) => {
-            categoryButtons.innerHTML += `
-                <div class="category-action-buttons">
-                    <button onclick="categories.storeTasksForCategory('${id}')">📥 ${cat.name}</button>
-                    <button onclick="categories.loadStoredTasks('${id}')">📤 ${cat.name}</button>
+        // Create category list with buttons
+        const categoryList = document.getElementById('categoryList');
+        if (categoryList) {
+            categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
+                <div class="category-item">
+                    <span>${cat.name}</span>
+                    <div class="category-actions">
+                        <button onclick="categories.storeTasksForCategory('${id}')">Save Tasks 📥</button>
+                        <button onclick="categories.loadStoredTasks('${id}')">Load Tasks 📤</button>
+                    </div>
                 </div>
-            `;
-        });
-        filter.parentNode.insertBefore(categoryButtons, filter.nextSibling);
+            `).join('');
+        }
     },
 
     async checkCategoryCompletion(categoryId) {
