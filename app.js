@@ -23,6 +23,7 @@
  *   -  a button on the categories allows all realated tasks to be store and retrieved.
  *   - when a task is completed, a small pig should run across the screen.
  *   - when a full category is completed, goats should run across the screen.
+ * 
  */
 
 // Firebase config
@@ -135,11 +136,30 @@ const utils = {
         if (filter) {
             filter.innerHTML = `
                 <option value="">All Categories</option>
-                ${Object.entries(categories).map(([id, cat]) => 
-                    `<option value="${id}">${cat.name}</option>`
-                ).join('')}
+                ${Object.entries(categories).map(([id, cat]) => `
+                    <div class="category-item">
+                        <option value="${id}">${cat.name}</option>
+                        <span class="category-actions">
+                            <button class="store-category" onclick="categories.storeTasksForCategory('${id}')">📥</button>
+                            <button class="load-category" onclick="categories.loadStoredTasks('${id}')">📤</button>
+                        </span>
+                    </div>
+                `).join('')}
             `;
         }
+
+        // Add category buttons container
+        const categoryButtons = document.createElement('div');
+        categoryButtons.className = 'category-buttons';
+        Object.entries(categories).forEach(([id, cat]) => {
+            categoryButtons.innerHTML += `
+                <div class="category-action-buttons">
+                    <button onclick="categories.storeTasksForCategory('${id}')">📥 ${cat.name}</button>
+                    <button onclick="categories.loadStoredTasks('${id}')">📤 ${cat.name}</button>
+                </div>
+            `;
+        });
+        filter.parentNode.insertBefore(categoryButtons, filter.nextSibling);
     },
 
     async checkCategoryCompletion(categoryId) {
@@ -151,10 +171,14 @@ const utils = {
             
             if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
                 this.showAnimation('goats');
-                this.showError('Category completed! 🎉', 'success', 2000);
+                await utils.dbRef(`categories/${categoryId}/completedAt`).set(Date.now());
+                utils.showError('Category completed! 🎈', 'success', 2000);
+                return true;
             }
+            return false;
         } catch (error) {
             console.error('Error checking category completion:', error);
+            return false;
         }
     },
 
@@ -198,6 +222,48 @@ const categories = {
             console.error(error);
             return {};
         }
+    },
+
+    async getStoredTasks(categoryId) {
+        try {
+            const snapshot = await utils.dbRef(`categoryTasks/${categoryId}`).once('value');
+            return snapshot.val() || {};
+        } catch (error) {
+            utils.showError('Error loading stored tasks');
+            return {};
+        }
+    },
+
+    async storeTasksForCategory(categoryId) {
+        try {
+            const snapshot = await utils.dbRef('tasks').once('value');
+            const tasks = Object.values(snapshot.val() || {})
+                .filter(t => t.categoryId === categoryId);
+            
+            if (tasks.length > 0) {
+                await utils.dbRef(`categoryTasks/${categoryId}`).set({
+                    tasks,
+                    storedAt: Date.now()
+                });
+                utils.showError(`Stored ${tasks.length} tasks`, 'success', 1000);
+            }
+        } catch (error) {
+            utils.showError('Error storing tasks');
+        }
+    },
+
+    async loadStoredTasks(categoryId) {
+        try {
+            const stored = await this.getStoredTasks(categoryId);
+            if (stored.tasks && stored.tasks.length > 0) {
+                renderTasks(stored.tasks);
+                utils.showError(`Loaded ${stored.tasks.length} tasks`, 'success', 1000);
+            } else {
+                utils.showError('No stored tasks found', 'warning');
+            }
+        } catch (error) {
+            utils.showError('Error loading stored tasks');
+        }
     }
 };
 
@@ -209,14 +275,24 @@ function getAllTasks() {
     }));
 }
 
-// Filter tasks by category
+// Update filter function for better performance
 function filterTasks(categoryId) {
+    const storedTasks = categories.getStoredTasks(categoryId);
+    if (storedTasks.tasks) {
+        renderTasks(storedTasks.tasks);
+        return;
+    }
+
     utils.dbRef('tasks').once('value', snapshot => {
         const tasks = snapshot.val() || {};
-        const filtered = Object.values(tasks).filter(task => 
-            !categoryId || task.categoryId === categoryId
-        );
+        const filtered = Object.values(tasks)
+            .filter(task => !categoryId || task.categoryId === categoryId);
         renderTasks(filtered);
+        
+        // Store filtered tasks if needed
+        if (categoryId && filtered.length > 0) {
+            categories.storeTasksForCategory(categoryId);
+        }
     });
 }
 
