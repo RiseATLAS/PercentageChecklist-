@@ -285,3 +285,12 @@ body {
     width: 200px !important;
     height: 200px !important;
 }
+
+/* Debug panel styling */
+.debug-panel {
+    display: none; /* Hidden by default */
+}
+
+.debug-panel.visible {
+    display: block;
+}
