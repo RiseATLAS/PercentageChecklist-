@@ -182,50 +182,67 @@ const utils = {
         const stage = document.querySelector('.animation-stage');
         if (!stage) return;
 
+        const celebrationId = Date.now();
+        const assetsConfig = {
+            pig: { 
+                image: 'assets/young-pig.svg', 
+                emoji: '🐷', 
+                sound: 'pigSound',
+                duration: 1500,
+                maxCount: 1
+            },
+            goats: { 
+                image: 'assets/young-goat.svg', 
+                emoji: '🐐', 
+                sound: 'goatSound',
+                duration: 2500,
+                maxCount: 3
+            }
+        };
+
         try {
-            // Pre-check image availability
-            const imagePath = `assets/young-${type === 'pig' ? 'pig' : 'goat'}.svg`;
-            const imageAvailable = await fetch(imagePath).then(r => r.ok).catch(() => false);
-            
-            // Create celebration wrapper
+            const config = assetsConfig[type];
             const celebration = document.createElement('div');
             celebration.className = `celebration ${type}-celebration`;
-            
-            // Generate animals with fallback to emoji
-            const animals = Array.from(
-                { length: type === 'goats' ? Math.min(count, 3) : 1 }, 
+            celebration.dataset.id = celebrationId;
+            celebration.style.setProperty('--duration', `${config.duration}ms`);
+
+            const animalCount = Math.min(count, config.maxCount);
+            celebration.innerHTML = Array.from({ length: animalCount }, 
                 (_, i) => `
-                    <div class="young-animal" style="animation-delay: ${i * 0.2}s">
-                        ${imageAvailable ? 
-                            `<img src="${imagePath}" alt="" class="animal-image">` : 
-                            `<span class="animal-emoji">${type === 'pig' ? '🐷' : '🐐'}</span>`
-                        }
+                    <div class="young-animal" 
+                         style="--index: ${i}"
+                         data-celebration="${celebrationId}">
+                        <div class="animal-container">
+                            <span class="animal-emoji">${config.emoji}</span>
+                        </div>
                         <span class="sound-text" aria-hidden="true">
                             ${type === 'pig' ? 'Oink!' : 'Baa!'}
                         </span>
                     </div>`
             ).join('');
-            
-            celebration.innerHTML = animals;
+
             stage.appendChild(celebration);
 
-            // Play celebration sound
-            const sound = document.getElementById(`${type}Sound`);
+            const sound = document.getElementById(config.sound);
             if (sound?.play) {
                 sound.currentTime = 0;
                 await sound.play().catch(() => {});
             }
 
-            // Cleanup after animation
-            return new Promise(resolve => {
-                const duration = type === 'pig' ? 1500 : 2500;
-                setTimeout(() => {
+            await new Promise(resolve => {
+                const cleanup = () => {
                     celebration.remove();
                     resolve();
-                }, duration);
+                };
+                
+                celebration.addEventListener('animationend', cleanup, { once: true });
+                setTimeout(cleanup, config.duration + 100);
             });
+
         } catch (error) {
             console.error('Celebration error:', error);
+            document.querySelectorAll(`[data-celebration="${celebrationId}"]`).forEach(el => el.remove());
         }
     }
 };
