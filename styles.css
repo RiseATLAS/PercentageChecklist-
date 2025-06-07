@@ -11,6 +11,9 @@
     --large-border-radius: 32px;
     --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     --font-family: 'Roboto', sans-serif;
+    /* Consolidated animations and transitions */
+    --transition-speed: 0.2s;
+    --transition-timing: ease;
 }
 
 * {
@@ -188,17 +191,27 @@ body {
     cursor: auto; /* Changed from default to auto */
 }
 
-/* Update all inputs and selects to have consistent rounding */
+/* Consolidated border radius rules */
 input[type="text"],
 input[type="date"],
 select,
-button {
+button,
+.task-item,
+.category-item,
+.debug-panel,
+.three-columns > div,
+.graphs-column {
     border-radius: var(--default-border-radius);
 }
 
-/* Update checkbox container */
+.delete-button,
 .checkbox-container input[type="checkbox"] {
     border-radius: var(--small-border-radius);
+}
+
+.task-priority,
+.task-category {
+    border-radius: 50px;  /* fully round corners */
 }
 
 /* Task Priority Colors */
@@ -237,6 +250,29 @@ button {
 }
 #toggle-view-button:hover {
     background: var(--baby-pink);
+}
+
+/* Consolidated transitions */
+.task-item,
+.delete-button,
+#toggle-view-button {
+    transition: all 0.2s ease;
+}
+
+/* Consolidated flexbox layouts */
+.task-input-section,
+.filter-section,
+.category-stats,
+.graphs-column {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Consolidated hover states */
+.add-task button:hover,
+#toggle-view-button:hover {
+    background: var(--baby-pink);
+    transform: translateY(-2px);
 }
 
 /* New style for completed tasks */
@@ -313,4 +349,29 @@ button {
     visibility: visible;
     height: auto;
     overflow: visible;
+}
+
+/* Common transitions */
+.animated-element {
+    transition: all var(--transition-speed) var(--transition-timing);
+}
+
+/* Group hover effects */
+[class*="button"]:hover,
+.task-item:hover,
+.category-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+}
+
+/* Group flexbox layouts */
+.flex-container {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Consistent spacing units */
+.spaced {
+    margin: 1rem 0;
+    padding: 0.5rem;
 }

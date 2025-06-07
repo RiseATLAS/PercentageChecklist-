@@ -19,6 +19,50 @@ const storage = firebase.storage(); // Initialize Firebase Storage
 // Updated debug declarations with additional events
 const DEBUG_MODE = false;
 
+// Consolidate debug counter keys into a single array
+const DEBUG_EVENTS = [
+    'loadTasks', 'renderTasks', 'loadCategories', 'addTask', 
+    'addCategory', 'markAllComplete', 'deleteCompleted', 
+    'updateCharts', 'applyFilters', 'renderCategoriesList', 
+    'sortBy', 'taskInputKeydown', 'newCategoryInputKeydown', 
+    'sortableOnEnd'
+];
+
+// Initialize eventCounters from array
+let eventCounters = DEBUG_EVENTS.reduce((acc, key) => {
+    acc[key] = 0;
+    return acc;
+}, {});
+
+// Utility functions for common operations
+const utils = {
+    createTaskElement(type, props = {}) {
+        const elem = document.createElement(type);
+        Object.entries(props).forEach(([key, value]) => {
+            if (key === 'className') {
+                elem.className = value;
+            } else if (key === 'textContent') {
+                elem.textContent = value;
+            } else {
+                elem.setAttribute(key, value);
+            }
+        });
+        return elem;
+    },
+
+    generateDebugPanel() {
+        return DEBUG_EVENTS.map(event => 
+            `<p>${event}: <span id="counter-${event}">0</span></p>`
+        ).join('');
+    },
+
+    safeUpdate(ref, data) {
+        return ref.update(data).catch(error => 
+            console.error('Database update failed:', error)
+        );
+    }
+};
+
 // Create debug panel only if debug mode is enabled
 if (DEBUG_MODE) {
     const debugPanelContainer = document.getElementById('debug-panel-container');
@@ -26,42 +70,12 @@ if (DEBUG_MODE) {
         debugPanelContainer.innerHTML = `
             <div class="event-counters-section">
                 <div id="debug-panel" class="debug-panel visible">
-                    <p>loadTasks: <span id="counter-loadTasks">0</span></p>
-                    <p>renderTasks: <span id="counter-renderTasks">0</span></p>
-                    <p>loadCategories: <span id="counter-loadCategories">0</span></p>
-                    <p>addTask: <span id="counter-addTask">0</span></p>
-                    <p>addCategory: <span id="counter-addCategory">0</span></p>
-                    <p>markAllComplete: <span id="counter-markAllComplete">0</span></p>
-                    <p>deleteCompleted: <span id="counter-deleteCompleted">0</span></p>
-                    <p>updateCharts: <span id="counter-updateCharts">0</span></p>
-                    <p>applyFilters: <span id="counter-applyFilters">0</span></p>
-                    <p>renderCategories: <span id="counter-renderCategoriesList">0</span></p>
-                    <p>sortBy: <span id="counter-sortBy">0</span></p>
-                    <p>taskInputKeydown: <span id="counter-taskInputKeydown">0</span></p>
-                    <p>newCategoryKeydown: <span id="counter-newCategoryInputKeydown">0</span></p>
-                    <p>sortableOnEnd: <span id="counter-sortableOnEnd">0</span></p>
+                    ${utils.generateDebugPanel()}
                 </div>
             </div>
         `;
     }
 }
-
-let eventCounters = {
-    loadTasks: 0,
-    renderTasks: 0,
-    loadCategories: 0,
-    addTask: 0,
-    addCategory: 0,
-    markAllComplete: 0,
-    deleteCompleted: 0,
-    updateCharts: 0,
-    applyFilters: 0,
-    renderCategoriesList: 0,
-    sortBy: 0,
-    taskInputKeydown: 0,
-    newCategoryInputKeydown: 0,
-    sortableOnEnd: 0
-};
 
 function updateEventCounters() {
     if (!DEBUG_MODE) return;
@@ -137,29 +151,7 @@ function deepEqual(obj1, obj2) {
     return true;
 }
 
-// Last inn Oppgaver
-function loadTasks() {
-    const tasksRef = database.ref('tasks').orderByChild('order');
-    tasksRef.off();
-    tasksRef.on('value', snapshot => {
-        if (DEBUG_MODE) {
-            eventCounters.loadTasks++;
-            updateEventCounters();
-        }
-        const tasksData = snapshot.val() || {};
-
-        // Deep compare to prevent unnecessary re-renders
-        if (deepEqual(tasksData, previousTasksData)) {
-            console.log("Data unchanged, skipping re-render");
-            return;
-        }
-
-        previousTasksData = tasksData;
-        applyFiltersAndRender(tasksData);
-    });
-}
-
-// Add this function after loadTasks but before renderTasks
+// Move applyFiltersAndRender before loadTasks
 function applyFiltersAndRender(tasksData) {
     if (!tasksData) return;
     
@@ -221,6 +213,28 @@ function applyFiltersAndRender(tasksData) {
 
     renderTasks(filteredTasks);
     updateCategoryStats(filteredTasks);
+}
+
+// Last inn Oppgaver
+function loadTasks() {
+    const tasksRef = database.ref('tasks').orderByChild('order');
+    tasksRef.off();
+    tasksRef.on('value', snapshot => {
+        if (DEBUG_MODE) {
+            eventCounters.loadTasks++;
+            updateEventCounters();
+        }
+        const tasksData = snapshot.val() || {};
+
+        // Deep compare to prevent unnecessary re-renders
+        if (deepEqual(tasksData, previousTasksData)) {
+            console.log("Data unchanged, skipping re-render");
+            return;
+        }
+
+        previousTasksData = tasksData;
+        applyFiltersAndRender(tasksData);
+    });
 }
 
 // Render Oppgaver
@@ -579,6 +593,22 @@ function initializeCharts() {
     }
 }
 
+// Helper functions for common DOM operations
+function updateElement(element, value) {
+    if (element) element.textContent = value;
+}
+
+function toggleClass(element, className, force) {
+    if (element) element.classList.toggle(className, force);
+}
+
+function addClickHandler(element, handler) {
+    if (!element) return;
+    element.removeEventListener('click', handler); // Prevent duplicates
+    element.addEventListener('click', handler);
+}
+
+// Update the updateCharts function to use helper
 function updateCharts(tasks) {
     let total = 0;
     let completedCount = 0;
@@ -589,9 +619,9 @@ function updateCharts(tasks) {
     }
 
     const percentage = total === 0 ? 0 : Math.round((completedCount / total) * 100);
-    if (totalTasksElem) totalTasksElem.textContent = total;
-    if (completedTasksElem) completedTasksElem.textContent = completedCount;
-    if (completionPercentageElem) completionPercentageElem.textContent = `${percentage}%`;
+    updateElement(totalTasksElem, total);
+    updateElement(completedTasksElem, completedCount);
+    updateElement(completionPercentageElem, `${percentage}%`);
 
     if (completionChartInstance) {
         completionChartInstance.data.datasets[0].data = [completedCount, total - completedCount];
@@ -845,130 +875,31 @@ function newCategoryInputKeydownHandler(e) {
     }
 }
 
-// In renderTasks, remove the li.addEventListener('click', ...) block:
-// ...existing code...
-taskArray.forEach(task => {
-    const li = document.createElement('li');
-    li.className = 'task-item';
-    li.setAttribute('data-id', task.id);
-    if (task.completed) {
-        li.classList.add('completed-task');
-    }
+// Consolidated task toggle handler
+function handleTaskToggle(taskId, checkbox, li) {
+    const newStatus = !checkbox.checked;
+    database.ref(`tasks/${taskId}`).update({ completed: newStatus })
+        .then(() => {
+            li.classList.toggle('completed-task', newStatus);
+            checkbox.checked = newStatus;
+        })
+        .catch(error => {
+            console.error("Error toggling task completion:", error);
+        });
+}
 
-    const checkboxContainer = document.createElement('div');
-    checkboxContainer.className = 'checkbox-container';
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = task.completed;
-    checkbox.addEventListener('change', () => {
-        database.ref(`tasks/${task.id}`).update({ completed: checkbox.checked })
-            .catch(error => {
-                console.error('Feil ved oppdatering av oppgave:', error);
-            });
-    });
-    checkboxContainer.appendChild(checkbox);
-
-    const taskTextSpan = document.createElement('span');
-    taskTextSpan.className = 'task-text';
-    taskTextSpan.textContent = task.text;
-    taskTextSpan.setAttribute('contenteditable', 'false');
-
-    taskTextSpan.addEventListener('dblclick', () => {
-        taskTextSpan.setAttribute('contenteditable', 'true');
-        taskTextSpan.focus();
-    });
-
-    taskTextSpan.addEventListener('blur', () => {
-        taskTextSpan.setAttribute('contenteditable', 'false');
-        const newText = taskTextSpan.textContent.trim();
-        if (newText === "") {
-            alert("Oppgaveteksten kan ikke være tom.");
-            taskTextSpan.textContent = task.text;
-            return;
-        }
-        if (newText !== task.text) {
-            database.ref(`tasks/${task.id}`).update({ text: newText })
-                .catch(error => {
-                    console.error('Feil ved oppdatering av oppgavetekst:', error);
-                    taskTextSpan.textContent = task.text; // Revert on error
-                });
-        }
-    });
-
-    // Modify category editing: always allow inline editing.
-    const categorySelectElem = document.createElement('select');
-    categorySelectElem.className = 'task-category-select';
-    
-    // Add default option
-    const defaultOption = document.createElement('option');
-    defaultOption.value = "";
-    defaultOption.textContent = "Uten kategori";
-    categorySelectElem.appendChild(defaultOption);
-    
-    // Populate options from cached categories
-    for (let catId in categoriesCache) {
-        const option = document.createElement('option');
-        option.value = catId;
-        option.textContent = categoriesCache[catId].name;
-        categorySelectElem.appendChild(option);
-    }
-    
-    // Set the dropdown value to task.categoryId if exists
-    categorySelectElem.value = task.categoryId || "";
-    
-    // When selection changes, update the task's categoryId (and remove any customCategory).
-    categorySelectElem.addEventListener('change', () => {
-        const newCategory = categorySelectElem.value;
-        database.ref(`tasks/${task.id}`).update({ categoryId: newCategory, customCategory: null })
-          .then(() => { console.log("Task category updated via dropdown"); })
-          .catch(error => { console.error("Error updating task category:", error); });
-    });
-    
-    const prioritySpan = document.createElement('span');
-    prioritySpan.className = `task-priority priority-${(task.priority || 'mid').toLowerCase()}`;
-    prioritySpan.textContent = task.priority || 'Mid';
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'delete-button';
-    // Re-implement x change: set symbol to a stylish "✖"
-    deleteButton.textContent = '✖';
-    deleteButton.title = "Slett Oppgave";
-    deleteButton.addEventListener('click', () => {
-        database.ref(`tasks/${task.id}`).remove()
-            .catch(error => {
-                console.error('Feil ved sletting av oppgave:', error);
-            });
-    });
-
-    // Append interactive elements:
-    li.appendChild(checkboxContainer);
-    li.appendChild(taskTextSpan);
-    li.appendChild(categorySelectElem);
-    li.appendChild(prioritySpan);
-    li.appendChild(deleteButton);
-    
-    taskList.appendChild(li);
-});
-
-// Add one delegated click listener on taskList:
+// Replace old click handlers with this single handler
 taskList.addEventListener("click", function(e) {
     // Exclude interactive elements
     const excluded = ["BUTTON", "INPUT", "SELECT", "TEXTAREA"];
     if (excluded.includes(e.target.tagName)) return;
-    // Identify the closest task item
+    
     const li = e.target.closest("li.task-item");
     if (!li) return;
+    
     const taskId = li.getAttribute("data-id");
-    // Find checkbox to infer current state
     const checkbox = li.querySelector(".checkbox-container input");
     if (!checkbox) return;
-    const newStatus = !checkbox.checked;
-    database.ref(`tasks/${taskId}`).update({ completed: newStatus })
-      .then(() => {
-          li.classList.toggle('completed-task', newStatus);
-          checkbox.checked = newStatus;
-      })
-      .catch(error => {
-          console.error("Error toggling task completion:", error);
-      });
+    
+    handleTaskToggle(taskId, checkbox, li);
 });
