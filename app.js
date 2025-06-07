@@ -185,14 +185,12 @@ const utils = {
         const celebrationId = Date.now();
         const assetsConfig = {
             pig: { 
-                image: 'assets/young-pig.svg', 
                 emoji: '🐷', 
                 sound: 'pigSound',
                 duration: 1500,
                 maxCount: 1
             },
             goats: { 
-                image: 'assets/young-goat.svg', 
                 emoji: '🐐', 
                 sound: 'goatSound',
                 duration: 2500,
@@ -214,7 +212,7 @@ const utils = {
                          style="--index: ${i}"
                          data-celebration="${celebrationId}">
                         <div class="animal-container">
-                            <span class="animal-emoji">${config.emoji}</span>
+                            <span class="animal-emoji">${config.emoji.repeat(type === 'goats' ? 2 : 1)}</span>
                         </div>
                         <span class="sound-text" aria-hidden="true">
                             ${type === 'pig' ? 'Oink!' : 'Baa!'}

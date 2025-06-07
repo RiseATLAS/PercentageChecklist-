@@ -55,73 +55,44 @@
     <!-- Animation System -->
     <div id="animationContainer" class="animation-container" aria-hidden="true">
         <div class="animation-stage">
-            <!-- Young Pig Template -->
             <template id="youngPigTemplate">
                 <div class="celebration pig-celebration">
                     <div class="young-animal" style="--index: 0">
                         <div class="animal-container" role="presentation">
-                            <picture>
-                                <source type="image/webp" srcset="assets/young-pig.webp">
-                                <source type="image/svg+xml" srcset="assets/young-pig.svg">
-                                <img class="animal-image"
-                                     src="data:image/svg+xml,%3Csvg/%3E"
-                                     alt=""
-                                     loading="eager"
-                                     decoding="sync"
-                                     onerror="this.parentElement.innerHTML='🐷'"
-                                     aria-hidden="true">
-                            </picture>
-                            <span class="animal-text">Oink!</span>
+                            <!-- Using emoji fallback by default since SVGs are not available -->
+                            <span class="animal-emoji">🐷</span>
+                            <span class="sound-text" aria-hidden="true">Oink!</span>
                         </div>
                     </div>
                 </div>
             </template>
-            
-            <!-- Young Goats Template -->
             <template id="youngGoatsTemplate">
                 <div class="celebration goats-celebration">
                     <div class="young-animal" style="--index: 0">
                         <div class="animal-container" role="presentation">
-                            <picture>
-                                <source type="image/webp" srcset="assets/young-goats.webp">
-                                <source type="image/svg+xml" srcset="assets/young-goats.svg">
-                                <img class="animal-image"
-                                     src="data:image/svg+xml,%3Csvg/%3E"
-                                     alt=""
-                                     loading="eager"
-                                     decoding="sync"
-                                     onerror="this.parentElement.innerHTML='🐐🐐'"
-                                     aria-hidden="true">
-                            </picture>
-                            <span class="animal-text">Baa!</span>
+                            <!-- Using emoji fallback by default since SVGs are not available -->
+                            <span class="animal-emoji">🐐🐐</span>
+                            <span class="sound-text" aria-hidden="true">Baa!</span>
                         </div>
                     </div>
                 </div>
             </template>
         </div>
     </div>
-
+    
     <!-- Sound System -->
     <div hidden>
         <audio id="pigSound" preload="none">
-            <source type="audio/webm" src="sounds/oink.webm">
-            <source type="audio/mpeg" src="sounds/oink.mp3">
-            <source type="audio/ogg" src="sounds/oink.ogg">
+            <source src="sounds/oink.mp3" type="audio/mpeg">
         </audio>
         <audio id="goatSound" preload="none">
-            <source type="audio/webm" src="sounds/baa.webm">
-            <source type="audio/mpeg" src="sounds/baa.mp3">
-            <source type="audio/ogg" src="sounds/baa.ogg">
+            <source src="sounds/baa.mp3" type="audio/mpeg">
         </audio>
     </div>
 
-    <!-- Resource Hints -->
-    <link rel="preload" as="image" type="image/webp" href="assets/young-pig.webp">
-    <link rel="preload" as="image" type="image/webp" href="assets/young-goats.webp">
-    <link rel="preload" as="image" type="image/svg+xml" href="assets/young-pig.svg">
-    <link rel="preload" as="image" type="image/svg+xml" href="assets/young-goats.svg">
-    <link rel="preload" as="audio" href="sounds/oink.mp3" as="audio">
-    <link rel="preload" as="audio" href="sounds/baa.mp3" as="audio">
+    <!-- Resource Loading -->
+    <link rel="preload" href="sounds/oink.mp3" as="fetch" crossorigin>
+    <link rel="preload" href="sounds/baa.mp3" as="fetch" crossorigin>
 
     <!-- Core Dependencies -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
