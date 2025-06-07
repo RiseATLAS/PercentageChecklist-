@@ -76,8 +76,12 @@ const utils = {
     },
 
     createTaskElement(task) {
+        if (!task.id) {
+            task.id = Date.now().toString();
+        }
         const li = document.createElement('li');
         li.dataset.id = task.id;
+        li.dataset.taskId = task.id; // Add redundant ID for robustness
         li.className = task.completed ? 'task-item completed' : 'task-item';
         li.innerHTML = `
             <input type="checkbox" ${task.completed ? 'checked' : ''}>
@@ -182,35 +186,20 @@ const utils = {
         const stage = document.querySelector('.animation-stage');
         if (!stage) return;
 
-        const celebrationId = Date.now();
-        const assetsConfig = {
-            pig: { 
-                emoji: '🐷', 
-                sound: 'pigSound',
-                duration: 1500,
-                maxCount: 1
-            },
-            goats: { 
-                emoji: '🐐', 
-                sound: 'goatSound',
-                duration: 2500,
-                maxCount: 3
-            }
-        };
-
+        const celebrationId = `celebration-${Date.now()}`;
         try {
             const config = assetsConfig[type];
             const celebration = document.createElement('div');
             celebration.className = `celebration ${type}-celebration`;
-            celebration.dataset.id = celebrationId;
-            celebration.style.setProperty('--duration', `${config.duration}ms`);
-
+            celebration.id = celebrationId;
+            celebration.dataset.celebrationId = celebrationId; // Add redundant ID for robustness
+            
             const animalCount = Math.min(count, config.maxCount);
             celebration.innerHTML = Array.from({ length: animalCount }, 
                 (_, i) => `
                     <div class="young-animal" 
                          style="--index: ${i}"
-                         data-celebration="${celebrationId}">
+                         data-celebration-id="${celebrationId}">
                         <div class="animal-container">
                             <span class="animal-emoji">${config.emoji.repeat(type === 'goats' ? 2 : 1)}</span>
                         </div>
