@@ -32,12 +32,35 @@
     --gap-sm: 0.5rem;
     --gap-md: 1rem;
     --gap-lg: 2rem;
+
+    /* Typography Scale */
+    --font-xs: clamp(0.45rem, 0.5vw + 0.3rem, 0.6rem);
+    --font-sm: clamp(0.6rem, 0.7vw + 0.4rem, 0.8rem);
+    --font-md: clamp(0.8rem, 0.9vw + 0.5rem, 1rem);
+    --font-lg: clamp(1rem, 1.1vw + 0.6rem, 1.2rem);
+    --font-xl: clamp(1.2rem, 1.3vw + 0.7rem, 1.4rem);
+    
+    /* Font Weights */
+    --weight-normal: 400;
+    --weight-medium: 500;
+    --weight-bold: 700;
 }
 
 /* Typography utilities */
 .text-center { text-align: center; }
 .text-muted { color: #888888; }
 .text-bold { font-weight: 700; }
+
+/* Typography Base Classes */
+.text-xs { font-size: var(--font-xs); }
+.text-sm { font-size: var(--font-sm); }
+.text-md { font-size: var(--font-md); }
+.text-lg { font-size: var(--font-lg); }
+.text-xl { font-size: var(--font-xl); }
+
+.weight-normal { font-weight: var(--weight-normal); }
+.weight-medium { font-weight: var(--weight-medium); }
+.weight-bold { font-weight: var(--weight-bold); }
 
 /* Common layout helpers */
 .center-content {
@@ -70,7 +93,8 @@ body {
     padding: 0;
     line-height: 1.5;
     /* Updated fluid font-size (50% of original) */
-    font-size: clamp(0.45rem, 0.5vw + 0.5rem, 0.6rem) !important; /* fluid scaling confirmed */
+    font-size: var(--font-md);
+    font-weight: var(--weight-normal);
     min-height: 100vh; /* Makes sure body fills at least the viewport */
 }
 
@@ -185,6 +209,7 @@ body {
     min-width: 0; /* added to allow the text container to shrink */
     cursor: text;
     text-indent: 0; /* ensure no text indent */
+    font-size: var(--font-md);
 }
 .task-category {
     background: var(--baby-blue);
@@ -454,4 +479,48 @@ button,
 .spaced {
     margin: 1rem 0;
     padding: 0.5rem;
+}
+
+/* Template styles */
+/* Saved Categories styles */
+.categories-section {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--baby-pink);
+    border-radius: var(--default-border-radius);
+}
+
+.categories-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-preset-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    background: white;
+    border-radius: var(--small-border-radius);
+    margin-bottom: var(--spacing-xs);
+}
+
+.load-category {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--baby-blue);
+    border: none;
+    border-radius: var(--small-border-radius);
+    cursor: pointer;
+}
+
+/* Remove old template styles */
+.templates-section,
+.template-list,
+.template-item,
+.template-name,
+.template-category,
+.template-tasks,
+.load-template {
+    display: none;
 }

@@ -141,6 +141,59 @@ const utils = {
             });
             this.listeners = [];
         }
+    },
+
+    savedCategories: {
+        save(categoryId) {
+            const categoryRef = utils.dbRef('savedCategories').push();
+            return utils.dbRef('tasks')
+                .orderByChild('categoryId')
+                .equalTo(categoryId)
+                .once('value')
+                .then(snapshot => {
+                    const tasks = [];
+                    snapshot.forEach(child => {
+                        const task = child.val();
+                        tasks.push({
+                            text: task.text,
+                            priority: task.priority || 'Mid',
+                            order: task.order
+                        });
+                    });
+                    
+                    return categoryRef.set({
+                        name: categoriesCache[categoryId].name,
+                        tasks,
+                        savedAt: Date.now()
+                    });
+                });
+        },
+
+        load(savedCategoryId) {
+            return utils.dbRef(`savedCategories/${savedCategoryId}`)
+                .once('value')
+                .then(snapshot => {
+                    const savedCategory = snapshot.val();
+                    if (!savedCategory) return;
+
+                    // Create new category
+                    const categoryRef = utils.dbRef('categories').push();
+                    return utils.dbSet(categoryRef.key, { name: savedCategory.name })
+                        .then(() => {
+                            // Add all tasks
+                            const taskPromises = savedCategory.tasks.map(task => {
+                                const taskRef = utils.dbRef('tasks').push();
+                                return utils.dbSet(taskRef.key, {
+                                    ...task,
+                                    categoryId: categoryRef.key,
+                                    completed: false,
+                                    createdAt: Date.now()
+                            });
+                            });
+                            return Promise.all(taskPromises);
+                        });
+                });
+        }
     }
 };
 
@@ -472,6 +525,13 @@ function loadCategories() {
         }
         if (categoryList) {
             renderCategoriesList(categoriesData);
+        }
+    });
+
+    utils.dbRef('savedCategories').on('value', snapshot => {
+        const savedCategories = snapshot.val() || {};
+        if (savedCategoriesList) {
+            renderSavedCategoriesList(savedCategories);
         }
     });
 }
@@ -963,3 +1023,39 @@ taskList.addEventListener("click", function(e) {
     
     handleTaskToggle(taskId, checkbox, li);
 });
+
+// Add new template functions
+function saveCategoryHandler(categoryId) {
+    utils.savedCategories.save(categoryId)
+        .then(() => console.log('Category preset saved!'))
+        .catch(error => utils.handleError(error, 'saving category preset'));
+}
+
+function loadCategoryPresetHandler(savedCategoryId) {
+    if (!confirm('Load this category preset? It will create a new category with tasks.')) return;
+    
+    utils.savedCategories.load(savedCategoryId)
+        .then(() => console.log('Category preset loaded!'))
+        .catch(error => utils.handleError(error, 'loading category preset'));
+}
+
+function renderSavedCategoriesList(savedCategories) {
+    const list = document.getElementById('saved-categories-list');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    Object.entries(savedCategories).forEach(([id, category]) => {
+        const li = utils.createElement('li', 'category-preset-item');
+        li.innerHTML = `
+            <span class="category-name">${category.name}</span>
+            <span class="task-count">${category.tasks.length} tasks</span>
+            <button class="load-category" title="Load Category">Last inn</button>
+            <button class="delete-button" title="Slett">✖</button>
+        `;
+        
+        li.querySelector('.load-category').onclick = () => loadCategoryPresetHandler(id);
+        li.querySelector('.delete-button').onclick = () => utils.dbRemove(`savedCategories/${id}`);
+        
+        list.appendChild(li);
+    });
+}

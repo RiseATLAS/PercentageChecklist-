@@ -40,33 +40,33 @@
                         </div>
                     </section>
                     <section class="task-section">
-                        <h2>Oppgaver</h2>
+                        <h2 class="text-lg weight-bold">Oppgaver</h2>
                         <ul id="task-list" class="task-list">
                             <!-- Oppgaver vises her -->
                         </ul>
                         <div class="bulk-section">
-                            <button id="mark-all-complete">Marker Alle Som Fullført</button>
-                            <button id="delete-completed">Slett Fullførte Oppgaver</button>
+                            <button id="mark-all-complete" class="text-sm">Marker Alle Som Fullført</button>
+                            <button id="delete-completed" class="text-sm">Slett Fullførte Oppgaver</button>
                         </div>
                     </section>
                 </main>
             </div>
             <div class="categories-column">
                 <section class="categories-section">
-                    <h2>Kategorier</h2>
-                    <div class="category-input-row">
-                        <input type="text" id="new-category-input" placeholder="Ny kategori..." maxlength="30">
-                        <button id="add-category-button" title="Legg til kategori">+</button>
+                    <h2 class="text-lg weight-bold">Kategorier</h2>
+                    <div class="categories-input-row">
+                        <input type="text" id="new-category-input" placeholder="Lagrede kategorier..." maxlength="30">
+                        <button id="add-category-button" title="Legg til lagret kategori">+</button>
                     </div>
-                    <ul id="category-list" class="category-list">
-                        <!-- Kategorier listes her -->
+                    <ul id="saved-categories-list" class="categories-list">
+                        <!-- Lagrede kategorier vises her -->
                     </ul>
                 </section>
             </div>
             <div class="graphs-column">
                 <section class="stats-section">
-                    <h2>Statistikk</h2>
-                    <div class="stats-row">
+                    <h2 class="text-lg weight-bold">Statistikk</h2>
+                    <div class="stats-row text-sm">
                         <span>Totalt: <span id="total-tasks">0</span></span>
                         <span>Fullført: <span id="completed-tasks">0</span></span>
                         <span>Fullført %: <span id="completion-percentage">0%</span></span>
