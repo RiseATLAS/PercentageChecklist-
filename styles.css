@@ -175,7 +175,6 @@ body {
     background-color: var(--baby-blue);
     color: #000;
     border: none;
-    /* Remove rounding by setting border-radius to 0 */
     border-radius: 0;
     padding: 0.25rem;
     width: 1rem;
@@ -184,7 +183,7 @@ body {
     align-items: center;
     justify-content: center;
     /* Change cursor from pointer to default */
-    cursor: default;
+    cursor: auto; /* Changed from default to auto */
 }
 
 /* Task Priority Colors */

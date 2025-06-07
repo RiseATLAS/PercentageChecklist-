@@ -87,60 +87,204 @@ let categoriesCache = {};
 // Add global variable to hold previous tasks data
 let previousTasksData = null;
 
-// Helper function to shallowly compare objects
-function shallowEqual(obj1, obj2) {
+// Helper function to deeply compare objects
+function deepEqual(obj1, obj2) {
     if (obj1 === obj2) return true;
-    if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 == null || obj2 == null) {
-        return false;
+
+    if (typeof obj1 !== 'object' || obj1 === null ||
+        typeof obj2 !== 'object' || obj2 === null) {
+        return obj1 === obj2;
     }
-    let keys1 = Object.keys(obj1), keys2 = Object.keys(obj2);
+
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
     if (keys1.length !== keys2.length) return false;
+
     for (let key of keys1) {
-        if (obj1[key] !== obj2[key]) return false;
+        if (!obj2.hasOwnProperty(key)) return false;
+        if (!deepEqual(obj1[key], obj2[key])) return false;
     }
+
     return true;
 }
 
-// Initialize SortableJS for Drag-and-Drop
-if (taskList) {
-    const sortable = new Sortable(taskList, {
-        animation: 150,
-        delay: 0,                // ensure no delay on tap events
-        delayOnTouchOnly: true,  // only use delay for dragging, not tapping
-        touchStartThreshold: 5,  // reduce threshold so taps register easily
-        fallbackTolerance: 0,
-        onEnd: function(evt) {
-            if (evt.oldIndex === evt.newIndex) return;
-            if (isReordering) return;
-            isReordering = true;
-            if (DEBUG_MODE) {
-                eventCounters.sortableOnEnd++;
-                updateEventCounters();
+// Last inn Oppgaver
+function loadTasks() {
+    const tasksRef = database.ref('tasks').orderByChild('order');
+    tasksRef.off();
+    tasksRef.on('value', snapshot => {
+        if (DEBUG_MODE) {
+            eventCounters.loadTasks++;
+            updateEventCounters();
+        }
+        const tasksData = snapshot.val() || {};
+
+        // Deep compare to prevent unnecessary re-renders
+        if (deepEqual(tasksData, previousTasksData)) {
+            console.log("Data unchanged, skipping re-render");
+            return;
+        }
+
+        previousTasksData = tasksData;
+        applyFiltersAndRender(tasksData);
+    });
+}
+
+// Render Oppgaver
+function renderTasks(tasks) {
+    if (DEBUG_MODE) {
+        eventCounters.renderTasks++;
+        updateEventCounters();
+    }
+    if (!taskList) return;
+
+    // Ensure taskArray is defined
+    const taskArray = Object.keys(tasks).map(key => ({ id: key, ...tasks[key] }));
+
+    if (taskArray.length === 0) {
+        taskList.innerHTML = ""; // Clear existing content
+        const emptyMessage = document.createElement('p');
+        emptyMessage.textContent = searchInput && searchInput.value ? 'Ingen oppgaver matchet søket ditt.' : 'Ingen oppgaver ennå. Legg til en!';
+        emptyMessage.style.textAlign = 'center';
+        emptyMessage.style.color = '#888888';
+        taskList.appendChild(emptyMessage);
+        updateCharts(tasks);
+        return;
+    }
+
+    // Create a document fragment to batch DOM updates
+    const fragment = document.createDocumentFragment();
+    // Track existing task IDs using a Map to store the entire element
+    const existingTasksMap = new Map();
+
+    // Iterate through existing task items to collect their IDs
+    for (let i = 0; i < taskList.children.length; i++) {
+        const child = taskList.children[i];
+        if (child.classList.contains('task-item')) {
+            existingTasksMap.set(child.getAttribute('data-id'), child);
+        }
+    }
+
+    taskArray.forEach(task => {
+        let li;
+        if (existingTasksMap.has(task.id)) {
+            // Use existing task item if it exists
+            li = existingTasksMap.get(task.id);
+            existingTasksMap.delete(task.id); // Remove from map, so we know what to remove later
+
+            // Update checkbox state
+            const checkbox = li.querySelector('.checkbox-container input');
+            if (checkbox && checkbox.checked !== task.completed) {
+                checkbox.checked = task.completed;
+                li.classList.toggle('completed-task', task.completed);
             }
-            const tasksRef = database.ref(`tasks`);
-            tasksRef.orderByChild('order').once('value', snapshot => {
-                const tasks = [];
-                snapshot.forEach(child => {
-                    tasks.push({ id: child.key, ...child.val() });
-                });
-                const movedTask = tasks.splice(evt.oldIndex, 1)[0];
-                tasks.splice(evt.newIndex, 0, movedTask);
-                const updates = {};
-                tasks.forEach((task, index) => {
-                    if (task.order !== index) {
-                        updates[`tasks/${task.id}/order`] = index;
-                    }
-                });
-                database.ref().update(updates)
+        } else {
+            // Create new task item if it doesn't exist
+            li = document.createElement('li');
+            li.className = 'task-item';
+            li.setAttribute('data-id', task.id);
+
+            const checkboxContainer = document.createElement('div');
+            checkboxContainer.className = 'checkbox-container';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = task.completed;
+            checkbox.addEventListener('change', () => {
+                database.ref(`tasks/${task.id}`).update({ completed: checkbox.checked })
                     .catch(error => {
-                        console.error('Feil ved oppdatering av oppgave rekkefølge:', error);
-                    })
-                    .finally(() => {
-                        isReordering = false;
+                        console.error('Feil ved oppdatering av oppgave:', error);
                     });
             });
-        },
+            checkboxContainer.appendChild(checkbox);
+
+            const taskTextSpan = document.createElement('span');
+            taskTextSpan.className = 'task-text';
+            taskTextSpan.textContent = task.text;
+            taskTextSpan.setAttribute('contenteditable', 'false');
+
+            taskTextSpan.addEventListener('dblclick', () => {
+                taskTextSpan.setAttribute('contenteditable', 'true');
+                taskTextSpan.focus();
+            });
+
+            taskTextSpan.addEventListener('blur', () => {
+                taskTextSpan.setAttribute('contenteditable', 'false');
+                const newText = taskTextSpan.textContent.trim();
+                if (newText === "") {
+                    alert("Oppgaveteksten kan ikke være tom.");
+                    taskTextSpan.textContent = task.text;
+                    return;
+                }
+                if (newText !== task.text) {
+                    database.ref(`tasks/${task.id}`).update({ text: newText })
+                        .catch(error => {
+                            console.error('Feil ved oppdatering av oppgavetekst:', error);
+                            taskTextSpan.textContent = task.text; // Revert on error
+                        });
+                }
+            });
+
+            const categorySelectElem = document.createElement('select');
+            categorySelectElem.className = 'task-category-select';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "Uten kategori";
+            categorySelectElem.appendChild(defaultOption);
+            for (let catId in categoriesCache) {
+                const option = document.createElement('option');
+                option.value = catId;
+                option.textContent = categoriesCache[catId].name;
+                categorySelectElem.appendChild(option);
+            }
+            categorySelectElem.value = task.categoryId || "";
+            categorySelectElem.addEventListener('change', () => {
+                const newCategory = categorySelectElem.value;
+                database.ref(`tasks/${task.id}`).update({ categoryId: newCategory, customCategory: null })
+                    .then(() => {
+                        console.log("Task category updated via dropdown");
+                    })
+                    .catch(error => {
+                        console.error("Error updating task category:", error);
+                    });
+            });
+
+            const prioritySpan = document.createElement('span');
+            prioritySpan.className = `task-priority priority-${(task.priority || 'mid').toLowerCase()}`;
+            prioritySpan.textContent = task.priority || 'Mid';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.textContent = '✖';
+            deleteButton.title = "Slett Oppgave";
+            deleteButton.addEventListener('click', () => {
+                database.ref(`tasks/${task.id}`).remove()
+                    .catch(error => {
+                        console.error('Feil ved sletting av oppgave:', error);
+                    });
+            });
+
+            li.appendChild(checkboxContainer);
+            li.appendChild(taskTextSpan);
+            li.appendChild(categorySelectElem);
+            li.appendChild(prioritySpan);
+            li.appendChild(deleteButton);
+        }
+
+        if (li.classList.contains('completed-task') !== task.completed) {
+            li.classList.toggle('completed-task', task.completed);
+        }
+
+        fragment.appendChild(li);
     });
+
+    // Remove any extra task items that are no longer in the data
+    existingTasksMap.forEach(li => {
+        taskList.removeChild(li);
+    });
+
+    taskList.appendChild(fragment); // Append all new or updated items at once
+    updateCharts(tasks);
 }
 
 // Last inn Kategorier
@@ -253,210 +397,46 @@ function deleteCategory(categoryId) {
     });
 }
 
-// Last inn Oppgaver
-function loadTasks() {
-    const tasksRef = database.ref('tasks').orderByChild('order');
-    tasksRef.off();
-    tasksRef.on('value', snapshot => {
-        if (DEBUG_MODE) {
-            eventCounters.loadTasks++;
-            updateEventCounters();
-        }
-        const tasksData = snapshot.val() || {};
-        if (shallowEqual(tasksData, previousTasksData)) {
-            return; // Data unchanged, do not re-render
-        }
-        previousTasksData = tasksData;
-        // Call applyFiltersAndRender directly instead of the debounced version.
-        applyFiltersAndRender(tasksData);
-    });
-}
-
-// Render Oppgaver
-function renderTasks(tasks) {
-    if (DEBUG_MODE) {
-        eventCounters.renderTasks++;
-        updateEventCounters();
-    }
-    if (!taskList) return;
-
-    const taskArray = Object.keys(tasks).map(key => ({ id: key, ...tasks[key] }));
-
-    if (taskArray.length === 0) {
-        taskList.innerHTML = ""; // Clear existing content
-        const emptyMessage = document.createElement('p');
-        emptyMessage.textContent = searchInput && searchInput.value ? 'Ingen oppgaver matchet søket ditt.' : 'Ingen oppgaver ennå. Legg til en!';
-        emptyMessage.style.textAlign = 'center';
-        emptyMessage.style.color = '#888888';
-        taskList.appendChild(emptyMessage);
-        updateCharts(tasks);
-        return;
-    }
-
-    // Create a document fragment to batch DOM updates
-    const fragment = document.createDocumentFragment();
-    const existingTaskIds = new Set(); // Track existing task IDs
-
-    // Iterate through existing task items to collect their IDs
-    for (let i = 0; i < taskList.children.length; i++) {
-        const child = taskList.children[i];
-        if (child.classList.contains('task-item')) {
-            existingTaskIds.add(child.getAttribute('data-id'));
-        }
-    }
-
-    taskArray.forEach(task => {
-        // Skip if task item already exists
-        if (existingTaskIds.has(task.id)) {
-            return;
-        }
-
-        const li = document.createElement('li');
-        li.className = 'task-item';
-        li.setAttribute('data-id', task.id);
-        if (task.completed) {
-            li.classList.add('completed-task');
-        }
-
-        const checkboxContainer = document.createElement('div');
-        checkboxContainer.className = 'checkbox-container';
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = task.completed;
-        checkbox.addEventListener('change', () => {
-            database.ref(`tasks/${task.id}`).update({ completed: checkbox.checked })
-                .catch(error => {
-                    console.error('Feil ved oppdatering av oppgave:', error);
-                });
-        });
-        checkboxContainer.appendChild(checkbox);
-
-        const taskTextSpan = document.createElement('span');
-        taskTextSpan.className = 'task-text';
-        taskTextSpan.textContent = task.text;
-        taskTextSpan.setAttribute('contenteditable', 'false');
-
-        taskTextSpan.addEventListener('dblclick', () => {
-            taskTextSpan.setAttribute('contenteditable', 'true');
-            taskTextSpan.focus();
-        });
-
-        taskTextSpan.addEventListener('blur', () => {
-            taskTextSpan.setAttribute('contenteditable', 'false');
-            const newText = taskTextSpan.textContent.trim();
-            if (newText === "") {
-                alert("Oppgaveteksten kan ikke være tom.");
-                taskTextSpan.textContent = task.text;
-                return;
+// Initialize SortableJS for Drag-and-Drop
+if (taskList) {
+    const sortable = new Sortable(taskList, {
+        animation: 150,
+        delay: 0,                // ensure no delay on tap events
+        delayOnTouchOnly: true,  // only use delay for dragging, not tapping
+        touchStartThreshold: 5,  // reduce threshold so taps register easily
+        fallbackTolerance: 0,
+        onEnd: function(evt) {
+            if (evt.oldIndex === evt.newIndex) return;
+            if (isReordering) return;
+            isReordering = true;
+            if (DEBUG_MODE) {
+                eventCounters.sortableOnEnd++;
+                updateEventCounters();
             }
-            if (newText !== task.text) {
-                database.ref(`tasks/${task.id}`).update({ text: newText })
+            const tasksRef = database.ref(`tasks`);
+            tasksRef.orderByChild('order').once('value', snapshot => {
+                const tasks = [];
+                snapshot.forEach(child => {
+                    tasks.push({ id: child.key, ...child.val() });
+                });
+                const movedTask = tasks.splice(evt.oldIndex, 1)[0];
+                tasks.splice(evt.newIndex, 0, movedTask);
+                const updates = {};
+                tasks.forEach((task, index) => {
+                    if (task.order !== index) {
+                        updates[`tasks/${task.id}/order`] = index;
+                    }
+                });
+                database.ref().update(updates)
                     .catch(error => {
-                        console.error('Feil ved oppdatering av oppgavetekst:', error);
-                        taskTextSpan.textContent = task.text; // Revert on error
+                        console.error('Feil ved oppdatering av oppgave rekkefølge:', error);
+                    })
+                    .finally(() => {
+                        isReordering = false;
                     });
-            }
-        });
-
-        const categorySelectElem = document.createElement('select');
-        categorySelectElem.className = 'task-category-select';
-        const defaultOption = document.createElement('option');
-        defaultOption.value = "";
-        defaultOption.textContent = "Uten kategori";
-        categorySelectElem.appendChild(defaultOption);
-        for (let catId in categoriesCache) {
-            const option = document.createElement('option');
-            option.value = catId;
-            option.textContent = categoriesCache[catId].name;
-            categorySelectElem.appendChild(option);
-        }
-        categorySelectElem.value = task.categoryId || "";
-        categorySelectElem.addEventListener('change', () => {
-            const newCategory = categorySelectElem.value;
-            database.ref(`tasks/${task.id}`).update({ categoryId: newCategory, customCategory: null })
-                .then(() => {
-                    console.log("Task category updated via dropdown");
-                })
-                .catch(error => {
-                    console.error("Error updating task category:", error);
-                });
-        });
-
-        const prioritySpan = document.createElement('span');
-        prioritySpan.className = `task-priority priority-${(task.priority || 'mid').toLowerCase()}`;
-        prioritySpan.textContent = task.priority || 'Mid';
-
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'delete-button';
-        deleteButton.textContent = '✖';
-        deleteButton.title = "Slett Oppgave";
-        deleteButton.addEventListener('click', () => {
-            database.ref(`tasks/${task.id}`).remove()
-                .catch(error => {
-                    console.error('Feil ved sletting av oppgave:', error);
-                });
-        });
-
-        li.appendChild(checkboxContainer);
-        li.appendChild(taskTextSpan);
-        li.appendChild(categorySelectElem);
-        li.appendChild(prioritySpan);
-        li.appendChild(deleteButton);
-
-        fragment.appendChild(li);
-    });
-
-    taskList.appendChild(fragment); // Append all new items at once
-    updateCharts(tasks);
-}
-
-// Applikasjonseksempel: Render oppgaver med filtre og sortering
-function applyFiltersAndRender(tasks) {
-    let filteredTasks = { ...tasks }; // Start with all tasks 
-
-    // Filtrer basert på søk 
-    if (searchInput && searchInput.value) {
-        const query = searchInput.value.toLowerCase();
-        const tempFiltered = {};
-        for (let id in filteredTasks) {
-            if (filteredTasks[id].text.toLowerCase().includes(query)) {
-                tempFiltered[id] = filteredTasks[id];
-            }
-        }
-        filteredTasks = tempFiltered;
-    }
-    
-    const taskArray = Object.keys(filteredTasks).map(key => ({ id: key, ...filteredTasks[key] }));
-
-    // Sorter oppgaver
-    if (sortBy && sortBy.value) {
-        const sortCriterion = sortBy.value;
-        if (sortCriterion === 'dueDate') {
-            // Use createdAt instead of dueDate
-            taskArray.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-        } else if (sortCriterion === 'priority') {
-            const priorityOrder = { 'Høy': 1, 'Mid': 2, 'Lav': 3 };
-            taskArray.sort((a, b) => (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3));
-        } else if (sortCriterion === 'category') {
-            taskArray.sort((a, b) => {
-                const nameA = a.customCategory ||
-                    (a.categoryId && categoriesCache[a.categoryId] ? categoriesCache[a.categoryId].name : "Uten kategori");
-                const nameB = b.customCategory ||
-                    (b.categoryId && categoriesCache[b.categoryId] ? categoriesCache[b.categoryId].name : "Uten kategori");
-                return nameA.toLowerCase().localeCompare(nameB.toLowerCase());
             });
-        } else if (sortCriterion === 'createdAt') {
-            taskArray.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-        }
-    }
-
-
-    const sortedTasksObject = {};
-    taskArray.forEach(task => {
-        sortedTasksObject[task.id] = task;
+        },
     });
-
-    renderTasks(sortedTasksObject);
 }
 
 // Initialize og Oppdater Diagrammer
