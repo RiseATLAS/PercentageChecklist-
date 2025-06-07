@@ -446,61 +446,67 @@ function initializeCharts() {
     const localCompletionChartCtx = document.getElementById('completion-chart');
 
     if (localCompletionChartCtx) {
-        completionChartInstance = new Chart(localCompletionChartCtx.getContext('2d'), {
+        // Set initial size
+        localCompletionChartCtx.style.height = '200px';
+        localCompletionChartCtx.height = 200;
+        localCompletionChartCtx.style.width = '200px';
+        localCompletionChartCtx.width = 200;
+
+        completionChartInstance = new Chart(localCompletionChartCtx, {
             type: 'doughnut',
             data: {
                 labels: ['Fullført', 'Ufullført'],
                 datasets: [{ 
                     data: [0, 0],
-                    backgroundColor: ['#89CFF0', '#F4C2C2'] // baby blue & baby pink
+                    backgroundColor: ['#89CFF0', '#F4C2C2']
                 }]
             },
             options: { 
                 responsive: true, 
-                maintainAspectRatio: true, // Add this line
-                plugins: { legend: { position: 'bottom' } } ,
-				// Add these scale options to control aspect ratio
-				scales: {
-					x: {
-						display: false, // Hide x-axis
-						ticks: { display: false }
-					},
-					y: {
-						display: false, // Hide y-axis
-						ticks: { display: false }
-					}
-				},
-				// Set a fixed height to prevent it from expanding
-				layout: {
-					padding: {
-						top: 10,
-						bottom: 10
-					}
-				}
-            },
-			// Ensure the chart is properly sized on creation
-			plugins: [{
-				id: 'fixed-size',
-				beforeDraw: (chart) => {
-					const box = chart.chartArea;
-					const width = box.right - box.left;
-					const height = Math.min(width, 200); // Limit height to 200px
-					
-					// Directly set the canvas height and width
-					chart.canvas.style.height = height + 'px';
-					chart.canvas.style.width = width + 'px';
-
-					chart.options.width = width;
-					chart.options.height = height;
-				}
-			}]
+                maintainAspectRatio: true,
+                aspectRatio: 1,
+                plugins: { 
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 15,
+                            padding: 15
+                        }
+                    }
+                },
+                layout: {
+                    padding: {
+                        top: 10,
+                        bottom: 30,
+                        left: 10,
+                        right: 10
+                    }
+                }
+            }
         });
-    } else {
-        console.error("Could not find completion-chart canvas element.");
+
+        // Remove any existing resize observers
+        if (window.chartResizeObserver) {
+            window.chartResizeObserver.disconnect();
+        }
+
+        // Create new resize observer
+        window.chartResizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                if (entry.target === localCompletionChartCtx) {
+                    const width = entry.contentRect.width;
+                    const height = Math.min(width, 200);
+                    localCompletionChartCtx.style.height = `${height}px`;
+                    completionChartInstance.resize();
+                }
+            }
+        });
+
+        // Observe the canvas
+        window.chartResizeObserver.observe(localCompletionChartCtx);
     }
 }
 
-// Oppdater Diagrammer
 function updateCharts(tasks) {
     let total = 0;
     let completedCount = 0;
@@ -517,9 +523,8 @@ function updateCharts(tasks) {
 
     if (completionChartInstance) {
         completionChartInstance.data.datasets[0].data = [completedCount, total - completedCount];
-        // Reset canvas height before updating
-        completionChartInstance.canvas.style.height = 'auto';
-        completionChartInstance.update();
+        // Don't call resize() here, let the ResizeObserver handle it
+        completionChartInstance.update('none'); // Use 'none' animation mode for better performance
     } else {
         console.error("completionChartInstance is not initialized.");
     }
