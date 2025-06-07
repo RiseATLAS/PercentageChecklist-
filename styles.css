@@ -277,10 +277,11 @@ body {
     height: 200px;
     position: relative;
     margin: 0 auto;
+    overflow: hidden;
 }
 
 /* Style the canvas element */
 #completion-chart {
-    width: 100% !important;
-    height: 100% !important;
+    width: 200px !important;
+    height: 200px !important;
 }

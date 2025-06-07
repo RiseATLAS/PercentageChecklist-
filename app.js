@@ -446,7 +446,12 @@ function initializeCharts() {
     const localCompletionChartCtx = document.getElementById('completion-chart');
 
     if (localCompletionChartCtx) {
-        // Set fixed dimensions
+        // Cleanup any existing chart
+        if (completionChartInstance) {
+            completionChartInstance.destroy();
+            completionChartInstance = null;
+        }
+
         const config = {
             type: 'doughnut',
             data: {
@@ -457,9 +462,8 @@ function initializeCharts() {
                 }]
             },
             options: { 
-                responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 1,
+                responsive: false,
+                maintainAspectRatio: false,
                 plugins: { 
                     legend: { 
                         position: 'bottom',
@@ -468,16 +472,9 @@ function initializeCharts() {
                             padding: 15
                         }
                     }
-                },
-                layout: {
-                    padding: 20
                 }
             }
         };
-
-        if (completionChartInstance) {
-            completionChartInstance.destroy();
-        }
 
         completionChartInstance = new Chart(localCompletionChartCtx, config);
     }
@@ -499,7 +496,7 @@ function updateCharts(tasks) {
 
     if (completionChartInstance) {
         completionChartInstance.data.datasets[0].data = [completedCount, total - completedCount];
-        completionChartInstance.update('none');
+        completionChartInstance.update();
     }
 }
 
