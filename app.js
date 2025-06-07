@@ -17,11 +17,35 @@ const storage = firebase.storage(); // Initialize Firebase Storage
 
 // ---------------------
 // Updated debug declarations with additional events
-const DEBUG_MODE = false;  // set to false to disable debug logging and counters
-const debugPanel = document.getElementById('debug-panel');
-if (debugPanel) {
-    debugPanel.classList.toggle('visible', DEBUG_MODE);
+const DEBUG_MODE = false;
+
+// Create debug panel only if debug mode is enabled
+if (DEBUG_MODE) {
+    const debugPanelContainer = document.getElementById('debug-panel-container');
+    if (debugPanelContainer) {
+        debugPanelContainer.innerHTML = `
+            <div class="event-counters-section">
+                <div id="debug-panel" class="debug-panel visible">
+                    <p>loadTasks: <span id="counter-loadTasks">0</span></p>
+                    <p>renderTasks: <span id="counter-renderTasks">0</span></p>
+                    <p>loadCategories: <span id="counter-loadCategories">0</span></p>
+                    <p>addTask: <span id="counter-addTask">0</span></p>
+                    <p>addCategory: <span id="counter-addCategory">0</span></p>
+                    <p>markAllComplete: <span id="counter-markAllComplete">0</span></p>
+                    <p>deleteCompleted: <span id="counter-deleteCompleted">0</span></p>
+                    <p>updateCharts: <span id="counter-updateCharts">0</span></p>
+                    <p>applyFilters: <span id="counter-applyFilters">0</span></p>
+                    <p>renderCategories: <span id="counter-renderCategoriesList">0</span></p>
+                    <p>sortBy: <span id="counter-sortBy">0</span></p>
+                    <p>taskInputKeydown: <span id="counter-taskInputKeydown">0</span></p>
+                    <p>newCategoryKeydown: <span id="counter-newCategoryInputKeydown">0</span></p>
+                    <p>sortableOnEnd: <span id="counter-sortableOnEnd">0</span></p>
+                </div>
+            </div>
+        `;
+    }
 }
+
 let eventCounters = {
     loadTasks: 0,
     renderTasks: 0,
@@ -229,36 +253,42 @@ function renderTasks(tasks) {
                 }
             });
 
+            // Modify category editing: always allow inline editing.
             const categorySelectElem = document.createElement('select');
             categorySelectElem.className = 'task-category-select';
+            
+            // Add default option
             const defaultOption = document.createElement('option');
             defaultOption.value = "";
             defaultOption.textContent = "Uten kategori";
             categorySelectElem.appendChild(defaultOption);
+            
+            // Populate options from cached categories
             for (let catId in categoriesCache) {
                 const option = document.createElement('option');
                 option.value = catId;
                 option.textContent = categoriesCache[catId].name;
                 categorySelectElem.appendChild(option);
             }
+            
+            // Set the dropdown value to task.categoryId if exists
             categorySelectElem.value = task.categoryId || "";
+            
+            // When selection changes, update the task's categoryId (and remove any customCategory).
             categorySelectElem.addEventListener('change', () => {
                 const newCategory = categorySelectElem.value;
                 database.ref(`tasks/${task.id}`).update({ categoryId: newCategory, customCategory: null })
-                    .then(() => {
-                        console.log("Task category updated via dropdown");
-                    })
-                    .catch(error => {
-                        console.error("Error updating task category:", error);
-                    });
+                  .then(() => { console.log("Task category updated via dropdown"); })
+                  .catch(error => { console.error("Error updating task category:", error); });
             });
-
+            
             const prioritySpan = document.createElement('span');
             prioritySpan.className = `task-priority priority-${(task.priority || 'mid').toLowerCase()}`;
             prioritySpan.textContent = task.priority || 'Mid';
-
+            
             const deleteButton = document.createElement('button');
             deleteButton.className = 'delete-button';
+            // Re-implement x change: set symbol to a stylish "✖"
             deleteButton.textContent = '✖';
             deleteButton.title = "Slett Oppgave";
             deleteButton.addEventListener('click', () => {
@@ -268,6 +298,7 @@ function renderTasks(tasks) {
                     });
             });
 
+            // Append interactive elements:
             li.appendChild(checkboxContainer);
             li.appendChild(taskTextSpan);
             li.appendChild(categorySelectElem);

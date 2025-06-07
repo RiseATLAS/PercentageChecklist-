@@ -288,9 +288,15 @@ body {
 
 /* Debug panel styling */
 .debug-panel {
-    display: none; /* Hidden by default */
+    display: none !important; /* Force hide when not in debug mode */
+    visibility: hidden;
+    height: 0;
+    overflow: hidden;
 }
 
 .debug-panel.visible {
-    display: block;
+    display: block !important;
+    visibility: visible;
+    height: auto;
+    overflow: visible;
 }
