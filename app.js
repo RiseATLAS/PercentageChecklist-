@@ -168,9 +168,8 @@ const utils = {
             const categoryTasks = Object.values(tasks)
                 .filter(t => t.categoryId === categoryId);
             
-            // Only trigger goats if category has tasks and all are completed
             if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
-                this.showAnimation('goats');
+                await this.showAnimation('goats', true); // true for category completion
                 await this.dbRef(`categories/${categoryId}/lastCompleted`).set(Date.now());
                 this.showError('Category completed! 🎈', 'success', 2000);
             }
@@ -179,19 +178,36 @@ const utils = {
         }
     },
 
-    showAnimation(type) {
+    async showAnimation(type, isCategory = false) {
         const container = document.getElementById('animationContainer');
-        const animal = document.createElement('div');
-        const isYoungPig = type === 'pig';
+        const template = document.getElementById(
+            type === 'pig' ? 'youngPigTemplate' : 'youngGoatsTemplate'
+        );
         
-        animal.className = 'young-animal';
-        animal.innerHTML = `
-            <span class="emoji">${isYoungPig ? '🐷' : '🐐 🐐'}</span>
-            <span class="text">${isYoungPig ? 'Wheee!' : 'Yippee!'}</span>
-        `;
-        
-        container.appendChild(animal);
-        animal.addEventListener('animationend', () => animal.remove());
+        if (!template || !container) return;
+
+        // Clone and prepare animation
+        const animal = template.content.cloneNode(true).firstElementChild;
+        const stage = container.querySelector('.animation-stage');
+        stage?.appendChild(animal);
+
+        // Play sound if available
+        const sound = document.getElementById(type === 'pig' ? 'pigSound' : 'goatSound');
+        if (sound) {
+            sound.currentTime = 0;
+            try {
+                await sound.play();
+            } catch (e) {
+                console.log('Sound autoplay blocked');
+            }
+        }
+
+        // Cleanup after animation
+        const duration = isCategory ? 2500 : 1500;
+        setTimeout(() => {
+            animal.classList.add('fade-out');
+            setTimeout(() => animal.remove(), 300);
+        }, duration);
     }
 };
 

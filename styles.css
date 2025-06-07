@@ -4,63 +4,87 @@ requirements
 - rounded corners of all boxes
 - modern design, usable for both phone computer, focus on phone  */
 
-/* Basic Setup */
+/* Setup and Variables */
 :root {
     --baby-blue: #89CFF0;
     --baby-pink: #F4C2C2;
     --white: #ffffff;
     --success: #4CAF50;
-    --border-radius: 12px;  /* increased for modern look */
+    --border-radius: 12px;
     --box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    --touch-target: 44px;
 }
 
-/* Base Styles */
+/* Base Mobile-First Styles */
 body {
     font-family: system-ui, sans-serif;
     margin: 0;
-    padding: 15px;
+    padding: 10px;
     background: var(--white);
     line-height: 1.6;
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* Mobile-first Container */
 .container {
     max-width: 100%;
     margin: 0 auto;
-    padding: 15px;
+    padding: 10px;
 }
 
-/* Forms - Touch Friendly */
+/* Mobile-Optimized Forms */
 form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 15px;
     margin-bottom: 20px;
 }
 
 input, select, button {
+    min-height: var(--touch-target);
     padding: 12px 16px;
     border: 2px solid var(--baby-blue);
     border-radius: var(--border-radius);
     font-size: 16px;
-    min-height: 44px; /* touch target */
+    background: var(--white);
 }
 
-/* Young Animal Animations */
+button {
+    background: var(--baby-blue);
+    color: var(--white);
+    font-weight: 600;
+}
+
+/* Young Animal Animations - Updated for better physics */
 .young-animal {
     position: fixed;
     bottom: 40px;
     z-index: 1000;
     pointer-events: none;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+
+.young-animal .emoji {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+.young-animal .text {
+    font-family: "Comic Sans MS", cursive;
+    color: var(--baby-pink);
+    font-size: 20px;
+    text-shadow: 2px 2px var(--white);
+    font-weight: bold;
 }
 
 @keyframes hop-run {
-    0% { left: -100px; transform: translateY(0) scale(1); }
-    25% { transform: translateY(-30px) scale(1.1); }
-    50% { transform: translateY(0) scale(1); }
-    75% { transform: translateY(-30px) scale(1.1); }
-    100% { left: calc(100vw + 100px); transform: translateY(0) scale(1); }
+    0% { left: -100px; transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-40px) rotate(5deg); }
+    50% { transform: translateY(0) rotate(0deg); }
+    75% { transform: translateY(-40px) rotate(-5deg); }
+    100% { left: calc(100vw + 100px); transform: translateY(0) rotate(0deg); }
 }
 
 .celebration-pig { 
@@ -96,13 +120,12 @@ input, select, button {
 }
 
 .category-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    margin: 5px 0;
-    background: white;
+    padding: 15px;
+    margin: 10px 0;
+    background: var(--white);
+    border: 2px solid var(--baby-pink);
     border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
 }
 
 /* Editable Category Names */
@@ -434,7 +457,7 @@ input, select, button {
 .celebration-pig { animation: run-hop 1.5s ease-in-out; }
 .celebration-goats { animation: run-hop 2.5s ease-in-out; }
 
-/* Media Queries */
+/* Media Queries - Improved Desktop Experience */
 @media (min-width: 768px) {
     .container {
         max-width: 800px;
@@ -444,14 +467,26 @@ input, select, button {
     form {
         flex-direction: row;
         align-items: center;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .category-item {
+        flex-direction: column;
+        gap: 15px;
     }
     
-    .category-item, .task-item {
-        transition: transform 0.2s ease;
+    .category-actions {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
     }
     
-    .category-item:hover, .task-item:hover {
-        transform: translateY(-2px);
+    .category-actions button {
+        flex: 1;
+        white-space: nowrap;
     }
 }
 
@@ -460,5 +495,69 @@ input, select, button {
     .celebration-pig, .celebration-goats {
         animation-duration: 0.5s;
         animation-timing-function: ease-out;
+    }
+}
+
+/* Accessibility */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+
+/* Animation Container */
+.animation-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    z-index: 1000;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Filter Section */
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 15px 0;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.clear-filter {
+    background: var(--baby-pink);
+    min-width: var(--touch-target);
+}
+
+@media (min-width: 768px) {
+    .filter-section {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .filter-section label {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-controls {
+        flex-direction: column;
+    }
+    
+    .clear-filter {
+        width: 100%;
     }
 }

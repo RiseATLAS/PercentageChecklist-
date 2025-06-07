@@ -33,44 +33,87 @@
 
             <!-- Category Section -->
             <div class="category-section">
-                <!-- Category Form -->
                 <form id="categoryForm" class="input-form">
-                    <input type="text" placeholder="Legg til ny kategori" required>
-                    <button type="submit">Legg til kategori 🌟</button>
+                    <label class="visually-hidden" for="categoryInput">Ny Kategori</label>
+                    <input id="categoryInput" type="text" placeholder="Lag en ny kategori" required>
+                    <button type="submit">Legg til 🌟</button>
                 </form>
-                <div class="filter-bar">
-                    <!-- Category Filter -->
-                    <select id="categoryFilter" class="category-filter"></select>
+                
+                <div class="filter-section">
+                    <label for="categoryFilter">Filtrer etter kategori:</label>
+                    <div class="filter-controls">
+                        <select id="categoryFilter" class="category-filter"></select>
+                        <button id="clearFilter" class="clear-filter" type="button">Vis alle</button>
+                    </div>
                 </div>
-                <!-- Category List -->
-                <div id="categoryList" class="category-list"></div>
+                
+                <div id="categoryList" class="category-list" aria-live="polite"></div>
             </div>
         </div>
     </div>
 
-    <div id="audioContainer" style="display: none;">
-        <audio id="pigSound" src="sounds/oink.mp3" preload="auto"></audio>
-        <audio id="goatSound" src="sounds/baa.mp3" preload="auto"></audio>
+    <!-- Animation System -->
+    <div id="animationContainer" class="animation-container" aria-hidden="true">
+        <div class="animation-stage">
+            <!-- Young Animals Container -->
+            <div class="young-animals">
+                <template id="youngPigTemplate">
+                    <div class="young-pig">
+                        <img src="assets/young-pig.svg" alt="" aria-hidden="true">
+                        <span class="sound-text">Oink!</span>
+                    </div>
+                </template>
+                <template id="youngGoatsTemplate">
+                    <div class="young-goats">
+                        <img src="assets/young-goats.svg" alt="" aria-hidden="true">
+                        <span class="sound-text">Baa!</span>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sound System -->
+    <div id="audioContainer" hidden>
+        <audio id="pigSound" preload="auto">
+            <source src="sounds/oink.mp3" type="audio/mpeg">
+            <source src="sounds/oink.webm" type="audio/webm">
+        </audio>
+        <audio id="goatSound" preload="auto">
+            <source src="sounds/baa.mp3" type="audio/mpeg">
+            <source src="sounds/baa.webm" type="audio/webm">
+        </audio>
     </div>
 
-    <!-- Loader -->
-    <div class="loader" style="display: none;"></div>
+    <!-- System Feedback -->
+    <div class="loader" style="display: none;" aria-hidden="true"></div>
+    <div class="toast-container" role="status" aria-live="polite"></div>
 
-    <!-- Toast Container -->
-    <div class="toast-container"></div>
+    <!-- Resource Preloading -->
+    <link rel="preload" as="image" href="assets/young-pig.svg" type="image/svg+xml">
+    <link rel="preload" as="image" href="assets/young-goats.svg" type="image/svg+xml">
+    <link rel="preload" as="audio" href="sounds/oink.mp3" as="audio">
+    <link rel="preload" as="audio" href="sounds/baa.mp3" as="audio">
 
-    <!-- Firebase SDK -->
+    <!-- Core Dependencies -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SortableJS -->
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="app.js"></script>
+    
+    <!-- Supporting Libraries -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
+    <!-- Application Code -->
+    <script>const APP_VERSION = '1.0.0';</script>
+    <script src="app.js?v=1.0.0"></script>
 
-    <!-- Debug panel will be injected here if DEBUG_MODE is true -->
+    <!-- Debug Tools -->
     <div id="debug-panel-container"></div>
+    <script>
+        if (localStorage.getItem('DEBUG_MODE') === 'true') {
+            document.body.classList.add('debug-mode');
+        }
+    </script>
 </body>
-
 </html>
