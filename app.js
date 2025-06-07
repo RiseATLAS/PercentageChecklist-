@@ -132,29 +132,31 @@ const utils = {
     },
 
     updateCategoryFilter(categories) {
-        // Update filter dropdown
+        // Update dropdowns
         const filter = document.getElementById('categoryFilter');
-        if (filter) {
-            filter.innerHTML = `
-                <option value="">All Categories</option>
-                ${Object.entries(categories).map(([id, cat]) => 
-                    `<option value="${id}">${cat.name}</option>`
-                ).join('')}
-            `;
-        }
+        const select = document.getElementById('categorySelect');
+        const dropdownHTML = `
+            <option value="">All Categories</option>
+            ${Object.entries(categories).map(([id, cat]) => 
+                `<option value="${id}">${cat.name}</option>`
+            ).join('')}
+        `;
 
-        // Update category list with store/load buttons
+        if (filter) filter.innerHTML = dropdownHTML;
+        if (select) select.innerHTML = dropdownHTML;
+
+        // Update category list
         const categoryList = document.getElementById('categoryList');
         if (categoryList) {
             categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
                 <div class="category-item">
                     <span class="category-name">${cat.name}</span>
                     <div class="category-actions">
-                        <button onclick="categories.storeTasksForCategory('${id}')">
-                            📥 Store
+                        <button class="store-btn" onclick="categories.storeTasksForCategory('${id}')">
+                            Store 📥
                         </button>
-                        <button onclick="categories.loadStoredTasks('${id}')">
-                            📤 Load
+                        <button class="load-btn" onclick="categories.loadStoredTasks('${id}')">
+                            Load 📤
                         </button>
                     </div>
                 </div>

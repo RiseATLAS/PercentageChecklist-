@@ -18,7 +18,7 @@
             <!-- Task Section -->
             <div class="task-input">
                 <!-- Task Form -->
-                <form id="taskForm">
+                <form id="taskForm" class="input-form">
                     <input type="text" placeholder="Legg til ny oppgave" required>
                     <select id="categorySelect"></select>
                     <button type="submit">Legg til oppgave</button>
@@ -28,19 +28,24 @@
             <!-- Category Section -->
             <div class="category-management">
                 <!-- Category Form -->
-                <form id="categoryForm">
+                <form id="categoryForm" class="input-form">
                     <input type="text" placeholder="Legg til ny kategori" required>
                     <button type="submit">Legg til kategori</button>
                 </form>
-                <!-- Category Filter -->
-                <select id="categoryFilter" class="category-filter"></select>
-                <!-- Category List -->
-                <div id="categoryList" class="category-list"></div>
+
+                <div class="category-controls">
+                    <!-- Category Filter -->
+                    <select id="categoryFilter" class="category-filter"></select>
+                    <!-- Category List -->
+                    <div id="categoryList" class="category-list"></div>
+                </div>
             </div>
 
             <!-- Progress Section -->
-            <div class="progress-bar"></div>
-            <div class="progress-text"></div>
+            <div class="progress-section">
+                <div class="progress-bar"></div>
+                <div class="progress-text"></div>
+            </div>
 
             <!-- Main Task List -->
             <ul id="taskList" class="task-list"></ul>

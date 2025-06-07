@@ -1,6 +1,7 @@
 /* Basic Setup */
 :root {
     --primary-color: #89CFF0;
+    --secondary-color: #F4C2C2;
     --success-color: #4CAF50;
     --error-color: #ff4444;
     --warning-color: #FFC107;
@@ -22,7 +23,7 @@ body {
 .container {
     max-width: 800px;
     margin: 20px auto;
-    padding: 0 20px;
+    padding: 20px;
 }
 
 /* Forms */
@@ -41,6 +42,9 @@ input, select, button {
 /* Category Management */
 .category-section {
     margin: 20px 0;
+    padding: 15px;
+    background: var(--secondary-color);
+    border-radius: var(--border-radius);
 }
 
 .category-management {
@@ -57,7 +61,7 @@ input, select, button {
     align-items: center;
     padding: 10px;
     margin: 5px 0;
-    background: var(--baby-pink);
+    background: white;
     border-radius: var(--border-radius);
 }
 
@@ -331,6 +335,15 @@ input, select, button {
 .celebration-pig, .celebration-goats {
     position: fixed;
     bottom: 20px;
+    left: -50px;
     z-index: 1000;
-    animation: run-across 2s ease-in-out forwards;
+    pointer-events: none;
+}
+
+.celebration-pig { animation: run-across 1.5s ease-in-out forwards; }
+.celebration-goats { animation: run-across 2.5s ease-in-out forwards; }
+
+@keyframes run-across {
+    from { left: -50px; }
+    to { left: calc(100vw + 50px); }
 }
