@@ -78,45 +78,82 @@ const utils = {
     },
 
     createTaskElements(task) {
-        const elements = {
-            container: utils.createElement('li', 'task-item'),
-            checkbox: utils.createElement('input'),
-            text: utils.createElement('span', 'task-text', task.text),
-            category: utils.createElement('select', 'task-category-select'),
-            priority: utils.createElement('span', `task-priority priority-${(task.priority || 'mid').toLowerCase()}`, task.priority || 'Mid'),
-            delete: utils.createElement('button', 'delete-button', '✖')
-        };
+        // Create checkbox container and input
+        const checkboxContainer = utils.createElement('div', 'checkbox-container');
+        const checkbox = utils.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = task.completed;
+        checkboxContainer.appendChild(checkbox);
         
-        elements.container.setAttribute('data-id', task.id);
-        elements.checkbox.type = 'checkbox';
-        elements.checkbox.checked = task.completed;
-        elements.delete.title = 'Slett Oppgave';
+        // Create text span
+        const textSpan = utils.createElement('span', 'task-text', task.text);
+        textSpan.setAttribute('contenteditable', 'false');
         
-        return elements;
+        // Create category select
+        const categorySelect = utils.createElement('select', 'task-category-select');
+        categorySelect.innerHTML = '<option value="">Uten kategori</option>';
+        for (let catId in categoriesCache) {
+            categorySelect.appendChild(utils.createOption(catId, categoriesCache[catId].name));
+        }
+        categorySelect.value = task.categoryId || '';
+        
+        // Create priority span
+        const prioritySpan = utils.createElement('span', 
+            `task-priority priority-${(task.priority || 'mid').toLowerCase()}`, 
+            task.priority || 'Mid'
+        );
+        
+        // Create delete button
+        const deleteButton = utils.createElement('button', 'delete-button', '✖');
+        deleteButton.title = "Slett Oppgave";
+        
+        // Create container and set properties
+        const container = utils.createElement('li', 'task-item');
+        container.setAttribute('data-id', task.id);
+        if (task.completed) container.classList.add('completed-task');
+        
+        // Append all elements
+        container.appendChild(checkboxContainer);
+        container.appendChild(textSpan);
+        container.appendChild(categorySelect);
+        container.appendChild(prioritySpan);
+        container.appendChild(deleteButton);
+        
+        // Add event listeners
+        checkbox.addEventListener('change', () => handleTaskToggle(task.id, checkbox, container));
+        textSpan.addEventListener('dblclick', () => textSpan.setAttribute('contenteditable', 'true'));
+        textSpan.addEventListener('blur', () => updateTaskText(task.id, textSpan));
+        categorySelect.addEventListener('change', () => updateTaskCategory(task.id, categorySelect.value));
+        deleteButton.addEventListener('click', () => deleteTask(task.id));
+        
+        return container;
     },
 
-    handleError(error, context = '') {
-        console.error(`Error ${context}:`, error);
-        // Could be extended to show user-friendly error messages
+    updateTaskText(taskId, textSpan) {
+        textSpan.setAttribute('contenteditable', 'false');
+        const newText = textSpan.textContent.trim();
+        if (newText === "") {
+            alert("Oppgaveteksten kan ikke være tom.");
+            textSpan.textContent = task.text;
+            return;
+        }
+        utils.dbUpdate(`tasks/${taskId}`, { text: newText })
+            .catch(error => {
+                console.error('Feil ved oppdatering av oppgavetekst:', error);
+                textSpan.textContent = task.text;
+            });
     },
 
-    dbRef(path) {
-        return database.ref(path);
+    updateTaskCategory(taskId, categoryId) {
+        utils.dbUpdate(`tasks/${taskId}`, { 
+            categoryId, 
+            customCategory: null 
+        });
     },
 
-    dbUpdate(path, data) {
-        return this.dbRef(path).update(data)
-            .catch(error => this.handleError(error, `updating ${path}`));
-    },
-
-    dbRemove(path) {
-        return this.dbRef(path).remove()
-            .catch(error => this.handleError(error, `removing ${path}`));
-    },
-
-    dbSet(path, data) {
-        return this.dbRef(path).set(data)
-            .catch(error => this.handleError(error, `setting ${path}`));
+    deleteTask(taskId) {
+        utils.dbRemove(`tasks/${taskId}`)
+            .catch(error => console.error('Feil ved sletting av oppgave:', error));
     },
 
     errorHandlers: {
@@ -361,90 +398,8 @@ function renderTasks(tasks) {
                 li.classList.toggle('completed-task', task.completed);
             }
         } else {
-            const elements = utils.createTaskElements(task);
-            
-            // Setup event listeners
-            elements.checkbox.addEventListener('change', () => {
-                utils.safeUpdate(`tasks/${task.id}`, { completed: elements.checkbox.checked });
-            });
-            
-            elements.text.addEventListener('dblclick', () => {
-                elements.text.setAttribute('contenteditable', 'true');
-                elements.text.focus();
-            });
-
-            elements.text.addEventListener('blur', () => {
-                elements.text.setAttribute('contenteditable', 'false');
-                const newText = elements.text.textContent.trim();
-                if (newText === "") {
-                    alert("Oppgaveteksten kan ikke være tom.");
-                    elements.text.textContent = task.text;
-                    return;
-                }
-                if (newText !== task.text) {
-                    database.ref(`tasks/${task.id}`).update({ text: newText })
-                        .catch(error => {
-                            console.error('Feil ved oppdatering av oppgavetekst:', error);
-                            elements.text.textContent = task.text; // Revert on error
-                        });
-                }
-            });
-
-            // Modify category editing: always allow inline editing.
-            const categorySelectElem = document.createElement('select');
-            categorySelectElem.className = 'task-category-select';
-            
-            // Add default option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = "";
-            defaultOption.textContent = "Uten kategori";
-            categorySelectElem.appendChild(defaultOption);
-            
-            // Populate options from cached categories
-            for (let catId in categoriesCache) {
-                const option = document.createElement('option');
-                option.value = catId;
-                option.textContent = categoriesCache[catId].name;
-                categorySelectElem.appendChild(option);
-            }
-            
-            // Set the dropdown value to task.categoryId if exists
-            categorySelectElem.value = task.categoryId || "";
-            
-            // When selection changes, update the task's categoryId (and remove any customCategory).
-            categorySelectElem.addEventListener('change', () => {
-                const newCategory = categorySelectElem.value;
-                database.ref(`tasks/${task.id}`).update({ categoryId: newCategory, customCategory: null })
-                  .then(() => { console.log("Task category updated via dropdown"); })
-                  .catch(error => { console.error("Error updating task category:", error); });
-            });
-            
-            const prioritySpan = document.createElement('span');
-            prioritySpan.className = `task-priority priority-${(task.priority || 'mid').toLowerCase()}`;
-            prioritySpan.textContent = task.priority || 'Mid';
-            
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'delete-button';
-            // Re-implement x change: set symbol to a stylish "✖"
-            deleteButton.textContent = '✖';
-            deleteButton.title = "Slett Oppgave";
-            deleteButton.addEventListener('click', () => {
-                database.ref(`tasks/${task.id}`).remove()
-                    .catch(error => {
-                        console.error('Feil ved sletting av oppgave:', error);
-                    });
-            });
-
-            // Append interactive elements:
-            li.appendChild(checkboxContainer);
-            li.appendChild(taskTextSpan);
-            li.appendChild(categorySelectElem);
-            li.appendChild(prioritySpan);
-            li.appendChild(deleteButton);
-        }
-
-        if (li.classList.contains('completed-task') !== task.completed) {
-            li.classList.toggle('completed-task', task.completed);
+            // Create task item elements
+            li = utils.createTaskElements(task);
         }
 
         fragment.appendChild(li);
