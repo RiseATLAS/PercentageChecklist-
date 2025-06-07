@@ -169,7 +169,7 @@ const utils = {
                 .filter(t => t.categoryId === categoryId);
             
             if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
-                await this.showAnimation('goats', true); // true for category completion
+                await this.triggerCelebration('goats', categoryTasks.length);
                 await this.dbRef(`categories/${categoryId}/lastCompleted`).set(Date.now());
                 this.showError('Category completed! 🎈', 'success', 2000);
             }
@@ -178,36 +178,55 @@ const utils = {
         }
     },
 
-    async showAnimation(type, isCategory = false) {
-        const container = document.getElementById('animationContainer');
-        const template = document.getElementById(
-            type === 'pig' ? 'youngPigTemplate' : 'youngGoatsTemplate'
-        );
-        
-        if (!template || !container) return;
+    async triggerCelebration(type, count = 1) {
+        const stage = document.querySelector('.animation-stage');
+        if (!stage) return;
 
-        // Clone and prepare animation
-        const animal = template.content.cloneNode(true).firstElementChild;
-        const stage = container.querySelector('.animation-stage');
-        stage?.appendChild(animal);
+        try {
+            // Pre-check image availability
+            const imagePath = `assets/young-${type === 'pig' ? 'pig' : 'goat'}.svg`;
+            const imageAvailable = await fetch(imagePath).then(r => r.ok).catch(() => false);
+            
+            // Create celebration wrapper
+            const celebration = document.createElement('div');
+            celebration.className = `celebration ${type}-celebration`;
+            
+            // Generate animals with fallback to emoji
+            const animals = Array.from(
+                { length: type === 'goats' ? Math.min(count, 3) : 1 }, 
+                (_, i) => `
+                    <div class="young-animal" style="animation-delay: ${i * 0.2}s">
+                        ${imageAvailable ? 
+                            `<img src="${imagePath}" alt="" class="animal-image">` : 
+                            `<span class="animal-emoji">${type === 'pig' ? '🐷' : '🐐'}</span>`
+                        }
+                        <span class="sound-text" aria-hidden="true">
+                            ${type === 'pig' ? 'Oink!' : 'Baa!'}
+                        </span>
+                    </div>`
+            ).join('');
+            
+            celebration.innerHTML = animals;
+            stage.appendChild(celebration);
 
-        // Play sound if available
-        const sound = document.getElementById(type === 'pig' ? 'pigSound' : 'goatSound');
-        if (sound) {
-            sound.currentTime = 0;
-            try {
-                await sound.play();
-            } catch (e) {
-                console.log('Sound autoplay blocked');
+            // Play celebration sound
+            const sound = document.getElementById(`${type}Sound`);
+            if (sound?.play) {
+                sound.currentTime = 0;
+                await sound.play().catch(() => {});
             }
-        }
 
-        // Cleanup after animation
-        const duration = isCategory ? 2500 : 1500;
-        setTimeout(() => {
-            animal.classList.add('fade-out');
-            setTimeout(() => animal.remove(), 300);
-        }, duration);
+            // Cleanup after animation
+            return new Promise(resolve => {
+                const duration = type === 'pig' ? 1500 : 2500;
+                setTimeout(() => {
+                    celebration.remove();
+                    resolve();
+                }, duration);
+            });
+        } catch (error) {
+            console.error('Celebration error:', error);
+        }
     }
 };
 

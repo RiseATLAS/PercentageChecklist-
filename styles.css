@@ -95,6 +95,51 @@ button {
     animation: hop-run 2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Celebration System */
+.celebration {
+    position: fixed;
+    bottom: 40px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.young-animal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: run-hop var(--anim-duration, 2s) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animal-image, .animal-emoji {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    margin-bottom: 5px;
+}
+
+.sound-text {
+    font-family: "Comic Sans MS", cursive;
+    color: var(--baby-blue);
+    text-shadow: 1px 1px var(--white);
+    font-weight: bold;
+}
+
+@keyframes run-hop {
+    0% { transform: translateX(-100vw) translateY(0); }
+    25% { transform: translateX(-50vw) translateY(-30px); }
+    75% { transform: translateX(50vw) translateY(-30px); }
+    100% { transform: translateX(100vw) translateY(0); }
+}
+
+/* Animation Durations */
+.pig-celebration { --anim-duration: 1.5s; }
+.goats-celebration { --anim-duration: 2.5s; }
+
 /* Category Management */
 .category-section {
     margin: 20px 0;
