@@ -446,13 +446,8 @@ function initializeCharts() {
     const localCompletionChartCtx = document.getElementById('completion-chart');
 
     if (localCompletionChartCtx) {
-        // Set initial size
-        localCompletionChartCtx.style.height = '200px';
-        localCompletionChartCtx.height = 200;
-        localCompletionChartCtx.style.width = '200px';
-        localCompletionChartCtx.width = 200;
-
-        completionChartInstance = new Chart(localCompletionChartCtx, {
+        // Set fixed dimensions
+        const config = {
             type: 'doughnut',
             data: {
                 labels: ['Fullført', 'Ufullført'],
@@ -462,7 +457,7 @@ function initializeCharts() {
                 }]
             },
             options: { 
-                responsive: true, 
+                responsive: true,
                 maintainAspectRatio: true,
                 aspectRatio: 1,
                 plugins: { 
@@ -475,35 +470,16 @@ function initializeCharts() {
                     }
                 },
                 layout: {
-                    padding: {
-                        top: 10,
-                        bottom: 30,
-                        left: 10,
-                        right: 10
-                    }
+                    padding: 20
                 }
             }
-        });
+        };
 
-        // Remove any existing resize observers
-        if (window.chartResizeObserver) {
-            window.chartResizeObserver.disconnect();
+        if (completionChartInstance) {
+            completionChartInstance.destroy();
         }
 
-        // Create new resize observer
-        window.chartResizeObserver = new ResizeObserver(entries => {
-            for (let entry of entries) {
-                if (entry.target === localCompletionChartCtx) {
-                    const width = entry.contentRect.width;
-                    const height = Math.min(width, 200);
-                    localCompletionChartCtx.style.height = `${height}px`;
-                    completionChartInstance.resize();
-                }
-            }
-        });
-
-        // Observe the canvas
-        window.chartResizeObserver.observe(localCompletionChartCtx);
+        completionChartInstance = new Chart(localCompletionChartCtx, config);
     }
 }
 
@@ -523,12 +499,8 @@ function updateCharts(tasks) {
 
     if (completionChartInstance) {
         completionChartInstance.data.datasets[0].data = [completedCount, total - completedCount];
-        // Don't call resize() here, let the ResizeObserver handle it
-        completionChartInstance.update('none'); // Use 'none' animation mode for better performance
-    } else {
-        console.error("completionChartInstance is not initialized.");
+        completionChartInstance.update('none');
     }
-    updateCategoryStats(tasks); // Call updateCategoryStats here
 }
 
 // Oppdater Kategoristatistikk

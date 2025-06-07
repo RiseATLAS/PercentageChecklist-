@@ -273,13 +273,14 @@ body {
 
 /* Style for the graph container */
 .percentage-graph-container {
-    width: 100%; /* Adjust as needed */
-    height: 100%; /* Adjust as needed */
-    position: relative; /* For absolute positioning of elements within */
+    width: 200px;
+    height: 200px;
+    position: relative;
+    margin: 0 auto;
 }
 
-/* Style the canvas element to fill its container */
+/* Style the canvas element */
 #completion-chart {
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
 }
