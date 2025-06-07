@@ -141,59 +141,6 @@ const utils = {
             });
             this.listeners = [];
         }
-    },
-
-    savedCategories: {
-        save(categoryId) {
-            const categoryRef = utils.dbRef('savedCategories').push();
-            return utils.dbRef('tasks')
-                .orderByChild('categoryId')
-                .equalTo(categoryId)
-                .once('value')
-                .then(snapshot => {
-                    const tasks = [];
-                    snapshot.forEach(child => {
-                        const task = child.val();
-                        tasks.push({
-                            text: task.text,
-                            priority: task.priority || 'Mid',
-                            order: task.order
-                        });
-                    });
-                    
-                    return categoryRef.set({
-                        name: categoriesCache[categoryId].name,
-                        tasks,
-                        savedAt: Date.now()
-                    });
-                });
-        },
-
-        load(savedCategoryId) {
-            return utils.dbRef(`savedCategories/${savedCategoryId}`)
-                .once('value')
-                .then(snapshot => {
-                    const savedCategory = snapshot.val();
-                    if (!savedCategory) return;
-
-                    // Create new category
-                    const categoryRef = utils.dbRef('categories').push();
-                    return utils.dbSet(categoryRef.key, { name: savedCategory.name })
-                        .then(() => {
-                            // Add all tasks
-                            const taskPromises = savedCategory.tasks.map(task => {
-                                const taskRef = utils.dbRef('tasks').push();
-                                return utils.dbSet(taskRef.key, {
-                                    ...task,
-                                    categoryId: categoryRef.key,
-                                    completed: false,
-                                    createdAt: Date.now()
-                            });
-                            });
-                            return Promise.all(taskPromises);
-                        });
-                });
-        }
     }
 };
 
@@ -576,19 +523,69 @@ function renderCategoriesList(categories) {
     }
 }
 
-// Add toggle storage function
+// Remove savedCategories utility
+delete utils.savedCategories;
+
 function toggleCategoryStorage(categoryId, stored) {
-    database.ref(`categories/${categoryId}`).update({ stored })
-        .then(() => console.log(`Category ${stored ? 'stored' : 'unstored'}`))
-        .catch(error => utils.handleError(error, 'toggling category storage'));
+    const updates = {};
+    updates[`categories/${categoryId}/stored`] = stored;
+
+    // If storing, also store associated tasks
+    if (stored) {
+        return utils.dbRef('tasks')
+            .orderByChild('categoryId')
+            .equalTo(categoryId)
+            .once('value')
+            .then(snapshot => {
+                const tasks = [];
+                snapshot.forEach(child => {
+                    const task = child.val();
+                    tasks.push({
+                        text: task.text,
+                        priority: task.priority || 'Mid',
+                        order: task.order
+                    });
+                });
+                updates[`categories/${categoryId}/storedTasks`] = tasks;
+                return utils.dbRef().update(updates);
+            });
+    } else {
+        // If unstoring, remove stored tasks
+        updates[`categories/${categoryId}/storedTasks`] = null;
+        return utils.dbRef().update(updates);
+    }
 }
 
-// Update deleteCategory to handle stored status
+// Update deleteCategory to copy stored category if needed
 function deleteCategory(categoryId) {
     const category = categoriesCache[categoryId];
     if (category?.stored) {
-        if (!confirm('Dette er en lagret kategori. Er du sikker på at du vil slette den?')) {
-            return;
+        if (!confirm('Dette er en lagret kategori. Vil du opprette en ny kopi før sletting?')) {
+            if (!confirm('Er du sikker på at du vil slette den permanent?')) {
+                return;
+            }
+        } else {
+            // Create new category with stored tasks
+            const newCategoryRef = utils.dbRef('categories').push();
+            const newCategory = {
+                name: category.name,
+                stored: true,
+                storedTasks: category.storedTasks
+            };
+            utils.dbSet(newCategoryRef.key, newCategory)
+                .then(() => {
+                    // Add stored tasks to new category
+                    const taskPromises = category.storedTasks.map(task => {
+                        const taskRef = utils.dbRef('tasks').push();
+                        return utils.dbSet(taskRef.key, {
+                            ...task,
+                            categoryId: newCategoryRef.key,
+                            completed: false,
+                            createdAt: Date.now()
+                        });
+                    });
+                    return Promise.all(taskPromises);
+                });
         }
     }
     const updates = {};
@@ -974,20 +971,33 @@ function newCategoryInputKeydownHandler(e) {
     }
 }
 
-// Consolidated task toggle handler
+// Celebrate with pig animation
+function celebrateWithPig() {
+    const pig = document.createElement('div');
+    pig.className = 'celebration-pig';
+    document.body.appendChild(pig);
+    
+    // Remove pig after animation
+    pig.addEventListener('animationend', () => {
+        document.body.removeChild(pig);
+    });
+}
+
+// Update handleTaskToggle
 function handleTaskToggle(taskId, checkbox, li) {
     const newStatus = !checkbox.checked;
     database.ref(`tasks/${taskId}`).update({ completed: newStatus })
         .then(() => {
             li.classList.toggle('completed-task', newStatus);
             checkbox.checked = newStatus;
+            if (newStatus) celebrateWithPig();  // Add celebration when completing task
         })
         .catch(error => {
             console.error("Error toggling task completion:", error);
         });
 }
 
-// Replace old click handlers with this single handler
+// Consolidated task toggle handler
 taskList.addEventListener("click", function(e) {
     // Exclude interactive elements
     const excluded = ["BUTTON", "INPUT", "SELECT", "TEXTAREA"];
@@ -1002,39 +1012,3 @@ taskList.addEventListener("click", function(e) {
     
     handleTaskToggle(taskId, checkbox, li);
 });
-
-// Add new template functions
-function saveCategoryHandler(categoryId) {
-    utils.savedCategories.save(categoryId)
-        .then(() => console.log('Category preset saved!'))
-        .catch(error => utils.handleError(error, 'saving category preset'));
-}
-
-function loadCategoryPresetHandler(savedCategoryId) {
-    if (!confirm('Load this category preset? It will create a new category with tasks.')) return;
-    
-    utils.savedCategories.load(savedCategoryId)
-        .then(() => console.log('Category preset loaded!'))
-        .catch(error => utils.handleError(error, 'loading category preset'));
-}
-
-function renderSavedCategoriesList(savedCategories) {
-    const list = document.getElementById('saved-categories-list');
-    if (!list) return;
-    
-    list.innerHTML = '';
-    Object.entries(savedCategories).forEach(([id, category]) => {
-        const li = utils.createElement('li', 'category-preset-item');
-        li.innerHTML = `
-            <span class="category-name">${category.name}</span>
-            <span class="task-count">${category.tasks.length} tasks</span>
-            <button class="load-category" title="Load Category">Last inn</button>
-            <button class="delete-button" title="Slett">✖</button>
-        `;
-        
-        li.querySelector('.load-category').onclick = () => loadCategoryPresetHandler(id);
-        li.querySelector('.delete-button').onclick = () => utils.dbRemove(`savedCategories/${id}`);
-        
-        list.appendChild(li);
-    });
-}
