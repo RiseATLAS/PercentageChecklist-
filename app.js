@@ -135,6 +135,12 @@ const utils = {
         }
     },
 
+    handleError(error, context = '') {
+        console.error(`Error ${context}:`, error);
+        // Could be extended to show user-friendly error messages
+        return Promise.reject(error);
+    },
+
     updateTaskText(task, textSpan) {
         textSpan.setAttribute('contenteditable', 'false');
         const newText = textSpan.textContent.trim();
@@ -146,8 +152,8 @@ const utils = {
         if (newText !== task.text) {
             utils.dbUpdate(`tasks/${task.id}`, { text: newText })
                 .catch(error => {
-                    console.error('Error updating task text:', error);
-                    textSpan.textContent = task.text;
+                    utils.handleError(error, 'updating task text');
+                    textSpan.textContent = task.text; // Revert on error
                 });
         }
     },
@@ -156,22 +162,12 @@ const utils = {
         utils.dbUpdate(`tasks/${taskId}`, { 
             categoryId, 
             customCategory: null 
-        });
+        }).catch(error => utils.handleError(error, 'updating task category'));
     },
 
     deleteTask(taskId) {
         utils.dbRemove(`tasks/${taskId}`)
-            .catch(error => console.error('Feil ved sletting av oppgave:', error));
-    },
-
-    errorHandlers: {
-        db: (error, operation) => {
-            console.error(`Database ${operation} failed:`, error);
-            return Promise.reject(error);
-        },
-        ui: (error, context) => {
-            console.error(`UI Error in ${context}:`, error);
-        }
+            .catch(error => utils.handleError(error, 'deleting task'));
     },
 
     cleanup: {
@@ -186,6 +182,25 @@ const utils = {
             });
             this.listeners = [];
         }
+    },
+
+    dbRef(path = null) {
+        return path ? database.ref(path) : database.ref();
+    },
+
+    dbSet(path, data) {
+        return this.dbRef(path).set(data)
+            .catch(error => this.handleError(error, `setting ${path}`));
+    },
+
+    dbUpdate(path, data) {
+        return this.dbRef(path).update(data)
+            .catch(error => this.handleError(error, `updating ${path}`));
+    },
+
+    dbRemove(path) {
+        return this.dbRef(path).remove()
+            .catch(error => this.handleError(error, `removing ${path}`));
     }
 };
 
@@ -406,8 +421,8 @@ function renderTasks(tasks) {
                     li.classList.toggle('completed-task', task.completed);
                 }
             } else {
-                // Create new task item
-                li = createTaskElements(task);
+                // Create new task item using utils method
+                li = utils.createTaskElements(task);
             }
 
             if (li) {
@@ -423,7 +438,7 @@ function renderTasks(tasks) {
         updateCharts(tasks);
 
     } catch (error) {
-        console.error('Error rendering tasks:', error);
+        utils.handleError(error, 'rendering tasks');
     }
 }
 
@@ -965,18 +980,94 @@ function handleTaskToggle(taskId, checkbox, li) {
         });
 }
 
-// Consolidated task toggle handler
-taskList.addEventListener("click", function(e) {
-    // Exclude interactive elements
-    const excluded = ["BUTTON", "INPUT", "SELECT", "TEXTAREA"];
-    if (excluded.includes(e.target.tagName)) return;
+// Add cleanup function
+function cleanup() {
+    // Remove all event listeners
+    if (taskList) {
+        taskList.removeEventListener("click", handleTaskClick);
+    }
+    utils.cleanup.removeAll();
+}
+
+// Consolidated task click handler
+function handleTaskClick(e) {
+    try {
+        const excluded = ["BUTTON", "INPUT", "SELECT", "TEXTAREA"];
+        if (excluded.includes(e.target.tagName)) return;
+        
+        const li = e.target.closest("li.task-item");
+        if (!li) return;
+        
+        const taskId = li.getAttribute("data-id");
+        const checkbox = li.querySelector(".checkbox-container input");
+        if (!checkbox) return;
+        
+        handleTaskToggle(taskId, checkbox, li);
+    } catch (error) {
+        utils.handleError(error, 'handling task click');
+    }
+}
+
+// Update initialization code
+if (!window.__INITIALIZED__) {
+    window.__INITIALIZED__ = true;
     
-    const li = e.target.closest("li.task-item");
-    if (!li) return;
-    
-    const taskId = li.getAttribute("data-id");
-    const checkbox = li.querySelector(".checkbox-container input");
-    if (!checkbox) return;
-    
-    handleTaskToggle(taskId, checkbox, li);
-});
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            // Get chart context and initialize chart
+            const completionChartElement = document.getElementById('completion-chart');
+            if (completionChartElement) {
+                completionChartCtx = completionChartElement.getContext('2d');
+            }
+            // Initialize chart, load categories and tasks
+            initializeCharts();
+            loadCategories();
+            loadTasks();
+
+            // Setup event listeners only once:
+            if (addTaskButton) {
+                addTaskButton.removeEventListener('click', addTaskHandler);
+                addTaskButton.addEventListener('click', addTaskHandler);
+            }
+            if (addCategoryButton) {
+                addCategoryButton.removeEventListener('click', addCategoryHandler);
+                addCategoryButton.addEventListener('click', addCategoryHandler);
+            }
+            const markAllCompleteButton = document.getElementById('mark-all-complete');
+            const deleteCompletedButton = document.getElementById('delete-completed');
+            if (markAllCompleteButton) {
+                markAllCompleteButton.addEventListener('click', markAllCompleteHandler);
+            }
+            if (deleteCompletedButton) {
+                deleteCompletedButton.addEventListener('click', deleteCompletedHandler);
+            }
+            if (searchInput) {
+                searchInput.removeEventListener('input', searchInputHandler);
+                searchInput.addEventListener('input', searchInputHandler);
+            }
+            if (sortBy) {
+                sortBy.removeEventListener('change', sortByHandler);
+                sortBy.addEventListener('change', sortByHandler);
+            }
+            if (taskInput) {
+                taskInput.removeEventListener('keydown', taskInputKeydownHandler);
+                taskInput.addEventListener('keydown', taskInputKeydownHandler);
+            }
+            if (newCategoryInput) {
+                newCategoryInput.removeEventListener('keydown', newCategoryInputKeydownHandler);
+                newCategoryInput.addEventListener('keydown', newCategoryInputKeydownHandler);
+            }
+            // Add proper event listener for task clicks
+            if (taskList) {
+                taskList.removeEventListener("click", handleTaskClick);
+                taskList.addEventListener("click", handleTaskClick);
+            }
+
+            // Add cleanup on page unload
+            window.addEventListener('unload', cleanup);
+
+        } catch (error) {
+            utils.handleError(error, 'initializing application');
+        }
+    });
+}
