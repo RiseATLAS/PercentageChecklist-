@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kid's Task Checklist</title>
+    <title>Young Animals Task List</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -16,7 +16,7 @@
 
         <div class="main-section">
             <!-- Task Section -->
-            <div class="tasks">
+            <div class="task-section">
                 <!-- Task Form -->
                 <form id="taskForm" class="input-form">
                     <input type="text" placeholder="Legg til ny oppgave" required>
@@ -32,7 +32,7 @@
             </div>
 
             <!-- Category Section -->
-            <div class="categories">
+            <div class="category-section">
                 <!-- Category Form -->
                 <form id="categoryForm" class="input-form">
                     <input type="text" placeholder="Legg til ny kategori" required>
@@ -45,12 +45,6 @@
                 <!-- Category List -->
                 <div id="categoryList" class="category-list"></div>
             </div>
-        </div>
-
-        <!-- Import/Export -->
-        <div class="action-buttons">
-            <button onclick="utils.handlers.onImportClick()">Importer</button>
-            <button onclick="utils.handlers.onExportClick()">Eksporter</button>
         </div>
     </div>
 

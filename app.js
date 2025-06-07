@@ -180,33 +180,18 @@ const utils = {
     },
 
     showAnimation(type) {
-        const container = document.createElement('div');
+        const container = document.getElementById('animationContainer');
+        const animal = document.createElement('div');
         const isYoungPig = type === 'pig';
-        container.className = `celebration-${type}`;
         
-        const content = isYoungPig ? 
-            `<div class="kid-content">
-                <span class="kid-emoji">🐷</span>
-                <span class="kid-text">Yay!</span>
-             </div>` :
-            `<div class="kid-content">
-                <span class="kid-emoji">🐐 🐐</span>
-                <span class="kid-text">Hooray!</span>
-             </div>`;
+        animal.className = 'young-animal';
+        animal.innerHTML = `
+            <span class="emoji">${isYoungPig ? '🐷' : '🐐 🐐'}</span>
+            <span class="text">${isYoungPig ? 'Wheee!' : 'Yippee!'}</span>
+        `;
         
-        container.innerHTML = content;
-        document.body.appendChild(container);
-
-        // Play sound if available
-        const soundId = isYoungPig ? 'pigSound' : 'goatSound';
-        const sound = document.getElementById(soundId);
-        if (sound) {
-            sound.volume = 0.3;
-            sound.play().catch(() => {});
-        }
-        
-        const duration = isYoungPig ? 1500 : 2500;
-        setTimeout(() => container.remove(), duration);
+        container.appendChild(animal);
+        animal.addEventListener('animationend', () => animal.remove());
     }
 };
 
