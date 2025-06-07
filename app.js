@@ -60,6 +60,87 @@ const utils = {
         return ref.update(data).catch(error => 
             console.error('Database update failed:', error)
         );
+    },
+
+    createElement(type, className, textContent) {
+        const elem = document.createElement(type);
+        if (className) elem.className = className;
+        if (textContent) elem.textContent = textContent;
+        return elem;
+    },
+
+    createOption(value, text, selected = false) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = text;
+        option.selected = selected;
+        return option;
+    },
+
+    createTaskElements(task) {
+        const elements = {
+            container: utils.createElement('li', 'task-item'),
+            checkbox: utils.createElement('input'),
+            text: utils.createElement('span', 'task-text', task.text),
+            category: utils.createElement('select', 'task-category-select'),
+            priority: utils.createElement('span', `task-priority priority-${(task.priority || 'mid').toLowerCase()}`, task.priority || 'Mid'),
+            delete: utils.createElement('button', 'delete-button', '✖')
+        };
+        
+        elements.container.setAttribute('data-id', task.id);
+        elements.checkbox.type = 'checkbox';
+        elements.checkbox.checked = task.completed;
+        elements.delete.title = 'Slett Oppgave';
+        
+        return elements;
+    },
+
+    handleError(error, context = '') {
+        console.error(`Error ${context}:`, error);
+        // Could be extended to show user-friendly error messages
+    },
+
+    dbRef(path) {
+        return database.ref(path);
+    },
+
+    dbUpdate(path, data) {
+        return this.dbRef(path).update(data)
+            .catch(error => this.handleError(error, `updating ${path}`));
+    },
+
+    dbRemove(path) {
+        return this.dbRef(path).remove()
+            .catch(error => this.handleError(error, `removing ${path}`));
+    },
+
+    dbSet(path, data) {
+        return this.dbRef(path).set(data)
+            .catch(error => this.handleError(error, `setting ${path}`));
+    },
+
+    errorHandlers: {
+        db: (error, operation) => {
+            console.error(`Database ${operation} failed:`, error);
+            return Promise.reject(error);
+        },
+        ui: (error, context) => {
+            console.error(`UI Error in ${context}:`, error);
+        }
+    },
+
+    cleanup: {
+        listeners: [],
+        add(ref, event, callback) {
+            this.listeners.push({ ref, event, callback });
+            ref.on(event, callback);
+        },
+        removeAll() {
+            this.listeners.forEach(({ ref, event, callback }) => {
+                ref.off(event, callback);
+            });
+            this.listeners = [];
+        }
     }
 };
 
@@ -217,23 +298,17 @@ function applyFiltersAndRender(tasksData) {
 
 // Last inn Oppgaver
 function loadTasks() {
-    const tasksRef = database.ref('tasks').orderByChild('order');
-    tasksRef.off();
-    tasksRef.on('value', snapshot => {
+    const tasksRef = utils.dbRef('tasks').orderByChild('order');
+    utils.cleanup.add(tasksRef, 'value', snapshot => {
         if (DEBUG_MODE) {
             eventCounters.loadTasks++;
             updateEventCounters();
         }
         const tasksData = snapshot.val() || {};
-
-        // Deep compare to prevent unnecessary re-renders
-        if (deepEqual(tasksData, previousTasksData)) {
-            console.log("Data unchanged, skipping re-render");
-            return;
+        if (!deepEqual(tasksData, previousTasksData)) {
+            previousTasksData = tasksData;
+            applyFiltersAndRender(tasksData);
         }
-
-        previousTasksData = tasksData;
-        applyFiltersAndRender(tasksData);
     });
 }
 
@@ -286,47 +361,31 @@ function renderTasks(tasks) {
                 li.classList.toggle('completed-task', task.completed);
             }
         } else {
-            // Create new task item if it doesn't exist
-            li = document.createElement('li');
-            li.className = 'task-item';
-            li.setAttribute('data-id', task.id);
-
-            const checkboxContainer = document.createElement('div');
-            checkboxContainer.className = 'checkbox-container';
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = task.completed;
-            checkbox.addEventListener('change', () => {
-                database.ref(`tasks/${task.id}`).update({ completed: checkbox.checked })
-                    .catch(error => {
-                        console.error('Feil ved oppdatering av oppgave:', error);
-                    });
+            const elements = utils.createTaskElements(task);
+            
+            // Setup event listeners
+            elements.checkbox.addEventListener('change', () => {
+                utils.safeUpdate(`tasks/${task.id}`, { completed: elements.checkbox.checked });
             });
-            checkboxContainer.appendChild(checkbox);
-
-            const taskTextSpan = document.createElement('span');
-            taskTextSpan.className = 'task-text';
-            taskTextSpan.textContent = task.text;
-            taskTextSpan.setAttribute('contenteditable', 'false');
-
-            taskTextSpan.addEventListener('dblclick', () => {
-                taskTextSpan.setAttribute('contenteditable', 'true');
-                taskTextSpan.focus();
+            
+            elements.text.addEventListener('dblclick', () => {
+                elements.text.setAttribute('contenteditable', 'true');
+                elements.text.focus();
             });
 
-            taskTextSpan.addEventListener('blur', () => {
-                taskTextSpan.setAttribute('contenteditable', 'false');
-                const newText = taskTextSpan.textContent.trim();
+            elements.text.addEventListener('blur', () => {
+                elements.text.setAttribute('contenteditable', 'false');
+                const newText = elements.text.textContent.trim();
                 if (newText === "") {
                     alert("Oppgaveteksten kan ikke være tom.");
-                    taskTextSpan.textContent = task.text;
+                    elements.text.textContent = task.text;
                     return;
                 }
                 if (newText !== task.text) {
                     database.ref(`tasks/${task.id}`).update({ text: newText })
                         .catch(error => {
                             console.error('Feil ved oppdatering av oppgavetekst:', error);
-                            taskTextSpan.textContent = task.text; // Revert on error
+                            elements.text.textContent = task.text; // Revert on error
                         });
                 }
             });
@@ -496,18 +555,19 @@ function renderCategoriesList(categories) {
 
 // Slett Kategori og tilknyttede Oppgaver
 function deleteCategory(categoryId) {
-    const tasksRef = database.ref(`tasks`);
-    tasksRef.orderByChild('categoryId').equalTo(categoryId).once('value', snapshot => {
-        const updates = {};
-        snapshot.forEach(child => {
-            updates[`tasks/${child.key}`] = null; // Path for multi-path update
-        });
-        return database.ref().update(updates); // Use multi-path update
-    }).then(() => {
-        return database.ref(`categories/${categoryId}`).remove();
-    }).catch(error => {
-        console.error("Feil ved sletting av kategori og oppgaver:", error);
-    });
+    const updates = {};
+    return utils.dbRef('tasks')
+        .orderByChild('categoryId')
+        .equalTo(categoryId)
+        .once('value')
+        .then(snapshot => {
+            snapshot.forEach(child => {
+                updates[`tasks/${child.key}`] = null;
+            });
+            return utils.dbUpdate('', updates);
+        })
+        .then(() => utils.dbRemove(`categories/${categoryId}`))
+        .catch(error => utils.handleError(error, 'deleting category'));
 }
 
 // Initialize SortableJS for Drag-and-Drop
