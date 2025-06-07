@@ -11,35 +11,40 @@
 
 <body>
     <div class="container">
-        <!-- Category Form -->
-        <form id="categoryForm">
-            <input type="text" placeholder="Ny kategori" required>
-            <button type="submit">Legg til kategori</button>
-        </form>
-
-        <!-- Task Form -->
-        <form id="taskForm">
-            <input type="text" placeholder="Ny oppgave" required>
-            <select id="categorySelect">
-                <option value="">Ingen kategori</option>
-            </select>
-            <button type="submit">Legg til oppgave</button>
-        </form>
-
-        <!-- Category Filter -->
-        <select id="categoryFilter">
-            <option value="">Alle oppgaver</option>
-        </select>
-
-        <!-- Main Task List -->
-        <div id="taskList"></div>
-
-        <!-- Progress Bar -->
-        <div class="progress-bar"></div>
-        <div class="progress-text"></div>
-
         <!-- Error Messages -->
         <div id="errorMessages"></div>
+
+        <div class="main-section">
+            <!-- Task Section -->
+            <div class="task-input">
+                <!-- Task Form -->
+                <form id="taskForm">
+                    <input type="text" placeholder="Legg til ny oppgave" required>
+                    <select id="categorySelect"></select>
+                    <button type="submit">Legg til oppgave</button>
+                </form>
+            </div>
+
+            <!-- Category Section -->
+            <div class="category-management">
+                <!-- Category Form -->
+                <form id="categoryForm">
+                    <input type="text" placeholder="Legg til ny kategori" required>
+                    <button type="submit">Legg til kategori</button>
+                </form>
+                <!-- Category Filter -->
+                <select id="categoryFilter" class="category-filter"></select>
+                <!-- Category List -->
+                <div id="categoryList" class="category-list"></div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-bar"></div>
+            <div class="progress-text"></div>
+
+            <!-- Main Task List -->
+            <ul id="taskList" class="task-list"></ul>
+        </div>
 
         <!-- Import/Export -->
         <div class="action-buttons">

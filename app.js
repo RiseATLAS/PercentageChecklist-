@@ -143,15 +143,19 @@ const utils = {
             `;
         }
 
-        // Create category list with buttons
+        // Update category list with store/load buttons
         const categoryList = document.getElementById('categoryList');
         if (categoryList) {
             categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
                 <div class="category-item">
-                    <span>${cat.name}</span>
+                    <span class="category-name">${cat.name}</span>
                     <div class="category-actions">
-                        <button onclick="categories.storeTasksForCategory('${id}')">Save Tasks 📥</button>
-                        <button onclick="categories.loadStoredTasks('${id}')">Load Tasks 📤</button>
+                        <button onclick="categories.storeTasksForCategory('${id}')">
+                            📥 Store
+                        </button>
+                        <button onclick="categories.loadStoredTasks('${id}')">
+                            📤 Load
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -163,18 +167,16 @@ const utils = {
             const snapshot = await this.dbRef('tasks').once('value');
             const tasks = snapshot.val() || {};
             const categoryTasks = Object.values(tasks)
-                .filter(t => t.categoryId === categoryId && !t.deleted);
+                .filter(t => t.categoryId === categoryId);
             
+            // Only trigger goats if category has tasks and all are completed
             if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
                 this.showAnimation('goats');
-                await utils.dbRef(`categories/${categoryId}/completedAt`).set(Date.now());
-                utils.showError('Category completed! 🎈', 'success', 2000);
-                return true;
+                await this.dbRef(`categories/${categoryId}/lastCompleted`).set(Date.now());
+                this.showError('Category completed! 🎈', 'success', 2000);
             }
-            return false;
         } catch (error) {
             console.error('Error checking category completion:', error);
-            return false;
         }
     },
 
