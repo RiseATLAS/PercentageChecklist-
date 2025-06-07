@@ -419,12 +419,10 @@ button,
 }
 
 .flex-col {
-    composes: flex;
     flex-direction: column;
 }
 
 .flex-center {
-    composes: flex;
     align-items: center;
     justify-content: center;
 }

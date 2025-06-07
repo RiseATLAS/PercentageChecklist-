@@ -78,58 +78,64 @@ const utils = {
     },
 
     createTaskElements(task) {
-        // Create checkbox container and input
-        const checkboxContainer = utils.createElement('div', 'checkbox-container');
-        const checkbox = utils.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = task.completed;
-        checkboxContainer.appendChild(checkbox);
-        
-        // Create text span
-        const textSpan = utils.createElement('span', 'task-text', task.text);
-        textSpan.setAttribute('contenteditable', 'false');
-        
-        // Create category select
-        const categorySelect = utils.createElement('select', 'task-category-select');
-        categorySelect.innerHTML = '<option value="">Uten kategori</option>';
-        for (let catId in categoriesCache) {
-            categorySelect.appendChild(utils.createOption(catId, categoriesCache[catId].name));
+        try {
+            // Create base container
+            const container = utils.createElement('li', 'task-item');
+            container.setAttribute('data-id', task.id);
+            if (task.completed) {
+                container.classList.add('completed-task');
+            }
+
+            // Create checkbox container and input
+            const checkboxContainer = utils.createElement('div', 'checkbox-container');
+            const checkbox = utils.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = task.completed;
+            checkboxContainer.appendChild(checkbox);
+
+            // Create text span
+            const textSpan = utils.createElement('span', 'task-text', task.text);
+            
+            // Create category select
+            const categorySelect = utils.createElement('select', 'task-category-select');
+            categorySelect.innerHTML = `<option value="">Uten kategori</option>`;
+            for (let catId in categoriesCache) {
+                categorySelect.appendChild(utils.createOption(catId, categoriesCache[catId].name));
+            }
+            categorySelect.value = task.categoryId || '';
+            
+            // Create priority span
+            const prioritySpan = utils.createElement('span',
+                `task-priority priority-${(task.priority || 'mid').toLowerCase()}`,
+                task.priority || 'Mid'
+            );
+            
+            // Create delete button
+            const deleteButton = utils.createElement('button', 'delete-button', '✖');
+            deleteButton.title = 'Slett Oppgave';
+
+            // Add all elements to container
+            container.appendChild(checkboxContainer);
+            container.appendChild(textSpan);
+            container.appendChild(categorySelect);
+            container.appendChild(prioritySpan);
+            container.appendChild(deleteButton);
+
+            // Add event listeners
+            checkbox.addEventListener('change', () => handleTaskToggle(task.id, checkbox, container));
+            textSpan.addEventListener('dblclick', () => textSpan.setAttribute('contenteditable', 'true'));
+            textSpan.addEventListener('blur', () => updateTaskText(task, textSpan));
+            categorySelect.addEventListener('change', () => updateTaskCategory(task.id, categorySelect.value));
+            deleteButton.addEventListener('click', () => deleteTask(task.id));
+
+            return container;
+        } catch (error) {
+            console.error('Error creating task elements:', error);
+            return null;
         }
-        categorySelect.value = task.categoryId || '';
-        
-        // Create priority span
-        const prioritySpan = utils.createElement('span', 
-            `task-priority priority-${(task.priority || 'mid').toLowerCase()}`, 
-            task.priority || 'Mid'
-        );
-        
-        // Create delete button
-        const deleteButton = utils.createElement('button', 'delete-button', '✖');
-        deleteButton.title = "Slett Oppgave";
-        
-        // Create container and set properties
-        const container = utils.createElement('li', 'task-item');
-        container.setAttribute('data-id', task.id);
-        if (task.completed) container.classList.add('completed-task');
-        
-        // Append all elements
-        container.appendChild(checkboxContainer);
-        container.appendChild(textSpan);
-        container.appendChild(categorySelect);
-        container.appendChild(prioritySpan);
-        container.appendChild(deleteButton);
-        
-        // Add event listeners
-        checkbox.addEventListener('change', () => handleTaskToggle(task.id, checkbox, container));
-        textSpan.addEventListener('dblclick', () => textSpan.setAttribute('contenteditable', 'true'));
-        textSpan.addEventListener('blur', () => updateTaskText(task.id, textSpan));
-        categorySelect.addEventListener('change', () => updateTaskCategory(task.id, categorySelect.value));
-        deleteButton.addEventListener('click', () => deleteTask(task.id));
-        
-        return container;
     },
 
-    updateTaskText(taskId, textSpan) {
+    updateTaskText(task, textSpan) {
         textSpan.setAttribute('contenteditable', 'false');
         const newText = textSpan.textContent.trim();
         if (newText === "") {
@@ -137,11 +143,13 @@ const utils = {
             textSpan.textContent = task.text;
             return;
         }
-        utils.dbUpdate(`tasks/${taskId}`, { text: newText })
-            .catch(error => {
-                console.error('Feil ved oppdatering av oppgavetekst:', error);
-                textSpan.textContent = task.text;
-            });
+        if (newText !== task.text) {
+            utils.dbUpdate(`tasks/${task.id}`, { text: newText })
+                .catch(error => {
+                    console.error('Error updating task text:', error);
+                    textSpan.textContent = task.text;
+                });
+        }
     },
 
     updateTaskCategory(taskId, categoryId) {
@@ -357,61 +365,66 @@ function renderTasks(tasks) {
     }
     if (!taskList) return;
 
-    // Ensure taskArray is defined
-    const taskArray = Object.keys(tasks).map(key => ({ id: key, ...tasks[key] }));
+    try {
+        // Ensure taskArray is defined
+        const taskArray = Object.keys(tasks).map(key => ({ id: key, ...tasks[key] }));
 
-    if (taskArray.length === 0) {
-        taskList.innerHTML = ""; // Clear existing content
-        const emptyMessage = document.createElement('p');
-        emptyMessage.textContent = searchInput && searchInput.value ? 'Ingen oppgaver matchet søket ditt.' : 'Ingen oppgaver ennå. Legg til en!';
-        emptyMessage.style.textAlign = 'center';
-        emptyMessage.style.color = '#888888';
-        taskList.appendChild(emptyMessage);
-        updateCharts(tasks);
-        return;
-    }
-
-    // Create a document fragment to batch DOM updates
-    const fragment = document.createDocumentFragment();
-    // Track existing task IDs using a Map to store the entire element
-    const existingTasksMap = new Map();
-
-    // Iterate through existing task items to collect their IDs
-    for (let i = 0; i < taskList.children.length; i++) {
-        const child = taskList.children[i];
-        if (child.classList.contains('task-item')) {
-            existingTasksMap.set(child.getAttribute('data-id'), child);
+        if (taskArray.length === 0) {
+            taskList.innerHTML = ""; // Clear existing content
+            const emptyMessage = document.createElement('p');
+            emptyMessage.textContent = searchInput && searchInput.value ? 'Ingen oppgaver matchet søket ditt.' : 'Ingen oppgaver ennå. Legg til en!';
+            emptyMessage.style.textAlign = 'center';
+            emptyMessage.style.color = '#888888';
+            taskList.appendChild(emptyMessage);
+            updateCharts(tasks);
+            return;
         }
-    }
 
-    taskArray.forEach(task => {
-        let li;
-        if (existingTasksMap.has(task.id)) {
-            // Use existing task item if it exists
-            li = existingTasksMap.get(task.id);
-            existingTasksMap.delete(task.id); // Remove from map, so we know what to remove later
+        // Create a document fragment to batch DOM updates
+        const fragment = document.createDocumentFragment();
+        const existingTasksMap = new Map();
 
-            // Update checkbox state
-            const checkbox = li.querySelector('.checkbox-container input');
-            if (checkbox && checkbox.checked !== task.completed) {
-                checkbox.checked = task.completed;
-                li.classList.toggle('completed-task', task.completed);
+        // Map existing tasks
+        for (let i = 0; i < taskList.children.length; i++) {
+            const child = taskList.children[i];
+            if (child.classList.contains('task-item')) {
+                existingTasksMap.set(child.getAttribute('data-id'), child);
             }
-        } else {
-            // Create task item elements
-            li = utils.createTaskElements(task);
         }
 
-        fragment.appendChild(li);
-    });
+        // Process tasks
+        Object.keys(tasks).forEach(key => {
+            const task = { id: key, ...tasks[key] };
+            let li = existingTasksMap.get(task.id);
 
-    // Remove any extra task items that are no longer in the data
-    existingTasksMap.forEach(li => {
-        taskList.removeChild(li);
-    });
+            if (li) {
+                // Update existing task item
+                existingTasksMap.delete(task.id);
+                const checkbox = li.querySelector('.checkbox-container input');
+                if (checkbox && checkbox.checked !== task.completed) {
+                    checkbox.checked = task.completed;
+                    li.classList.toggle('completed-task', task.completed);
+                }
+            } else {
+                // Create new task item
+                li = createTaskElements(task);
+            }
 
-    taskList.appendChild(fragment); // Append all new or updated items at once
-    updateCharts(tasks);
+            if (li) {
+                fragment.appendChild(li);
+            }
+        });
+
+        // Remove old tasks
+        existingTasksMap.forEach(li => taskList.removeChild(li));
+
+        // Append new tasks
+        taskList.appendChild(fragment);
+        updateCharts(tasks);
+
+    } catch (error) {
+        console.error('Error rendering tasks:', error);
+    }
 }
 
 // Last inn Kategorier
