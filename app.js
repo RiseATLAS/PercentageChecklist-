@@ -457,9 +457,43 @@ function initializeCharts() {
             },
             options: { 
                 responsive: true, 
-                maintainAspectRatio: false, // Add this line
-                plugins: { legend: { position: 'bottom' } } 
-            }
+                maintainAspectRatio: true, // Add this line
+                plugins: { legend: { position: 'bottom' } } ,
+				// Add these scale options to control aspect ratio
+				scales: {
+					x: {
+						display: false, // Hide x-axis
+						ticks: { display: false }
+					},
+					y: {
+						display: false, // Hide y-axis
+						ticks: { display: false }
+					}
+				},
+				// Set a fixed height to prevent it from expanding
+				layout: {
+					padding: {
+						top: 10,
+						bottom: 10
+					}
+				}
+            },
+			// Ensure the chart is properly sized on creation
+			plugins: [{
+				id: 'fixed-size',
+				beforeDraw: (chart) => {
+					const box = chart.chartArea;
+					const width = box.right - box.left;
+					const height = Math.min(width, 200); // Limit height to 200px
+					
+					// Directly set the canvas height and width
+					chart.canvas.style.height = height + 'px';
+					chart.canvas.style.width = width + 'px';
+
+					chart.options.width = width;
+					chart.options.height = height;
+				}
+			}]
         });
     } else {
         console.error("Could not find completion-chart canvas element.");
@@ -483,6 +517,8 @@ function updateCharts(tasks) {
 
     if (completionChartInstance) {
         completionChartInstance.data.datasets[0].data = [completedCount, total - completedCount];
+        // Reset canvas height before updating
+        completionChartInstance.canvas.style.height = 'auto';
         completionChartInstance.update();
     } else {
         console.error("completionChartInstance is not initialized.");
