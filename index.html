@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oppgaveliste</title>
+    <title>Kid's Task Checklist</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -21,8 +21,12 @@
                 <form id="taskForm" class="input-form">
                     <input type="text" placeholder="Legg til ny oppgave" required>
                     <select id="categorySelect"></select>
-                    <button type="submit">Legg til oppgave</button>
+                    <button type="submit">Legg til oppgave ✨</button>
                 </form>
+                <div class="progress-section">
+                    <div class="progress-bar"></div>
+                    <div class="progress-text"></div>
+                </div>
                 <!-- Main Task List -->
                 <ul id="taskList" class="task-list"></ul>
             </div>
@@ -32,7 +36,7 @@
                 <!-- Category Form -->
                 <form id="categoryForm" class="input-form">
                     <input type="text" placeholder="Legg til ny kategori" required>
-                    <button type="submit">Legg til kategori</button>
+                    <button type="submit">Legg til kategori 🌟</button>
                 </form>
                 <div class="filter-bar">
                     <!-- Category Filter -->
@@ -41,12 +45,6 @@
                 <!-- Category List -->
                 <div id="categoryList" class="category-list"></div>
             </div>
-
-            <!-- Progress Section -->
-            <div class="progress">
-                <div class="progress-bar"></div>
-                <div class="progress-text"></div>
-            </div>
         </div>
 
         <!-- Import/Export -->
@@ -54,6 +52,11 @@
             <button onclick="utils.handlers.onImportClick()">Importer</button>
             <button onclick="utils.handlers.onExportClick()">Eksporter</button>
         </div>
+    </div>
+
+    <div id="audioContainer" style="display: none;">
+        <audio id="pigSound" src="sounds/oink.mp3" preload="auto"></audio>
+        <audio id="goatSound" src="sounds/baa.mp3" preload="auto"></audio>
     </div>
 
     <!-- Loader -->

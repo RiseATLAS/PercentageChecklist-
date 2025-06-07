@@ -11,15 +11,19 @@ requirements
     --accent-color: white;
     --success-color: #4CAF50;
     --border-radius: 8px;        /* increased for modern look */
+    --baby-blue: #89CFF0;
+    --baby-pink: #F4C2C2;
+    --success: #4CAF50;
+    --default-border-radius: 8px;
+    --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Base Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Comic Sans MS", cursive, sans-serif;
     margin: 0;
-    padding: 10px;
-    line-height: 1.5;
-    background: var(--accent-color);
+    padding: 20px;
+    background: #fff;
 }
 
 .container {
@@ -90,6 +94,14 @@ input, select, button {
     margin-top: 20px;
 }
 
+.category-item, .task-item {
+    background: white;
+    border-radius: var(--border-radius);
+    margin: 8px 0;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .category-item {
     display: flex;
     justify-content: space-between;
@@ -101,6 +113,13 @@ input, select, button {
 }
 
 /* Editable Category Names */
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
 .category-name {
     padding: 5px;
     border-radius: var(--border-radius);
@@ -110,11 +129,25 @@ input, select, button {
 .category-name:focus {
     background: var(--accent-color);
     outline: 2px solid var(--primary-color);
+    padding: 5px;
 }
 
 .category-name:hover {
     background: var(--accent-color);
     cursor: text;
+}
+
+.delete-category {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.delete-category:hover {
+    opacity: 1;
+    color: var(--error-color);
 }
 
 /* Core Task Styles - Updated for clarity */
@@ -141,6 +174,14 @@ input, select, button {
 .task-text {
     flex: 1;
     margin: 0 10px;
+}
+
+.task-text.editing {
+    background: var(--baby-blue);
+    padding: 2px 5px;
+    border-radius: var(--border-radius);
+    outline: none;
+    min-width: 100px;
 }
 
 /* Task List */
@@ -381,25 +422,24 @@ input, select, button {
 /* Celebration Animations */
 .celebration-pig, .celebration-goats {
     position: fixed;
-    bottom: 20px;
+    bottom: 40px;
     z-index: 1000;
     pointer-events: none;
 }
 
-.celebration-pig { 
-    animation: run-across 1.5s ease-in-out forwards;
-    content: '🐷';
+.celebration-pig .kid-emoji { font-size: 48px; }
+.celebration-goats .kid-emoji { font-size: 36px; }
+
+@keyframes run-hop {
+    0% { transform: translateY(0) translateX(-100px); }
+    25% { transform: translateY(-20px) translateX(calc(25vw - 100px)); }
+    50% { transform: translateY(0) translateX(calc(50vw - 100px)); }
+    75% { transform: translateY(-20px) translateX(calc(75vw - 100px)); }
+    100% { transform: translateY(0) translateX(100vw); }
 }
 
-.celebration-goats { 
-    animation: run-across 2.5s ease-in-out forwards;
-    content: '🐐🐐🐐';
-}
-
-@keyframes run-across {
-    from { left: -50px; }
-    to { left: calc(100vw + 50px); }
-}
+.celebration-pig { animation: run-hop 1.5s ease-in-out; }
+.celebration-goats { animation: run-hop 2.5s ease-in-out; }
 
 /* Media Queries */
 @media (min-width: 768px) {

@@ -22,8 +22,8 @@
  *    - Tasks can be assigned to categories, and the UI should allow filtering tasks by category.
  *    - Categories can conttain tasks, and tasks can be assigned to categories.
  *   -  a button on the categories allows all realated tasks to be store and retrieved.
- *   - when a task is completed, a small pig should run across the screen.
- *   - when a full category is completed, goats should run across the screen.
+ *   - when a task is completed, a young pig should run across the screen.
+ *   - when a full category is completed, young goats should run across the screen.
  *  
  */
 
@@ -88,33 +88,24 @@ const utils = {
                     `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
                 ).join('')}
             </select>
-            <button class="delete">×</button>
+            <button class="delete" title="Delete task">×</button>
         `;
 
-        // Simplified event listeners without save confirmations
-        li.querySelector('input[type="checkbox"]').onchange = (e) => {
-            task.completed = e.target.checked;
-            li.className = task.completed ? 'task-item completed' : 'task-item';
-            utils.saveTask(task);
-            if (task.completed) {
-                utils.showAnimation('pig');
-                if (task.categoryId) {
-                    utils.checkCategoryCompletion(task.categoryId);
-                }
-            }
-            updateProgress(getAllTasks());
-        };
-
+        // Add visual feedback for editing
         const textSpan = li.querySelector('.task-text');
-        textSpan.addEventListener('focus', () => textSpan.dataset.original = textSpan.textContent);
-        textSpan.onblur = (e) => {
-            const newText = e.target.textContent.trim();
-            const originalText = textSpan.dataset.original;
-            if (newText && newText !== originalText) {
+        textSpan.addEventListener('focus', () => {
+            textSpan.dataset.original = textSpan.textContent;
+            textSpan.classList.add('editing');
+        });
+        textSpan.addEventListener('blur', () => {
+            textSpan.classList.remove('editing');
+            const newText = textSpan.textContent.trim();
+            if (newText && newText !== textSpan.dataset.original) {
                 task.text = newText;
                 utils.saveTask(task);
+                utils.showError('Task updated', 'success', 500);
             }
-        };
+        });
 
         li.querySelector('.category-select').onchange = (e) => {
             task.categoryId = e.target.value;
@@ -151,15 +142,18 @@ const utils = {
         if (categoryList) {
             categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
                 <div class="category-item" data-category="${id}">
-                    <span class="category-name" contenteditable="true" 
-                          onfocus="this.dataset.original = this.textContent"
-                          onblur="categories.updateName('${id}', this)">${cat.name}</span>
+                    <div class="category-header">
+                        <span class="category-name" contenteditable="true" 
+                              onfocus="this.dataset.original = this.textContent"
+                              onblur="categories.updateName('${id}', this)">${cat.name}</span>
+                        <button class="delete-category" onclick="categories.deleteCategory('${id}')">×</button>
+                    </div>
                     <div class="category-actions">
                         <button class="store-btn" onclick="categories.storeTasksForCategory('${id}')">
-                            Save Tasks 💾
+                            Store 📥
                         </button>
                         <button class="load-btn" onclick="categories.loadStoredTasks('${id}')">
-                            Load Tasks 📂
+                            Load 📤
                         </button>
                     </div>
                 </div>
@@ -186,13 +180,33 @@ const utils = {
     },
 
     showAnimation(type) {
-        const animal = document.createElement('div');
-        animal.className = type === 'pig' ? 'celebration-pig' : 'celebration-goats';
-        document.body.appendChild(animal);
+        const container = document.createElement('div');
+        const isYoungPig = type === 'pig';
+        container.className = `celebration-${type}`;
         
-        // Remove after animation ends
-        const duration = type === 'pig' ? 1500 : 2500;
-        setTimeout(() => animal.remove(), duration);
+        const content = isYoungPig ? 
+            `<div class="kid-content">
+                <span class="kid-emoji">🐷</span>
+                <span class="kid-text">Yay!</span>
+             </div>` :
+            `<div class="kid-content">
+                <span class="kid-emoji">🐐 🐐</span>
+                <span class="kid-text">Hooray!</span>
+             </div>`;
+        
+        container.innerHTML = content;
+        document.body.appendChild(container);
+
+        // Play sound if available
+        const soundId = isYoungPig ? 'pigSound' : 'goatSound';
+        const sound = document.getElementById(soundId);
+        if (sound) {
+            sound.volume = 0.3;
+            sound.play().catch(() => {});
+        }
+        
+        const duration = isYoungPig ? 1500 : 2500;
+        setTimeout(() => container.remove(), duration);
     }
 };
 
@@ -283,6 +297,20 @@ const categories = {
                 element.textContent = originalName;
                 utils.showError('Error updating category name');
             }
+        }
+    },
+
+    // Add to categories object
+    async deleteCategory(categoryId) {
+        if (!confirm('Delete this category?')) return;
+        
+        try {
+            await utils.dbRef(`categories/${categoryId}`).remove();
+            delete this.data[categoryId];
+            utils.updateCategoryFilter(this.data);
+            utils.showError('Category deleted', 'success', 1000);
+        } catch (error) {
+            utils.showError('Error deleting category');
         }
     }
 };
