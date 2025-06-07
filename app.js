@@ -86,24 +86,21 @@ const utils = {
                     `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
                 ).join('')}
             </select>
-            <button class="save-category" title="Save tasks in this category">💾</button>
             <button class="delete">×</button>
         `;
 
-        // Update event listeners with better feedback
+        // Simplified event listeners without save confirmations
         li.querySelector('input[type="checkbox"]').onchange = (e) => {
             task.completed = e.target.checked;
             li.className = task.completed ? 'task-item completed' : 'task-item';
-            utils.saveTask(task).then(() => {
-                if (task.completed) {
-                    utils.showAnimation('pig');
-                    if (task.categoryId) {
-                        utils.checkCategoryCompletion(task.categoryId);
-                    }
+            utils.saveTask(task);
+            if (task.completed) {
+                utils.showAnimation('pig');
+                if (task.categoryId) {
+                    utils.checkCategoryCompletion(task.categoryId);
                 }
-                utils.showError('Task updated', 'success', 1000);
-                updateProgress(getAllTasks());
-            });
+            }
+            updateProgress(getAllTasks());
         };
 
         const textSpan = li.querySelector('.task-text');
@@ -113,9 +110,7 @@ const utils = {
             const originalText = textSpan.dataset.original;
             if (newText && newText !== originalText) {
                 task.text = newText;
-                utils.saveTask(task).then(() => 
-                    utils.showError('Task text updated', 'success', 1000)
-                );
+                utils.saveTask(task);
             }
         };
 
@@ -151,7 +146,8 @@ const utils = {
         try {
             const snapshot = await this.dbRef('tasks').once('value');
             const tasks = snapshot.val() || {};
-            const categoryTasks = Object.values(tasks).filter(t => t.categoryId === categoryId);
+            const categoryTasks = Object.values(tasks)
+                .filter(t => t.categoryId === categoryId && !t.deleted);
             
             if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
                 this.showAnimation('goats');
@@ -201,32 +197,6 @@ const categories = {
             utils.showError('Error loading categories');
             console.error(error);
             return {};
-        }
-    },
-
-    async saveCategoryTasks(categoryId) {
-        try {
-            const snapshot = await utils.dbRef('tasks').once('value');
-            const tasks = snapshot.val() || {};
-            const categoryTasks = Object.values(tasks)
-                .filter(task => task.categoryId === categoryId);
-            
-            if (categoryTasks.length === 0) {
-                utils.showError('No tasks in this category', 'warning');
-                return;
-            }
-
-            const timestamp = Date.now();
-            const storageKey = `categoryTasks/${categoryId}/${timestamp}`;
-            await utils.dbRef(storageKey).set({
-                tasks: categoryTasks,
-                timestamp,
-                categoryId
-            });
-            utils.showError(`Saved ${categoryTasks.length} tasks`, 'success', 2000);
-        } catch (error) {
-            utils.showError('Error saving category tasks');
-            console.error(error);
         }
     }
 };
