@@ -1,566 +1,98 @@
-/* Updated Modern Styling with Enhanced Layout and Complex Design */
+/* Basic Setup */
 :root {
-    --bg-color: #ffffff;
-    --text-color: #000;
-    --baby-blue: #89CFF0;
-    --baby-pink: #F4C2C2;
-    --chartreuse: #7FFF00;
-    /* New rounded box variables */
-    --small-border-radius: 8px;
-    --default-border-radius: 16px;
-    --large-border-radius: 32px;
-    --box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    --font-family: 'Roboto', sans-serif;
-    /* Consolidated animations and transitions */
-    --transition-speed: 0.2s;
-    --transition-timing: ease;
-    /* Spacing variables */
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-
-    /* Responsive breakpoints */
-    --breakpoint-sm: 576px;
-    --breakpoint-md: 768px;
-    --breakpoint-lg: 992px;
-    --breakpoint-xl: 1200px;
-    
-    /* Layout gaps */
-    --gap-xs: 0.25rem;
-    --gap-sm: 0.5rem;
-    --gap-md: 1rem;
-    --gap-lg: 2rem;
-
-    /* Typography Scale */
-    --font-xs: clamp(0.45rem, 0.5vw + 0.3rem, 0.6rem);
-    --font-sm: clamp(0.6rem, 0.7vw + 0.4rem, 0.8rem);
-    --font-md: clamp(0.8rem, 0.9vw + 0.5rem, 1rem);
-    --font-lg: clamp(1rem, 1.1vw + 0.6rem, 1.2rem);
-    --font-xl: clamp(1.2rem, 1.3vw + 0.7rem, 1.4rem);
-    
-    /* Font Weights */
-    --weight-normal: 400;
-    --weight-medium: 500;
-    --weight-bold: 700;
+    --primary-color: #89CFF0;
+    --error-color: #ff4444;
+    --success-color: #4CAF50;
+    --border-radius: 4px;
 }
 
-/* Typography utilities */
-.text-center { text-align: center; }
-.text-muted { color: #888888; }
-.text-bold { font-weight: 700; }
-
-/* Typography Base Classes */
-.text-xs { font-size: var(--font-xs); }
-.text-sm { font-size: var(--font-sm); }
-.text-md { font-size: var(--font-md); }
-.text-lg { font-size: var(--font-lg); }
-.text-xl { font-size: var(--font-xl); }
-
-.weight-normal { font-weight: var(--weight-normal); }
-.weight-medium { font-weight: var(--weight-medium); }
-.weight-bold { font-weight: var(--weight-bold); }
-
-/* Common layout helpers */
-.center-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.space-between {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-/* Additional mobile quality fixes */
-* {
-    -webkit-tap-highlight-color: transparent;  
-}
-
+/* Base Styles */
 body {
-    /* Base typography with clamp() for fluid size */
-    font-family: var(--font-family);
-    background: var(--bg-color);
-    color: var(--text-color);
+    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
+    padding: 20px;
     line-height: 1.5;
-    /* Updated fluid font-size (50% of original) */
-    font-size: var(--font-md);
-    font-weight: var(--weight-normal);
-    min-height: 100vh; /* Makes sure body fills at least the viewport */
 }
 
 /* Container */
 .container {
-    width: clamp(300px, 90%, 550px);
-    margin: 1rem auto;
-    padding: 1rem;
-    border-radius: var(--default-border-radius);
-    max-height: calc(100vh - 2rem) !important; /* add !important to enforce constraint */
-}
-
-/* Layout: Main Content Only (updated since sidebar removed) */
-.layout {
-    display: grid;
-    grid-template-columns: 1fr; /* updated from 300px 1fr */
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-/* Main Content */
-.main-content {
-    max-width: 400px; /* updated from 800px */
+    max-width: 600px;
     margin: 0 auto;
-    background: var(--baby-pink);
-    /* Updated fluid padding scaled down by 50% */
-    padding: clamp(0.25rem, 0.5vw, 0.5rem); /* fluid padding verified */
-    border-radius: var(--large-border-radius);
-    box-shadow: var(--box-shadow);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    max-height: calc(100vh - 4rem); /* restrict height for inner content */
+    padding: 0 10px;
 }
 
-/* Task Input Section */
-.task-input-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-.add-task {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-.add-task input,
-.add-task select,
-.add-task button {
-    flex: 1;
-    /* Reduced size by 50% */
-    padding: 0.25rem;
-    font-size: 0.45rem;
-    border: 1px solid #ddd;
-    border-radius: var(--small-border-radius); /* updated */
-}
-.add-task button {
-    background: var(--baby-blue);
-    color: #000;  /* changed from white (#fff) */
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-.add-task button:hover {
-    background: var(--baby-pink);
-}
-.filter-section {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-.filter-section input,
-.filter-section select {
-    flex: 1;
-    /* Reduced size by 50% */
-    padding: 0.25rem;
-    font-size: 0.45rem;
-    border: 1px solid #ddd;
-    border-radius: var(--small-border-radius); /* updated */
-}
-
-/* Task List Section */
-.task-list-section ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    max-height: calc(100vh - 10rem); /* Limit height of task list */
-}
-
+/* Core Task Styles - Updated for clarity */
 .task-item {
     display: flex;
     align-items: center;
-    padding: 8px;
-    margin: 4px 0;
-    background: #fff;
-    border-radius: 4px;
-    transition: all 0.2s ease;
+    padding: 10px;
+    margin: 5px 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
 }
+
 .task-item:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
+
 .task-item.completed {
     background: #f5f5f5;
-    opacity: 0.8;
+    text-decoration: line-through;
 }
-.checkbox-container input {
-    transform: scale(1.25);
-}
+
 .task-text {
     flex: 1;
-    min-width: 0; /* added to allow the text container to shrink */
-    cursor: text;
-    text-indent: 0; /* ensure no text indent */
-    font-size: var(--font-md);
-}
-.task-category {
-    background: var(--baby-blue);
-    color: #000;  /* changed from white (#fff) */
-    /* Reduced size by 50% */
-    padding: 0.2rem 0.4rem; /* was 0.4rem 0.8rem */
-    border-radius: 50px;  /* fully round corners */
-    font-size: 0.425rem;    /* was 0.85rem */
+    margin: 0 10px;
 }
 
-/* Remove blue bar at bottom */
-.site-footer {
-    display: none;  
-}
-
-/* Move trash symbol in the category list to far right */
-.category-item {
-    display: flex;
-    justify-content: space-between; /* Moves delete button to end of line */
-    align-items: center;
-    background: #fff;               /* same as task-item background */
-    /* Reduced size by 50% */
-    padding: 0.25rem;      /* was 0.5rem */
-    margin-bottom: 0.25rem; /* was 0.5rem */
-    border-radius: var(--default-border-radius); /* updated */
-    box-shadow: var(--box-shadow);
-}
-.delete-button {
-    background-color: var(--baby-blue);
-    color: #000;
-    border: none;
-    border-radius: var(--small-border-radius);
-    padding: 0.25rem;
-    width: 1rem;
-    height: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Change cursor from pointer to default */
-    cursor: auto; /* Changed from default to auto */
-}
-
-/* Consolidated border radius rules */
-input[type="text"],
-input[type="date"],
-select,
-button,
-.task-item,
-.category-item,
-.debug-panel,
-.three-columns > div,
-.graphs-column {
-    border-radius: var(--default-border-radius);
-}
-
-.delete-button,
-.checkbox-container input[type="checkbox"] {
-    border-radius: var(--small-border-radius);
-}
-
-.task-priority,
-.task-category {
-    border-radius: 50px;  /* fully round corners */
-}
-
-/* Task Priority Colors */
-.task-priority.priority-høy {
-    background-color: #ffffe0; /* baby yellow */
-}
-.task-priority.priority-mid {
-    background-color: #d0f0c0; /* baby green */
-}
-.task-priority.priority-lav {
-    background-color: #ffd1dc; /* baby red */
-}
-.task-priority {
-    /* Reduced size by 50% */
-    padding: 0.25rem 0.5rem; /* was 0.5rem 1rem */
-    border-radius: 50px;  /* ensure fully rounded corners */
-}
-
-/* For category dropdown in task items */
-.task-category-select {
-    border-radius: var(--default-border-radius);
-    padding: 0.4rem; /* optional additional padding for clarity */
-}
-
-/* Optional: Style the toggle button */
-#toggle-view-button {
-    margin-bottom: 1rem;
-    /* Reduced size by 50% */
-    padding: 0.25rem 0.5rem; /* was 0.5rem 1rem */
-    background: var(--baby-blue);
-    color: #000;
-    border: none;
-    border-radius: var(--small-border-radius); /* updated */
-    cursor: pointer;
-    transition: background 0.3s;
-}
-#toggle-view-button:hover {
-    background: var(--baby-pink);
-}
-
-/* Consolidated transitions */
-.task-item,
-.delete-button,
-#toggle-view-button {
-    transition: all 0.2s ease;
-}
-
-/* Consolidated flexbox layouts */
-.task-input-section,
-.filter-section,
-.category-stats,
-.graphs-column {
-    display: flex;
-    gap: 1rem;
-}
-
-/* Consolidated hover states */
-.add-task button:hover,
-#toggle-view-button:hover {
-    background: var(--baby-pink);
-    transform: translateY(-2px);
-}
-
-/* New style for completed tasks */
-.completed-task {
-    text-decoration: line-through;
-    opacity: 0.6;
-}
-
-/* New style for category stats container in the stats section */
-.category-stats {
-    margin-top: 1rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    min-height: 2rem; /* added to prevent collapse */
-    padding: 0.5rem; /* extra spacing */
-}
-
-/* New three-columns container styling */ 
-.three-columns {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-}
-
-/* Standardize each column container to have a baby pink background */
-.three-columns > div {
-    background: var(--baby-pink); /* now all columns have baby pink background */
-    padding: 1rem;
-    border-radius: var(--default-border-radius);
-    box-shadow: var(--box-shadow);
-}
-
-
-/* Enhance graphs column */
-.graphs-column {
-    background: var(--baby-blue);
-    padding: 1rem;
-    border-radius: var(--default-border-radius);
-    box-shadow: var(--box-shadow);
-    max-height: calc(100vh - 4rem);
-    display: flex;
-    flex-direction: column; /* Stack stats and chart vertically */
-    align-items: center;
-    justify-content: center;
-}
-
-/* Style for the graph container */
-.percentage-graph-container {
-    width: 200px;
-    height: 200px;
-    position: relative;
-    margin: 0 auto;
-    overflow: hidden;
-}
-
-/* Style the canvas element */
-#completion-chart {
-    width: 200px !important;
-    height: 200px !important;
-}
-
-/* Debug panel styling */
-.debug-panel {
-    display: none !important; /* Force hide when not in debug mode */
-    visibility: hidden;
-    height: 0;
-    overflow: hidden;
-    border-radius: var(--default-border-radius);
-}
-
-.debug-panel.visible {
-    display: block !important;
-    visibility: visible;
-    height: auto;
-    overflow: visible;
-}
-
-/* Add common utility classes */
-.flex {
-    display: flex;
-    gap: var(--spacing-unit, 1rem);
-}
-
-.flex-col {
-    flex-direction: column;
-}
-
-.flex-center {
-    align-items: center;
-    justify-content: center;
-}
-
-/* Responsive utilities */
-.hide-mobile { display: none; }
-.show-mobile { display: block; }
-
-@media (min-width: var(--breakpoint-md)) {
-    .hide-mobile { display: block; }
-    .show-mobile { display: none; }
-}
-
-/* Layout utilities with consistent spacing */
-.gap-sm { gap: var(--gap-sm); }
-.gap-md { gap: var(--gap-md); }
-.gap-lg { gap: var(--gap-lg); }
-
-.p-sm { padding: var(--gap-sm); }
-.p-md { padding: var(--gap-md); }
-.p-lg { padding: var(--gap-lg); }
-
-/* Standardize transitions */
-.animated,
-.task-item,
-.category-item,
-.delete-button,
-[class*="button"] {
-    transition: all var(--transition-speed) var(--transition-timing);
-}
-
-/* Common transitions */
-.animated-element {
-    transition: all var(--transition-speed) var(--transition-timing);
-}
-
-/* Group hover effects */
-[class*="button"]:hover,
-.task-item:hover,
-.category-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--box-shadow);
-}
-
-/* Group flexbox layouts */
-.flex-container {
-    display: flex;
-    gap: 1rem;
-}
-
-/* Consistent spacing units */
-.spaced {
-    margin: 1rem 0;
-    padding: 0.5rem;
-}
-
-/* Template styles */
-/* Saved Categories styles */
-.categories-section {
-    margin-top: var(--spacing-lg);
-    padding: var(--spacing-md);
-    background: var(--baby-pink);
-    border-radius: var(--default-border-radius);
-}
-
-.stored-category {
-    font-weight: var(--weight-bold);
-    position: relative;
-}
-
-.stored-category::after {
-    content: '📌';
-    position: absolute;
-    right: -1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: var(--font-sm);
-}
-
-.category-item:hover .store-button,
-.category-item:hover .delete-button {
-    opacity: 1;
-}
-
-.store-button,
-.delete-button {
-    opacity: 0.6;
-    transition: opacity var(--transition-speed) var(--transition-timing);
-}
-
-/* Celebration pig */
-.celebration-pig {
-    position: fixed;
-    bottom: 20px;
-    left: -50px;
-    width: 30px;
+/* Progress Bar - Made more prominent */
+.progress-bar {
     height: 30px;
-    background: var(--baby-pink);
-    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-    z-index: 9999;
-    animation: run-pig 2s ease-in-out forwards;
+    background: #eee;
+    border-radius: var(--border-radius);
+    margin: 20px 0;
+    border: 1px solid #ddd;
 }
 
-.celebration-pig::before {  /* snout */
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 60%;
-    width: 45%;
-    height: 35%;
-    background: #ffb6c1;
-    border-radius: 50%;
+.progress-bar-fill {
+    height: 100%;
+    background: var(--success-color);
+    border-radius: var(--border-radius);
+    transition: width 0.3s;
 }
 
-.celebration-pig::after {  /* tail */
-    content: '~';
-    position: absolute;
-    right: -5px;
-    top: -5px;
-    color: var(--baby-pink);
-    font-size: 20px;
-    transform: rotate(45deg);
+.progress-text {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0;
 }
 
-@keyframes run-pig {
-    0% {
-        left: -50px;
-        transform: rotate(0deg);
-    }
-    50% {
-        transform: rotate(-5deg);
-    }
-    75% {
-        transform: rotate(5deg);
-    }
-    100% {
-        left: calc(100vw + 50px);
-        transform: rotate(0deg);
-    }
+/* Category Selection - Simplified */
+.category-select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    margin: 0 5px;
+}
+
+/* Error Messages - More visible */
+#errorMessages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    background: var(--error-color);
+    color: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: none;
+}
+
+#errorMessages.show {
+    display: block;
 }
 
 /* Toast Container */
@@ -701,22 +233,6 @@ button,
     animation: spin 1s linear infinite;
 }
 
-/* Toast Modifications */
-.toast-container {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1001;
-}
-
-.toast {
-    transition: transform 0.3s ease-in-out;
-}
-
-.toast-hiding {
-    transform: translateX(120%);
-}
-
 /* Task History */
 .task-history {
     margin-top: 1rem;
@@ -757,3 +273,76 @@ button,
 .message-box.error { background: #ffebee; color: #c62828; }
 .message-box.success { background: #e8f5e9; color: #2e7d32; }
 .message-box.warning { background: #fff3e0; color: #f57c00; }
+
+/* Celebration Animations */
+.celebration-pig, .celebration-goats {
+    position: fixed;
+    bottom: 30px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.celebration-pig {
+    left: -50px;
+    width: 30px;
+    height: 25px;
+    background: pink;
+    border-radius: 60% 40% 40% 40%;
+    animation: run-pig 1.5s ease-in-out forwards;
+}
+
+.celebration-pig::before {
+    content: '🐷';
+    position: absolute;
+    font-size: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.celebration-goats {
+    left: -120px;
+    width: 100px;
+    height: 40px;
+    animation: run-goats 2.5s ease-in-out forwards;
+}
+
+.celebration-goats::before {
+    content: '🐐 🐐 🐐';
+    position: absolute;
+    font-size: 24px;
+    letter-spacing: 5px;
+}
+
+@keyframes run-pig {
+    0% { 
+        left: -50px;
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-10deg) translateY(-10px);
+    }
+    75% {
+        transform: rotate(10deg) translateY(-10px);
+    }
+    100% { 
+        left: calc(100vw + 50px);
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes run-goats {
+    0% { 
+        left: -120px;
+        transform: translateY(0);
+    }
+    25%, 75% {
+        transform: translateY(-20px);
+    }
+    50% {
+        transform: translateY(0);
+    }
+    100% { 
+        left: calc(100vw + 120px);
+        transform: translateY(0);
+    }
+}

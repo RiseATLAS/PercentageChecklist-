@@ -18,10 +18,11 @@
  * 4. Categories:
  *    - Add tasks to categories
  *    - Filter by category
- *    Tasks can be assigned to categories, and the UI should allow filtering tasks by category.
+ *    - Tasks can be assigned to categories, and the UI should allow filtering tasks by category.
  *    - Categories can conttain tasks, and tasks can be assigned to categories.
  *   -  a button on the categories allows all realated tasks to be store and retrieved.
- * 
+ *   - when a task is completed, a small pig should run across the screen.
+ *   - when a full category is completed, goats should run across the screen.
  */
 
 // Firebase config
@@ -94,6 +95,12 @@ const utils = {
             task.completed = e.target.checked;
             li.className = task.completed ? 'task-item completed' : 'task-item';
             utils.saveTask(task).then(() => {
+                if (task.completed) {
+                    utils.showAnimation('pig');
+                    if (task.categoryId) {
+                        utils.checkCategoryCompletion(task.categoryId);
+                    }
+                }
                 utils.showError('Task updated', 'success', 1000);
                 updateProgress(getAllTasks());
             });
@@ -138,6 +145,31 @@ const utils = {
                 ).join('')}
             `;
         }
+    },
+
+    async checkCategoryCompletion(categoryId) {
+        try {
+            const snapshot = await this.dbRef('tasks').once('value');
+            const tasks = snapshot.val() || {};
+            const categoryTasks = Object.values(tasks).filter(t => t.categoryId === categoryId);
+            
+            if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
+                this.showAnimation('goats');
+                this.showError('Category completed! 🎉', 'success', 2000);
+            }
+        } catch (error) {
+            console.error('Error checking category completion:', error);
+        }
+    },
+
+    showAnimation(type) {
+        const animal = document.createElement('div');
+        animal.className = type === 'pig' ? 'celebration-pig' : 'celebration-goats';
+        document.body.appendChild(animal);
+        
+        // Remove after animation ends
+        const duration = type === 'pig' ? 1500 : 2500;
+        setTimeout(() => animal.remove(), duration);
     }
 };
 
@@ -174,17 +206,24 @@ const categories = {
 
     async saveCategoryTasks(categoryId) {
         try {
-            const tasks = Object.values(await utils.dbRef('tasks').once('value').val() || {})
+            const snapshot = await utils.dbRef('tasks').once('value');
+            const tasks = snapshot.val() || {};
+            const categoryTasks = Object.values(tasks)
                 .filter(task => task.categoryId === categoryId);
             
-            if (tasks.length === 0) {
+            if (categoryTasks.length === 0) {
                 utils.showError('No tasks in this category', 'warning');
                 return;
             }
 
             const timestamp = Date.now();
-            await utils.dbRef(`categoryTasks/${categoryId}/${timestamp}`).set(tasks);
-            utils.showError(`Saved ${tasks.length} tasks for category`, 'success', 2000);
+            const storageKey = `categoryTasks/${categoryId}/${timestamp}`;
+            await utils.dbRef(storageKey).set({
+                tasks: categoryTasks,
+                timestamp,
+                categoryId
+            });
+            utils.showError(`Saved ${categoryTasks.length} tasks`, 'success', 2000);
         } catch (error) {
             utils.showError('Error saving category tasks');
             console.error(error);
