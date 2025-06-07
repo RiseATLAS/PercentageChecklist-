@@ -490,37 +490,51 @@ button,
     border-radius: var(--default-border-radius);
 }
 
-.categories-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+.stored-category {
+    font-weight: var(--weight-bold);
+    color: var(--baby-blue);
 }
 
-.category-preset-item {
+.store-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
-    background: white;
-    border-radius: var(--small-border-radius);
-    margin-bottom: var(--spacing-xs);
+    justify-content: center;
+    font-size: var(--font-md);
 }
 
+/* Remove all template/saved categories related styles */
+.saved-categories-section,
+.categories-list,
+.category-preset-item,
 .load-category {
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background: var(--baby-blue);
+    display: none;
+}
+
+/* New styles for save button and button container */
+.category-buttons {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.save-button {
+    background-color: var(--baby-blue);
+    color: #000;
     border: none;
     border-radius: var(--small-border-radius);
+    padding: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
 }
 
-/* Remove old template styles */
-.templates-section,
-.template-list,
-.template-item,
-.template-name,
-.template-category,
-.template-tasks,
-.load-template {
-    display: none;
+.save-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
 }

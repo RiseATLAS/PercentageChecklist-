@@ -527,13 +527,6 @@ function loadCategories() {
             renderCategoriesList(categoriesData);
         }
     });
-
-    utils.dbRef('savedCategories').on('value', snapshot => {
-        const savedCategories = snapshot.val() || {};
-        if (savedCategoriesList) {
-            renderSavedCategoriesList(savedCategories);
-        }
-    });
 }
 
 // Populer Kategori-dropdown
@@ -551,70 +544,53 @@ function populateCategorySelect(categories) {
 
 // Render Kategoriliste
 function renderCategoriesList(categories) {
-    if (DEBUG_MODE) {
-        eventCounters.renderCategoriesList++;
-        updateEventCounters();
-    }
     if (!categoryList) return;
     categoryList.innerHTML = "";
+    
     for (let id in categories) {
-        const li = document.createElement('li');
-        li.className = 'category-item';
-
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'category-name';
-        nameSpan.textContent = categories[id].name;
-        nameSpan.setAttribute('contenteditable', 'false');
-
-        nameSpan.addEventListener('dblclick', () => {
-            nameSpan.setAttribute('contenteditable', 'true');
-            nameSpan.focus();
-        });
-
-        nameSpan.addEventListener('blur', () => {
-            nameSpan.setAttribute('contenteditable', 'false');
-            const newName = nameSpan.textContent.trim();
-            if (newName === "") {
-                alert("Kategorinavnet kan ikke være tomt.");
-                nameSpan.textContent = categories[id].name; // Revert to original
-                return;
-            }
-            if (newName !== categories[id].name) {
-                database.ref(`categories`).orderByChild('name').equalTo(newName).once('value', nameSnapshot => {
-                    if (nameSnapshot.exists()) {
-                        alert("Kategorinavnet finnes allerede!");
-                        nameSpan.textContent = categories[id].name; // Revert
-                    } else {
-                        database.ref(`categories/${id}`).update({ name: newName })
-                            .then(() => {
-                                console.log('Kategori oppdatert');
-                            })
-                            .catch(error => {
-                                console.error('Feil ved oppdatering av kategori:', error);
-                                nameSpan.textContent = categories[id].name; // Revert on error
-                            });
-                    }
-                });
-            }
-        });
-
-        const deleteButton = document.createElement('button');
-        deleteButton.className = 'delete-button';
-        // Re-implement x change: set symbol to a stylish "✖"
-        deleteButton.textContent = '✖';
+        const li = utils.createElement('li', 'category-item');
+        const category = categories[id];
+        
+        const nameSpan = utils.createElement('span', 'category-name', category.name);
+        if (category.stored) {
+            nameSpan.classList.add('stored-category');
+        }
+        
+        const buttonContainer = utils.createElement('div', 'category-buttons');
+        
+        const storeButton = utils.createElement('button', 'store-button');
+        storeButton.textContent = category.stored ? '📌' : '📍';
+        storeButton.title = category.stored ? "Unstøttet kategori" : "Lagre kategori";
+        storeButton.onclick = () => toggleCategoryStorage(id, !category.stored);
+        
+        const deleteButton = utils.createElement('button', 'delete-button', '✖');
         deleteButton.title = "Slett Kategori";
-        deleteButton.addEventListener('click', () => {
-            deleteCategory(id);
-        });
-
+        deleteButton.onclick = () => deleteCategory(id);
+        
+        buttonContainer.appendChild(storeButton);
+        buttonContainer.appendChild(deleteButton);
+        
         li.appendChild(nameSpan);
-        li.appendChild(deleteButton);
+        li.appendChild(buttonContainer);
         categoryList.appendChild(li);
     }
 }
 
-// Slett Kategori og tilknyttede Oppgaver
+// Add toggle storage function
+function toggleCategoryStorage(categoryId, stored) {
+    database.ref(`categories/${categoryId}`).update({ stored })
+        .then(() => console.log(`Category ${stored ? 'stored' : 'unstored'}`))
+        .catch(error => utils.handleError(error, 'toggling category storage'));
+}
+
+// Update deleteCategory to handle stored status
 function deleteCategory(categoryId) {
+    const category = categoriesCache[categoryId];
+    if (category?.stored) {
+        if (!confirm('Dette er en lagret kategori. Er du sikker på at du vil slette den?')) {
+            return;
+        }
+    }
     const updates = {};
     return utils.dbRef('tasks')
         .orderByChild('categoryId')
@@ -907,7 +883,10 @@ function addCategoryHandler() {
             alert("Kategorinavnet finnes allerede!");
         } else {
             const newCategoryRef = database.ref(`categories`).push();
-            newCategoryRef.set({ name: categoryName })
+            newCategoryRef.set({ 
+                name: categoryName,
+                stored: false  // Add stored flag
+            })
                 .then(() => {
                     console.log("Ny kategori lagt til.");
                     if(newCategoryInput) newCategoryInput.value = '';
