@@ -17,7 +17,7 @@ const storage = firebase.storage(); // Initialize Firebase Storage
 
 // ---------------------
 // Updated debug declarations with additional events
-const DEBUG_MODE = true;  // set to false to disable debug logging and counters
+const DEBUG_MODE = false;  // set to false to disable debug logging and counters
 let eventCounters = {
     loadTasks: 0,
     renderTasks: 0,
