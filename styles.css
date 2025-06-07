@@ -185,21 +185,20 @@ body {
 }
 
 .task-item {
-    background: #fff;
-    /* Reduced size by 50% */
-    padding: 0.25rem;
-    margin-bottom: 0.25rem;
-    border-radius: var(--default-border-radius); /* updated for consistency */
-    box-shadow: var(--box-shadow);
     display: flex;
     align-items: center;
-    gap: 0.25rem; /* was 0.5rem */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    min-width: 0; /* added to reduce minimum width */
-    margin-left: 0; /* removed indent */
+    padding: 8px;
+    margin: 4px 0;
+    background: #fff;
+    border-radius: 4px;
+    transition: all 0.2s ease;
 }
 .task-item:hover {
     transform: translateY(-3px);
+}
+.task-item.completed {
+    background: #f5f5f5;
+    opacity: 0.8;
 }
 .checkbox-container input {
     transform: scale(1.25);
@@ -743,3 +742,18 @@ button,
 #categoryFilter {
     min-height: 100px;
 }
+
+/* Message Box */
+.message-box {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.message-box.error { background: #ffebee; color: #c62828; }
+.message-box.success { background: #e8f5e9; color: #2e7d32; }
+.message-box.warning { background: #fff3e0; color: #f57c00; }
