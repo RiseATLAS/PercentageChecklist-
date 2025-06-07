@@ -222,23 +222,30 @@ function filterTasks(categoryId) {
 
 // Basic event handlers
 document.addEventListener('DOMContentLoaded', async () => {
-    // Load initial data
-    utils.dbRef('tasks').once('value', snapshot => {
-        const tasks = snapshot.val() || {};
-        renderTasks(Object.values(tasks));
+    // Add category form handler
+    document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = e.target.querySelector('input');
+        const name = input.value.trim();
+        if (name) {
+            await categories.addCategory(name);
+            input.value = '';
+        }
     });
 
-    // Add new task
+    // Add new task with category
     document.getElementById('taskForm').onsubmit = (e) => {
         e.preventDefault();
         const input = e.target.querySelector('input');
+        const categorySelect = e.target.querySelector('select');
         const text = input.value.trim();
         if (text) {
             const newTask = {
                 id: Date.now().toString(),
                 text,
                 completed: false,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                categoryId: categorySelect?.value || ''
             };
             utils.saveTask(newTask);
             input.value = '';

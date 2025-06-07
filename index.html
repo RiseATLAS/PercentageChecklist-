@@ -11,33 +11,35 @@
 
 <body>
     <div class="container">
-        <!-- Stats Dashboard -->
-        <div class="stats-container"></div>
-
-        <!-- Advanced Search -->
-        <form class="search-form">
-            <div class="filter-group">
-                <input type="text" id="searchInput" placeholder="Søk oppgaver...">
-                <select id="priorityFilter">
-                    <option value="">Alle prioriteringer</option>
-                    <option value="high">Høy</option>
-                    <option value="mid">Medium</option>
-                    <option value="low">Lav</option>
-                </select>
-                <select id="statusFilter">
-                    <option value="all">Alle statusser</option>
-                    <option value="completed">Fullført</option>
-                    <option value="pending">Ventende</option>
-                </select>
-                <select id="categoryFilter" multiple>
-                    <!-- Populated dynamically -->
-                </select>
-                <button type="submit">Søk</button>
-            </div>
+        <!-- Category Form -->
+        <form id="categoryForm">
+            <input type="text" placeholder="Ny kategori" required>
+            <button type="submit">Legg til kategori</button>
         </form>
+
+        <!-- Task Form -->
+        <form id="taskForm">
+            <input type="text" placeholder="Ny oppgave" required>
+            <select id="categorySelect">
+                <option value="">Ingen kategori</option>
+            </select>
+            <button type="submit">Legg til oppgave</button>
+        </form>
+
+        <!-- Category Filter -->
+        <select id="categoryFilter">
+            <option value="">Alle oppgaver</option>
+        </select>
 
         <!-- Main Task List -->
         <div id="taskList"></div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar"></div>
+        <div class="progress-text"></div>
+
+        <!-- Error Messages -->
+        <div id="errorMessages"></div>
 
         <!-- Import/Export -->
         <div class="action-buttons">
