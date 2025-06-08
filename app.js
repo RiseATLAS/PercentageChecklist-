@@ -220,15 +220,26 @@ const utils = {
                 </div>
             `).join('');
 
-            categoryList.addEventListener('click', async (e) => {
-                const button = e.target.closest('button');
-                if (!button || !button.classList.contains('storage-toggle')) return;
+            // Use categories.handleClick instead of this.handleCategoryClick
+            categoryList.onclick = categories.handleClick;
+        }
+    },
 
-                const categoryId = button.dataset.categoryId;
-                if (!categoryId) return;
+    handleCategoryClick: async (e) => {
+        const button = e.target.closest('button');
+        if (!button) return;
 
+        const categoryId = button.dataset.categoryId;
+        if (!categoryId) return;
+
+        try {
+            if (button.classList.contains('storage-toggle')) {
                 await categories.toggleStorage(categoryId);
-            });
+            } else if (button.classList.contains('delete-category')) {
+                await categories.deleteCategory(categoryId);
+            }
+        } catch (error) {
+            utils.showError('Action failed');
         }
     },
 
@@ -310,6 +321,24 @@ const utils = {
 const categories = {
     data: {},
     
+    handleClick: async function(e) {
+        const button = e.target.closest('button');
+        if (!button) return;
+
+        const categoryId = button.dataset.categoryId;
+        if (!categoryId) return;
+
+        try {
+            if (button.classList.contains('storage-toggle')) {
+                await this.toggleStorage(categoryId);
+            } else if (button.classList.contains('delete-category')) {
+                await this.deleteCategory(categoryId);
+            }
+        } catch (error) {
+            utils.showError('Action failed');
+        }
+    },
+
     async addCategory(name) {
         try {
             const id = Date.now().toString();
@@ -339,28 +368,24 @@ const categories = {
     // Simplified storage
     async toggleStorage(categoryId) {
         try {
-            const isStored = this.data[categoryId].stored;
-            
-            if (isStored) {
-                // Load normal tasks
-                const tasks = await utils.dbRef('tasks').once('value');
-                renderTasks(Object.values(tasks.val() || {}));
+            const category = this.data[categoryId];
+            if (!category) return;
+
+            if (category.stored) {
+                await utils.dbRef(`categories/${categoryId}`).update({ stored: false });
                 this.data[categoryId].stored = false;
+                filterTasks(''); // Show all tasks
             } else {
-                // Store and load category tasks
-                const tasks = Object.values(await utils.dbRef('tasks').once('value').val() || {})
+                const tasks = await utils.dbRef('tasks').once('value');
+                const categoryTasks = Object.values(tasks.val() || {})
                     .filter(t => t.categoryId === categoryId);
-                
-                if (tasks.length) {
-                    await utils.dbRef(`categories/${categoryId}`).update({ 
-                        stored: true,
-                        tasks 
-                    });
+
+                if (categoryTasks.length) {
+                    await utils.dbRef(`categories/${categoryId}`).update({ stored: true });
                     this.data[categoryId].stored = true;
-                    renderTasks(tasks);
+                    renderTasks(categoryTasks);
                 }
             }
-            
             utils.updateCategoryFilter(this.data);
         } catch (error) {
             utils.showError('Storage toggle failed');
