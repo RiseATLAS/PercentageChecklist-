@@ -200,7 +200,14 @@ const utils = {
         `;
 
         if (filter) filter.innerHTML = dropdownHTML;
-        if (select) select.innerHTML = dropdownHTML;
+        if (select) {
+            select.innerHTML = `
+                <option value="" disabled selected>Velg kategori</option>
+                ${Object.entries(categoriesData).map(([id, cat]) => 
+                    `<option value="${id}">${cat.name}</option>`
+                ).join('')}
+            `;
+        }
 
         const categoryList = document.getElementById('categoryList');
         if (categoryList) {
@@ -211,7 +218,7 @@ const utils = {
                               data-original="${cat.name}">${cat.name}</span>
                         <button class="delete-category" data-category-id="${id}">×</button>
                         <button class="storage-toggle" data-category-id="${id}">
-                            ${cat.stored ? '📁 Normal' : '📂 Store'}
+                            ${cat.stored ? '📁 Hent ut' : '📂 Lagre'}
                         </button>
                     </div>
                 </div>
@@ -338,7 +345,7 @@ const categories = {
             }
         } catch (error) {
             console.error('Category action error:', error);
-            utils.showError('Action failed');
+            utils.showError('Handling feilet');
         }
     },
     
@@ -373,7 +380,7 @@ const categories = {
     // Simplified storage
     async toggleStorage(categoryId) {
         if (!this.data[categoryId]) {
-            utils.showError('Category not found');
+            utils.showError('Kategori ikke funnet');
             return;
         }
 
