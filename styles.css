@@ -207,6 +207,27 @@ button:hover {
     width: 100%;
 }
 
+/* Sort Section */
+.sort-section {
+    margin: 15px 0;
+}
+
+.sort-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.sort-controls {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+.task-sort {
+    width: 100%;
+}
+
 /* Category Items */
 .category-list {
     margin-top: 15px;
@@ -466,5 +487,14 @@ select:focus,
     .clear-filter {
         width: auto;
         flex-shrink: 0;
+    }
+    
+    .sort-controls {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .task-sort {
+        flex: 1;
     }
 }

@@ -6,6 +6,7 @@
  *    - Mark tasks complete/incomplete
  *    - Delete tasks
  *    - Edit task text
+ *    - sorting of tasks, category, alphabet, creation time, completed
  * 
  * 2. Categories:
  *    - Category names can be edited
@@ -498,6 +499,66 @@ function getAllTasks() {
     }));
 }
 
+// Add sorting utility functions
+const sortUtils = {
+    // Sort tasks based on selected criteria
+    sortTasks(tasks, sortType) {
+        const tasksCopy = [...tasks];
+        
+        switch (sortType) {
+            case 'creation':
+                return tasksCopy.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            case 'creation-asc':
+                return tasksCopy.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+            
+            case 'alphabet':
+                return tasksCopy.sort((a, b) => a.text.toLowerCase().localeCompare(b.text.toLowerCase()));
+            
+            case 'alphabet-desc':
+                return tasksCopy.sort((a, b) => b.text.toLowerCase().localeCompare(a.text.toLowerCase()));
+            
+            case 'category':
+                return tasksCopy.sort((a, b) => {
+                    const catA = a.categoryId ? (categories.data[a.categoryId]?.name || '') : '';
+                    const catB = b.categoryId ? (categories.data[b.categoryId]?.name || '') : '';
+                    
+                    if (catA === catB) {
+                        // Secondary sort by creation time if same category
+                        return (b.timestamp || 0) - (a.timestamp || 0);
+                    }
+                    
+                    // Uncategorized tasks go last
+                    if (!catA) return 1;
+                    if (!catB) return -1;
+                    
+                    return catA.localeCompare(catB);
+                });
+            
+            case 'completed':
+                return tasksCopy.sort((a, b) => {
+                    if (a.completed === b.completed) {
+                        // Secondary sort by creation time if same completion status
+                        return (b.timestamp || 0) - (a.timestamp || 0);
+                    }
+                    return a.completed ? 1 : -1; // Incomplete tasks first
+                });
+            
+            case 'completed-first':
+                return tasksCopy.sort((a, b) => {
+                    if (a.completed === b.completed) {
+                        // Secondary sort by creation time if same completion status
+                        return (b.timestamp || 0) - (a.timestamp || 0);
+                    }
+                    return a.completed ? -1 : 1; // Completed tasks first
+                });
+            
+            default:
+                return tasksCopy;
+        }
+    }
+};
+
 // Simplified filter function without migration logic
 function filterTasks(categoryId) {
     utils.dbRef('tasks').once('value', snapshot => {
@@ -524,6 +585,10 @@ function filterTasks(categoryId) {
                 true
             );
         }
+        
+        // Apply sorting
+        const sortType = document.getElementById('taskSort')?.value || 'creation';
+        tasks = sortUtils.sortTasks(tasks, sortType);
         
         renderTasks(tasks);
     }).catch(error => {
@@ -635,6 +700,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Category filter listener
         document.getElementById('categoryFilter')?.addEventListener('change', (e) => {
             filterTasks(e.target.value);
+        });
+
+        // Task sort listener
+        document.getElementById('taskSort')?.addEventListener('change', (e) => {
+            const currentFilter = document.getElementById('categoryFilter')?.value || '';
+            filterTasks(currentFilter);
         });
 
         // Clear filter listener

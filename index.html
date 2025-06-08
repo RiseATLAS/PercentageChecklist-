@@ -35,6 +35,21 @@
                     <div class="progress-text"></div>
                 </div>
                 
+                <div class="sort-section">
+                    <label for="taskSort">Sorter oppgaver:</label>
+                    <div class="sort-controls">
+                        <select id="taskSort" name="taskSort" class="task-sort">
+                            <option value="creation">Opprettelsestid (nyest først)</option>
+                            <option value="creation-asc">Opprettelsestid (eldst først)</option>
+                            <option value="alphabet">Alfabetisk (A-Å)</option>
+                            <option value="alphabet-desc">Alfabetisk (Å-A)</option>
+                            <option value="category">Kategori</option>
+                            <option value="completed">Fullførte sist</option>
+                            <option value="completed-first">Fullførte først</option>
+                        </select>
+                    </div>
+                </div>
+                
                 <ul id="taskList" class="task-list"></ul>
             </div>
 
