@@ -95,7 +95,7 @@ const utils = {
         return path ? db.ref(path) : db.ref();
     },
 
-    // Update task storage
+    // Update task storage with data migration
     async saveTask(task) {
         try {
             if (!task?.id) throw new Error('Task ID required');
@@ -496,7 +496,7 @@ function getAllTasks() {
     }));
 }
 
-// Update filter function to respect multiple stored categories
+// Simplified filter function without migration logic
 function filterTasks(categoryId) {
     utils.dbRef('tasks').once('value', snapshot => {
         const allTasks = snapshot.val() || {};
@@ -506,16 +506,14 @@ function filterTasks(categoryId) {
             .filter(([id, cat]) => cat.stored)
             .map(([id]) => id);
         
-        let tasks;
+        let tasks = Object.values(allTasks).filter(task => task.text); // Only include tasks with text
+        
         if (categoryId) {
             // Normal filtering by selected category
-            tasks = Object.values(allTasks).filter(task => task.categoryId === categoryId);
+            tasks = tasks.filter(task => task.categoryId === categoryId);
         } else if (storedCategories.length > 0) {
             // If categories are stored and no filter is applied, show only stored category tasks
-            tasks = Object.values(allTasks).filter(task => storedCategories.includes(task.categoryId));
-        } else {
-            // Show all tasks only if no categories are stored
-            tasks = Object.values(allTasks);
+            tasks = tasks.filter(task => storedCategories.includes(task.categoryId));
         }
         
         renderTasks(tasks);
@@ -695,5 +693,4 @@ function updateProgress(tasks) {
         progressText.textContent = `Fullført: ${completed}/${total} (${percentage}%)`;
         progressText.className = percentage === 100 ? 'progress-text complete' : 'progress-text';
     }
-}    }
 }
