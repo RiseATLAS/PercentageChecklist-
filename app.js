@@ -1,8 +1,5 @@
 /**
- *  * Requirements:
-*  - The code should be simple and easy to understand.
- *  - Code should focus on easy to read and maintainable code.
- * Stability is important, so avoid unnecessary complexity.
+ * USER REQUIREMENTS:
  * 
  * 1. Basic Task Management:
  *    - Add new tasks
@@ -10,25 +7,41 @@
  *    - Delete tasks
  *    - Edit task text
  * 
- * 2. Simple Data Storage:
- *    - Save to Firebase
+ * 2. Categories:
+ *    - Add tasks to categories
+ *    - Category names can be edited
+ *    - Filter tasks by category
+ *    - Tasks can be assigned to categories
+ *    - Categories can contain tasks
+ *    - A button on categories allows all related tasks to be stored and retrieved
+ *    - When a task is completed, a young pig should frolick across the screen
+ *    - When a full category is completed, a herd young goats should frolick across the screen
+ * 
+ * 3. Progress Tracking:
+ *    - Simple non intrusive progress bar showing completion percentage
+ * 
+ * 4. Data Persistence:
+ *    - Tasks and categories are saved and can be loaded
+ * 
+ * TECHNICAL REQUIREMENTS:
+ * 
+ * 1. Code Quality:
+ *    - The code should be simple and easy to understand
+ *    - Code should focus on easy to read and maintainable code
+ *    - Stability is important, so avoid unnecessary complexity
+ * 
+ * 2. Data Storage:
+ *    - Save to Firebase on all changes
  *    - Load from Firebase
  * 
- * 3. Basic UI:
+ * 3. UI Framework:
+ *    - Basic HTML/CSS/JavaScript (no complex frameworks)
  *    - Task list display
- *    - Simple progress bar
  *    - Basic error messages
- * 
- * 4. Categories:
- *    - Add tasks to categories
- *    - categories name can be edited.
- *    - Filter by category
- *    - Tasks can be assigned to categories, and the UI should allow filtering tasks by category.
- *    - Categories can conttain tasks, and tasks can be assigned to categories.
- *   -  a button on the categories allows all realated tasks to be store and retrieved.
- *   - when a task is completed, a young pig should run across the screen.
- *   - when a full category is completed, young goats should run across the screen.
- *  
+ *    - Mobile-first responsive design, touch sized buttons
+ *    - Baby blue, baby pink, white color scheme
+ *    - Rounded corners on all elements
+ *    - Modern clean design
  */
 
 // Firebase config
@@ -49,6 +62,25 @@ const db = firebase.database();
 
 // Simplified utilities
 const utils = {
+    // Input sanitization for security
+    sanitizeInput(text) {
+        if (!text) return '';
+        return text.toString()
+            .trim()
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+            .replace(/<[^>]*>/g, '')
+            .substring(0, 100); // Limit length
+    },
+
+    // Debounced save to prevent excessive Firebase calls
+    debouncedSave: (() => {
+        const timeouts = new Map();
+        return (key, fn, delay = 1000) => {
+            clearTimeout(timeouts.get(key));
+            timeouts.set(key, setTimeout(fn, delay));
+        };
+    })(),
+
     // Animation constants
     ANIMATION_CONFIG: {
         DELAY_BETWEEN: 200
@@ -79,18 +111,25 @@ const utils = {
     // Update task storage
     async saveTask(task) {
         try {
-            if (!task?.id) return;
+            if (!task?.id) throw new Error('Task ID required');
+            
+            // Sanitize input
+            const sanitizedText = this.sanitizeInput(task.text);
+            if (!sanitizedText) throw new Error('Task text cannot be empty');
+            
             const taskData = {
                 id: task.id,
-                text: task.text,
-                completed: task.completed,
-                categoryId: task.categoryId || '',
+                text: sanitizedText,
+                completed: Boolean(task.completed),
+                categoryId: (task.categoryId || '').toString(),
                 timestamp: task.timestamp || Date.now(),
                 updatedAt: Date.now()
             };
+            
             await this.dbRef(`tasks/${task.id}`).set(taskData);
         } catch (error) {
             console.error('Error saving task:', error);
+            throw error; // Re-throw for proper error handling
         }
     },
 
@@ -117,59 +156,98 @@ const utils = {
         
         const li = document.createElement('li');
         li.dataset.id = task.id;
-        li.dataset.taskId = task.id;
         li.className = task.completed ? 'task-item completed' : 'task-item';
+        li.setAttribute('role', 'listitem');
+        
+        // Sanitize task text before display
+        const sanitizedText = this.sanitizeInput(task.text);
+        
         li.innerHTML = `
             <input type="checkbox" 
                    ${task.completed ? 'checked' : ''} 
-                   aria-label="Fullfør oppgave">
-            <span class="task-text" contenteditable="true">${task.text}</span>
-            <select class="category-select" aria-label="Velg kategori">
+                   aria-label="Fullfør oppgave: ${sanitizedText}"
+                   tabindex="0">
+            <span class="task-text" 
+                  contenteditable="true" 
+                  aria-label="Rediger oppgave"
+                  data-original="${sanitizedText}"
+                  tabindex="0">${sanitizedText}</span>
+            <select class="category-select" 
+                    aria-label="Velg kategori for oppgave"
+                    tabindex="0">
                 <option value="">Ingen kategori</option>
                 ${Object.entries(categories.data).map(([id, cat]) => 
-                    `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
+                    `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${this.sanitizeInput(cat.name)}</option>`
                 ).join('')}
             </select>
-            <button class="delete" title="Slett oppgave" aria-label="Slett oppgave">×</button>
+            <button class="delete" 
+                    title="Slett oppgave" 
+                    aria-label="Slett oppgave: ${sanitizedText}"
+                    tabindex="0">×</button>
         `;
 
-        // Add checkbox handler with debounce for animations
-        let celebrationTimeout;
+        // Improved checkbox handler with error recovery
         const checkbox = li.querySelector('input[type="checkbox"]');
         checkbox.addEventListener('change', async () => {
-            clearTimeout(celebrationTimeout);
-            task.completed = checkbox.checked;
-            li.classList.toggle('completed', task.completed);
-            
-            // Save first for better UX
-            await utils.saveTask(task);
-            updateProgress(getAllTasks());
+            const originalState = task.completed;
+            try {
+                task.completed = checkbox.checked;
+                li.classList.toggle('completed', task.completed);
+                
+                await this.saveTask(task);
+                updateProgress(getAllTasks());
 
-            // Trigger celebrations with slight delay
-            if (task.completed) {
-                celebrationTimeout = setTimeout(async () => {
-                    await utils.triggerCelebration('pig');
-                    if (task.categoryId) {
-                        await utils.checkCategoryCompletion(task.categoryId);
-                    }
-                }, 300);
+                if (task.completed) {
+                    setTimeout(async () => {
+                        try {
+                            await utils.triggerCelebration('pig');
+                            if (task.categoryId) {
+                                await utils.checkCategoryCompletion(task.categoryId);
+                            }
+                        } catch (error) {
+                            console.error('Celebration error:', error);
+                        }
+                    }, 300);
+                }
+            } catch (error) {
+                console.error('Error updating task:', error);
+                // Revert to original state
+                task.completed = originalState;
+                checkbox.checked = originalState;
+                li.classList.toggle('completed', originalState);
+                utils.showError('Kunne ikke oppdatere oppgave');
             }
         });
 
-        // Add visual feedback for editing
+        // Secure and debounced text editing
         const textSpan = li.querySelector('.task-text');
-        textSpan.addEventListener('focus', () => {
-            textSpan.dataset.original = textSpan.textContent;
-            textSpan.classList.add('editing');
+        
+        textSpan.addEventListener('input', () => {
+            this.debouncedSave(`task-${task.id}`, async () => {
+                const newText = this.sanitizeInput(textSpan.textContent);
+                const originalText = textSpan.dataset.original;
+                
+                if (newText && newText !== originalText) {
+                    try {
+                        task.text = newText;
+                        await this.saveTask(task);
+                        textSpan.dataset.original = newText;
+                        utils.showError('Oppgave lagret', 'success', 1000);
+                    } catch (error) {
+                        console.error('Save error:', error);
+                        textSpan.textContent = originalText;
+                        utils.showError('Kunne ikke lagre endringer');
+                    }
+                }
+            });
         });
-        textSpan.addEventListener('blur', () => {
-            textSpan.classList.remove('editing');
-            const newText = textSpan.textContent.trim();
-            if (newText && newText !== textSpan.dataset.original) {
-                task.text = newText;
-                utils.saveTask(task);
-                utils.showError('Oppgave oppdatert', 'success', 500);
-            }
+
+        // Prevent HTML injection in contenteditable
+        textSpan.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            const sanitized = this.sanitizeInput(text);
+            document.execCommand('insertText', false, sanitized);
         });
 
         li.querySelector('.category-select').onchange = (e) => {
@@ -276,16 +354,15 @@ const utils = {
             celebration.className = `celebration ${config.className}`;
             celebration.dataset.celebrationId = celebrationId;
             celebration.style.setProperty('--duration', `${config.duration}ms`);
-            celebration.style.setProperty('--delay-between', `${this.ANIMATION_CONFIG.DELAY_BETWEEN}ms`);
             
             const animalCount = Math.min(count, config.maxCount);
             celebration.innerHTML = Array.from({ length: animalCount }, 
                 (_, i) => `
-                    <div class="young-animal" 
-                         style="--index: ${i}"
+                    <div class="young-animal frolicking" 
+                         style="--index: ${i}; --delay: ${i * 200}ms"
                          data-celebration-id="${celebrationId}">
                         <div class="animal-container">
-                            <span class="animal-emoji">${config.emoji.repeat(type === 'goats' ? 2 : 1)}</span>
+                            <span class="animal-emoji">${config.emoji}</span>
                         </div>
                         <span class="sound-text" aria-hidden="true">
                             ${type === 'pig' ? 'Oink!' : 'Baa!'}
@@ -295,23 +372,25 @@ const utils = {
 
             stage.appendChild(celebration);
 
-            // Try to play sound but don't wait for it
-            this.playSound(config.sound);
-
-            // Handle animation cleanup
+            // Handle animation cleanup with better error handling
             return new Promise(resolve => {
                 const cleanup = () => {
-                    celebration.remove();
+                    if (celebration.parentNode) {
+                        celebration.remove();
+                    }
                     resolve();
                 };
                 
                 celebration.addEventListener('animationend', cleanup, { once: true });
-                setTimeout(cleanup, config.duration + 100);
+                setTimeout(cleanup, config.duration + 500); // Extra buffer
             });
 
         } catch (error) {
             console.error('Celebration error:', error);
-            document.querySelectorAll(`[data-celebration-id="${celebrationId}"]`).forEach(el => el.remove());
+            // Cleanup any orphaned elements
+            document.querySelectorAll(`[data-celebration-id="${celebrationId}"]`).forEach(el => {
+                if (el.parentNode) el.remove();
+            });
         }
     },
 
@@ -529,74 +608,114 @@ function filterTasks(categoryId) {
 
 // Basic event handlers
 document.addEventListener('DOMContentLoaded', async () => {
-    // Add category form handler
-    document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const input = document.getElementById('categoryInput'); // Use correct ID
-        const name = input.value.trim();
-        if (name) {
-            await categories.addCategory(name);
-            input.value = '';
-        }
-    });
-
-    // Add new task with category
-    document.getElementById('taskForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const input = document.getElementById('taskInput'); // Use correct ID
-        const categorySelect = document.getElementById('categorySelect');
-        const text = input.value.trim();
-        if (text) {
-            const newTask = {
-                id: Date.now().toString(),
-                text,
-                completed: false,
-                timestamp: Date.now(),
-                categoryId: categorySelect?.value || ''
-            };
-            await utils.saveTask(newTask);
-            input.value = '';
-            
-            // Reset select to placeholder option
-            if (categorySelect) {
-                categorySelect.selectedIndex = 0; // Reset to "Velg kategori"
+    try {
+        // Monitor Firebase connection with retry logic
+        const connectedRef = db.ref('.info/connected');
+        let connectionLost = false;
+        
+        connectedRef.on('value', (snapshot) => {
+            if (!snapshot.val() && !connectionLost) {
+                connectionLost = true;
+                utils.showError('Tilkobling tapt. Prøver å koble til på nytt...', 'error', 10000);
+            } else if (snapshot.val() && connectionLost) {
+                connectionLost = false;
+                utils.showError('Tilkobling gjenopprettet', 'success', 2000);
             }
-            
-            // Reload and display tasks properly
+        });
+
+        // Enhanced form validation
+        const taskForm = document.getElementById('taskForm');
+        const taskInput = document.getElementById('taskInput');
+        
+        if (taskForm && taskInput) {
+            taskForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const text = utils.sanitizeInput(taskInput.value);
+                if (!text) {
+                    utils.showError('Oppgavetekst kan ikke være tom');
+                    taskInput.focus();
+                    return;
+                }
+                
+                if (text.length < 2) {
+                    utils.showError('Oppgavetekst må være minst 2 tegn');
+                    taskInput.focus();
+                    return;
+                }
+                
+                try {
+                    const categorySelect = document.getElementById('categorySelect');
+                    const newTask = {
+                        id: Date.now().toString(),
+                        text,
+                        completed: false,
+                        timestamp: Date.now(),
+                        categoryId: categorySelect?.value || ''
+                    };
+                    
+                    await utils.saveTask(newTask);
+                    taskInput.value = '';
+                    
+                    if (categorySelect) {
+                        categorySelect.selectedIndex = 0;
+                    }
+                    
+                    // Efficient update - only add new task instead of re-rendering all
+                    const taskList = document.getElementById('taskList');
+                    const taskElement = utils.createTaskElement(newTask);
+                    taskList.appendChild(taskElement);
+                    
+                    updateProgress(getAllTasks());
+                    utils.showError('Oppgave lagt til', 'success', 1000);
+                    
+                } catch (error) {
+                    console.error('Error adding task:', error);
+                    utils.showError('Kunne ikke legge til oppgave');
+                }
+            });
+        }
+
+        // Add category form handler
+        document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('categoryInput'); // Use correct ID
+            const name = input.value.trim();
+            if (name) {
+                await categories.addCategory(name);
+                input.value = '';
+            }
+        });
+
+        // Add category filter listener
+        document.getElementById('categoryFilter')?.addEventListener('change', (e) => {
+            filterTasks(e.target.value);
+        });
+
+        // Add clear filter listener
+        document.getElementById('clearFilter')?.addEventListener('click', () => {
+            filterTasks(''); // Show all tasks
+            const categoryFilterSelect = document.getElementById('categoryFilter');
+            if (categoryFilterSelect) {
+                categoryFilterSelect.value = ''; // Reset dropdown
+            }
+        });
+
+        // Load initial data with error handling
+        try {
+            await categories.loadCategories();
             const tasksSnapshot = await utils.dbRef('tasks').once('value');
             const tasks = tasksSnapshot.val() || {};
-            
-            // Check if we're currently filtering and maintain that filter
-            const currentFilter = document.getElementById('categoryFilter')?.value || '';
-            if (currentFilter) {
-                filterTasks(currentFilter);
-            } else {
-                renderTasks(Object.values(tasks));
-            }
+            renderTasks(Object.values(tasks));
+        } catch (error) {
+            console.error('Error loading initial data:', error);
+            utils.showError('Kunne ikke laste data. Prøv å oppdatere siden.', 'error', 10000);
         }
-    };
-
-    // Add category filter listener
-    document.getElementById('categoryFilter')?.addEventListener('change', (e) => {
-        filterTasks(e.target.value);
-    });
-
-    // Add clear filter listener
-    document.getElementById('clearFilter')?.addEventListener('click', () => {
-        filterTasks(''); // Show all tasks
-        const categoryFilterSelect = document.getElementById('categoryFilter');
-        if (categoryFilterSelect) {
-            categoryFilterSelect.value = ''; // Reset dropdown
-        }
-    });
-
-    // Load and display categories first
-    await categories.loadCategories();
-    
-    // Then load tasks
-    const tasksSnapshot = await utils.dbRef('tasks').once('value');
-    const tasks = tasksSnapshot.val() || {};
-    renderTasks(Object.values(tasks));
+        
+    } catch (error) {
+        console.error('Critical initialization error:', error);
+        utils.showError('Kritisk feil ved oppstart. Kontakt support.', 'error', 15000);
+    }
 });
 
 // Simplified task rendering with better error handling

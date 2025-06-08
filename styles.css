@@ -363,6 +363,39 @@ button:hover {
     100% { transform: translateX(100vw); }
 }
 
+/* Improved Frolicking Animations */
+.young-animal.frolicking {
+    animation: frolick var(--duration, 2s) ease-in-out;
+    animation-delay: var(--delay, 0ms);
+}
+
+@keyframes frolick {
+    0% { 
+        transform: translateX(-100vw) translateY(0) rotate(0deg) scale(1); 
+    }
+    15% { 
+        transform: translateX(-50vw) translateY(-30px) rotate(15deg) scale(1.1); 
+    }
+    30% { 
+        transform: translateX(-20vw) translateY(10px) rotate(-10deg) scale(0.9); 
+    }
+    45% { 
+        transform: translateX(10vw) translateY(-40px) rotate(20deg) scale(1.2); 
+    }
+    60% { 
+        transform: translateX(40vw) translateY(5px) rotate(-15deg) scale(0.95); 
+    }
+    75% { 
+        transform: translateX(70vw) translateY(-25px) rotate(10deg) scale(1.05); 
+    }
+    90% { 
+        transform: translateX(90vw) translateY(-10px) rotate(-5deg) scale(1); 
+    }
+    100% { 
+        transform: translateX(120vw) translateY(0) rotate(0deg) scale(1); 
+    }
+}
+
 /* Accessibility */
 .visually-hidden {
     position: absolute;
@@ -373,6 +406,99 @@ button:hover {
     overflow: hidden;
     clip: rect(0,0,0,0);
     border: 0;
+}
+
+/* Better focus management */
+button:focus,
+input:focus,
+select:focus,
+[contenteditable]:focus {
+    outline: 3px solid var(--baby-blue);
+    outline-offset: 2px;
+}
+
+/* Skip to content for screen readers */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--baby-blue);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.skip-link:focus {
+    top: 6px;
+}
+
+/* Security: Prevent content injection */
+.task-text,
+.category-name {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+
+/* Improved accessibility and keyboard navigation */
+[tabindex]:focus,
+button:focus,
+input:focus,
+select:focus,
+[contenteditable]:focus {
+    outline: 3px solid var(--baby-blue);
+    outline-offset: 2px;
+    z-index: 10;
+}
+
+/* Error states with better visual feedback */
+.input-error {
+    border-color: #ff4444 !important;
+    background-color: #ffebee !important;
+}
+
+.input-error:focus {
+    outline-color: #ff4444 !important;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--baby-blue);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Better message positioning */
+.message-box {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 90vw;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 /* Desktop Optimizations */
