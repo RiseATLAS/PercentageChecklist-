@@ -51,10 +51,7 @@ const db = firebase.database();
 const utils = {
     // Animation constants
     ANIMATION_CONFIG: {
-        PIG_DURATION: 1500,
-        GOAT_DURATION: 2500,
-        DELAY_BETWEEN: 200,
-        MIN_DURATION: 500
+        DELAY_BETWEEN: 200
     },
 
     // Celebration configuration
@@ -192,12 +189,12 @@ const utils = {
     },
 
     // Update category list generation
-    updateCategoryFilter(categories) {
+    updateCategoryFilter(categoriesData) { // Renamed parameter for clarity
         const filter = document.getElementById('categoryFilter');
         const select = document.getElementById('categorySelect');
         const dropdownHTML = `
             <option value="">All Categories</option>
-            ${Object.entries(categories).map(([id, cat]) => 
+            ${Object.entries(categoriesData).map(([id, cat]) => 
                 `<option value="${id}">${cat.name}</option>`
             ).join('')}
         `;
@@ -207,7 +204,7 @@ const utils = {
 
         const categoryList = document.getElementById('categoryList');
         if (categoryList) {
-            categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
+            categoryList.innerHTML = Object.entries(categoriesData).map(([id, cat]) => `
                 <div class="category-item" data-category-id="${id}">
                     <div class="category-header">
                         <span class="category-name" contenteditable="true" 
@@ -220,31 +217,25 @@ const utils = {
                 </div>
             `).join('');
 
-            // Bind event handler correctly
+            // Bind event handler correctly for button clicks
             categoryList.onclick = (e) => categories.handleClick(e);
-        }
-    },
 
-    handleCategoryClick: async (e) => {
-        const button = e.target.closest('button');
-        if (!button) return;
+            // Add event listeners for contenteditable category names
+            categoryList.querySelectorAll('.category-name').forEach(span => {
+                span.addEventListener('focus', () => {
+                    // data-original is already set during HTML generation.
+                    span.classList.add('editing'); // For visual feedback
+                });
 
-        const categoryId = button.dataset.categoryId;
-        if (!categoryId) return;
-
-        try {
-            if (button.classList.contains('storage-toggle')) {
-                this.toggleStorage(categoryId);
-            } else if (button.classList.contains('delete-category')) {
-                this.deleteCategory(categoryId);
-            } else if (button.classList.contains('category-name')) {
-                const span = button.closest('.category-header').querySelector('.category-name');
-                if (span) {
-                    this.updateName(categoryId, span);
-                }
-            }
-        } catch (error) {
-            utils.showError('Action failed');
+                span.addEventListener('blur', () => {
+                    span.classList.remove('editing'); // Remove visual feedback
+                    const categoryItem = span.closest('.category-item');
+                    if (categoryItem && categoryItem.dataset.categoryId) {
+                        const categoryId = categoryItem.dataset.categoryId;
+                        categories.updateName(categoryId, span);
+                    }
+                });
+            });
         }
     },
 
@@ -315,7 +306,7 @@ const utils = {
 
         } catch (error) {
             console.error('Celebration error:', error);
-            document.querySelectorAll(`[data-celebration="${celebrationId}"]`).forEach(el => el.remove());
+            document.querySelectorAll(`[data-celebration-id="${celebrationId}"]`).forEach(el => el.remove());
         }
     },
 
@@ -326,30 +317,31 @@ const utils = {
 const categories = {
     data: {},
 
-    // Bind methods to ensure 'this' context
     handleClick: function(e) {
+        // Find the clicked button
         const button = e.target.closest('button');
         if (!button) return;
-
-        const categoryId = button.dataset.categoryId;
+        
+        // Get the category item and ID
+        const categoryItem = button.closest('.category-item');
+        if (!categoryItem) return;
+        
+        const categoryId = categoryItem.dataset.categoryId;
         if (!categoryId) return;
-
+        
         try {
+            // Dispatch to appropriate handler based on button class
             if (button.classList.contains('storage-toggle')) {
                 this.toggleStorage(categoryId);
             } else if (button.classList.contains('delete-category')) {
                 this.deleteCategory(categoryId);
-            } else if (button.classList.contains('category-name')) {
-                const span = button.closest('.category-header').querySelector('.category-name');
-                if (span) {
-                    this.updateName(categoryId, span);
-                }
             }
         } catch (error) {
+            console.error('Category action error:', error);
             utils.showError('Action failed');
         }
     },
-
+    
     async addCategory(name) {
         try {
             const id = Date.now().toString();
@@ -357,6 +349,8 @@ const categories = {
             await utils.dbRef(`categories/${id}`).set(category);
             this.data[id] = category;
             utils.updateCategoryFilter(this.data);
+            // Refresh task list to update category dropdowns in existing tasks
+            filterTasks(document.getElementById('categoryFilter')?.value || '');
             return id;
         } catch (error) {
             utils.showError('Error adding category');
@@ -429,29 +423,65 @@ const categories = {
         const newName = element.textContent.trim();
         const originalName = element.dataset.original;
         
+        if (!newName) { // Prevent empty category names
+            element.textContent = originalName;
+            utils.showError('Category name cannot be empty.', 'error');
+            return;
+        }
+
         if (newName && newName !== originalName) {
             try {
                 await utils.dbRef(`categories/${categoryId}/name`).set(newName);
                 this.data[categoryId].name = newName;
+                // data-original will be updated in the re-render by updateCategoryFilter
                 utils.updateCategoryFilter(this.data);
+                // Refresh task list to update category dropdowns in existing tasks
+                filterTasks(document.getElementById('categoryFilter')?.value || '');
                 utils.showError('Category name updated', 'success', 1000);
             } catch (error) {
-                element.textContent = originalName;
+                element.textContent = originalName; // Revert on error
                 utils.showError('Error updating category name');
             }
         }
+        // If newName is the same as originalName, do nothing.
     },
 
     // Add to categories object
     async deleteCategory(categoryId) {
-        if (!confirm('Delete this category?')) return;
+        if (!confirm('Delete this category? This will also unassign tasks from this category.')) return;
         
         try {
+            // Find tasks associated with this category and update them
+            const tasksSnapshot = await utils.dbRef('tasks').once('value');
+            const allTasks = tasksSnapshot.val() || {};
+            const tasksToUpdatePromises = [];
+
+            for (const taskId in allTasks) {
+                if (allTasks[taskId].categoryId === categoryId) {
+                    // Create a promise to update each relevant task's categoryId to empty string
+                    tasksToUpdatePromises.push(
+                        utils.dbRef(`tasks/${taskId}/categoryId`).set('')
+                    );
+                }
+            }
+            
+            // Wait for all task updates to complete
+            if (tasksToUpdatePromises.length > 0) {
+                await Promise.all(tasksToUpdatePromises);
+                utils.showError(`Unassigned ${tasksToUpdatePromises.length} task(s) from the category.`, 'info', 1500);
+            }
+
+            // Delete the category
             await utils.dbRef(`categories/${categoryId}`).remove();
             delete this.data[categoryId];
             utils.updateCategoryFilter(this.data);
+            
+            // Refresh task list to reflect unassigned tasks and removed category
+            filterTasks(document.getElementById('categoryFilter')?.value || '');
+            
             utils.showError('Category deleted', 'success', 1000);
         } catch (error) {
+            console.error('Error deleting category:', error);
             utils.showError('Error deleting category');
         }
     }
@@ -509,6 +539,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Add category filter listener
     document.getElementById('categoryFilter')?.addEventListener('change', (e) => {
         filterTasks(e.target.value);
+    });
+
+    // Add clear filter listener
+    document.getElementById('clearFilter')?.addEventListener('click', () => {
+        filterTasks(''); // Show all tasks
+        const categoryFilterSelect = document.getElementById('categoryFilter');
+        if (categoryFilterSelect) {
+            categoryFilterSelect.value = ''; // Reset dropdown
+        }
     });
 
     // Load and display categories first

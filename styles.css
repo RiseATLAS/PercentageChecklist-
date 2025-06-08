@@ -55,6 +55,8 @@ button {
 }
 
 /* Young Animal Animations - Updated for better physics */
+/* Removed hop-run keyframes and related styles as 'celebrate' keyframes are used */
+/*
 .young-animal {
     position: fixed;
     bottom: 40px;
@@ -94,6 +96,7 @@ button {
 .celebration-goats { 
     animation: hop-run 2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+*/
 
 /* Celebration System */
 .celebration {
