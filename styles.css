@@ -138,10 +138,10 @@ button:hover {
 }
 
 .delete {
-    background: #ff4444;
-    color: white;
-    border: none;
-    border-radius: 50%;
+    background: transparent;
+    color: #666;
+    border: 2px solid #ddd;
+    border-radius: var(--border-radius);
     width: 32px;
     height: 32px;
     display: flex;
@@ -153,6 +153,13 @@ button:hover {
     min-height: 32px;
     font-size: 16px;
     line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.delete:hover {
+    background: #f5f5f5;
+    border-color: #999;
+    color: #333;
 }
 
 /* Progress Bar */
@@ -275,10 +282,10 @@ button:hover {
 }
 
 .delete-category {
-    background: #ff4444;
-    color: white;
-    border: none;
-    border-radius: 50%;
+    background: transparent;
+    color: #666;
+    border: 2px solid #ddd;
+    border-radius: var(--border-radius);
     width: 30px;
     height: 30px;
     display: flex;
@@ -288,6 +295,13 @@ button:hover {
     padding: 0;
     flex-shrink: 0;
     min-height: 30px;
+    transition: all 0.2s ease;
+}
+
+.delete-category:hover {
+    background: #f5f5f5;
+    border-color: #999;
+    color: #333;
 }
 
 .storage-toggle {
