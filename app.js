@@ -188,7 +188,7 @@ const utils = {
             if (newText && newText !== task.text) {
                 task.text = newText;
                 await utils.saveTask(task);
-                utils.showError('Oppgave oppdatert', 'success', 500);
+                // Removed: utils.showError('Oppgave oppdatert', 'success', 500);
             }
         });
 
@@ -272,7 +272,7 @@ const utils = {
             
         if (categoryTasks.length && categoryTasks.every(t => t.completed)) {
             await utils.triggerCelebration('goats', categoryTasks.length);
-            utils.showError('Kategori fullført! 🎈', 'success', 2000);
+            // Removed: utils.showError('Kategori fullført! 🎈', 'success', 2000);
         }
     },
 
@@ -420,7 +420,7 @@ const categories = {
                     const storedTasks = Object.values(allTasks)
                         .filter(t => remainingStoredCategories.includes(t.categoryId));
                     renderTasks(storedTasks);
-                    utils.showError(`Fjernet ${category.name} fra lagrede kategorier`, 'success', 1000);
+                    // Removed: utils.showError(`Fjernet ${category.name} fra lagrede kategorier`, 'success', 1000);
                 } else {
                     // No stored categories left, show all tasks
                     const categoryFilter = document.getElementById('categoryFilter');
@@ -428,7 +428,7 @@ const categories = {
                         categoryFilter.value = '';
                     }
                     renderTasks(Object.values(allTasks));
-                    utils.showError('Viser alle oppgaver', 'success', 1000);
+                    // Removed: utils.showError('Viser alle oppgaver', 'success', 1000);
                 }
                 
             } else {
@@ -447,7 +447,7 @@ const categories = {
                         .filter(t => allStoredCategories.includes(t.categoryId));
                     renderTasks(storedTasks);
                     
-                    utils.showError(`Lagt til ${category.name} i lagrede kategorier`, 'success', 1000);
+                    // Removed: utils.showError(`Lagt til ${category.name} i lagrede kategorier`, 'success', 1000);
                 } else {
                     utils.showError('Ingen oppgaver i kategorien');
                     return;
@@ -481,7 +481,7 @@ const categories = {
                 utils.updateCategoryFilter(this.data);
                 // Refresh task list to update category dropdowns in existing tasks
                 filterTasks(document.getElementById('categoryFilter')?.value || '');
-                utils.showError('Kategorinavn oppdatert', 'success', 1000);
+                // Removed: utils.showError('Kategorinavn oppdatert', 'success', 1000);
             } catch (error) {
                 element.textContent = originalName; // Revert on error
                 utils.showError('Feil ved oppdatering av kategorinavn');
@@ -512,7 +512,7 @@ const categories = {
             // Wait for all task updates to complete
             if (tasksToUpdatePromises.length > 0) {
                 await Promise.all(tasksToUpdatePromises);
-                utils.showError(`Fjernet ${tasksToUpdatePromises.length} oppgave(r) fra kategorien.`, 'info', 1500);
+                // Removed: utils.showError(`Fjernet ${tasksToUpdatePromises.length} oppgave(r) fra kategorien.`, 'info', 1500);
             }
 
             // Delete the category
@@ -523,7 +523,7 @@ const categories = {
             // Refresh task list to reflect unassigned tasks and removed category
             filterTasks(document.getElementById('categoryFilter')?.value || '');
             
-            utils.showError('Kategori slettet', 'success', 1000);
+            // Removed: utils.showError('Kategori slettet', 'success', 1000);
         } catch (error) {
             console.error('Error deleting category:', error);
             utils.showError('Feil ved sletting av kategori');
@@ -583,7 +583,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (connected && !isOnline) {
                 isOnline = true;
                 retryCount = 0;
-                utils.showError('Tilkoblet til server', 'success', 2000);
+                // Removed: utils.showError('Tilkoblet til server', 'success', 2000);
                 // Reload data when connection is restored
                 loadInitialData();
             } else if (!connected && isOnline) {
@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const currentFilter = document.getElementById('categoryFilter')?.value || '';
                     filterTasks(currentFilter);
                     
-                    utils.showError('Oppgave lagt til', 'success', 1000);
+                    // Removed: utils.showError('Oppgave lagt til', 'success', 1000);
                     
                 } catch (error) {
                     console.error('Error adding task:', error);
