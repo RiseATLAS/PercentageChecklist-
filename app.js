@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // Task form handling
-        document.getElementById('taskForm').onsubmit = async (e) => {
+        document.getElementById('taskForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('taskInput');
             const categorySelect = document.getElementById('categorySelect');
@@ -582,7 +582,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderTasks(Object.values(tasks));
                 }
             }
-        };
+        });
 
         // Category form handler
         document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
