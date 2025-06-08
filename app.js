@@ -541,77 +541,53 @@ function filterTasks(categoryId) {
 // Basic event handlers
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Monitor Firebase connection with retry logic
+        // Simple connection monitoring
         const connectedRef = db.ref('.info/connected');
-        let connectionLost = false;
-        
         connectedRef.on('value', (snapshot) => {
-            if (!snapshot.val() && !connectionLost) {
-                connectionLost = true;
-                utils.showError('Tilkobling tapt. Prøver å koble til på nytt...', 'error', 10000);
-            } else if (snapshot.val() && connectionLost) {
-                connectionLost = false;
-                utils.showError('Tilkobling gjenopprettet', 'success', 2000);
+            if (!snapshot.val()) {
+                utils.showError('Ingen tilkobling til server', 'error', 5000);
             }
         });
 
-        // Enhanced form validation
-        const taskForm = document.getElementById('taskForm');
-        const taskInput = document.getElementById('taskInput');
-        
-        if (taskForm && taskInput) {
-            taskForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
+        // Task form handling
+        document.getElementById('taskForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('taskInput');
+            const categorySelect = document.getElementById('categorySelect');
+            const text = input.value.trim();
+            
+            if (text) {
+                const newTask = {
+                    id: Date.now().toString(),
+                    text,
+                    completed: false,
+                    timestamp: Date.now(),
+                    categoryId: categorySelect?.value || ''
+                };
+                await utils.saveTask(newTask);
+                input.value = '';
                 
-                const text = utils.sanitizeInput(taskInput.value);
-                if (!text) {
-                    utils.showError('Oppgavetekst kan ikke være tom');
-                    taskInput.focus();
-                    return;
+                if (categorySelect) {
+                    categorySelect.selectedIndex = 0;
                 }
                 
-                if (text.length < 2) {
-                    utils.showError('Oppgavetekst må være minst 2 tegn');
-                    taskInput.focus();
-                    return;
-                }
+                // Reload tasks
+                const tasksSnapshot = await utils.dbRef('tasks').once('value');
+                const tasks = tasksSnapshot.val() || {};
                 
-                try {
-                    const categorySelect = document.getElementById('categorySelect');
-                    const newTask = {
-                        id: Date.now().toString(),
-                        text,
-                        completed: false,
-                        timestamp: Date.now(),
-                        categoryId: categorySelect?.value || ''
-                    };
-                    
-                    await utils.saveTask(newTask);
-                    taskInput.value = '';
-                    
-                    if (categorySelect) {
-                        categorySelect.selectedIndex = 0;
-                    }
-                    
-                    // Efficient update - only add new task instead of re-rendering all
-                    const taskList = document.getElementById('taskList');
-                    const taskElement = utils.createTaskElement(newTask);
-                    taskList.appendChild(taskElement);
-                    
-                    updateProgress(getAllTasks());
-                    utils.showError('Oppgave lagt til', 'success', 1000);
-                    
-                } catch (error) {
-                    console.error('Error adding task:', error);
-                    utils.showError('Kunne ikke legge til oppgave');
+                const currentFilter = document.getElementById('categoryFilter')?.value || '';
+                if (currentFilter) {
+                    filterTasks(currentFilter);
+                } else {
+                    renderTasks(Object.values(tasks));
                 }
-            });
-        }
+            }
+        };
 
-        // Add category form handler
+        // Category form handler
         document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const input = document.getElementById('categoryInput'); // Use correct ID
+            const input = document.getElementById('categoryInput');
             const name = input.value.trim();
             if (name) {
                 await categories.addCategory(name);
@@ -619,30 +595,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Add category filter listener
+        // Category filter listener
         document.getElementById('categoryFilter')?.addEventListener('change', (e) => {
             filterTasks(e.target.value);
         });
 
-        // Add clear filter listener
+        // Clear filter listener
         document.getElementById('clearFilter')?.addEventListener('click', () => {
-            filterTasks(''); // Show all tasks
+            filterTasks('');
             const categoryFilterSelect = document.getElementById('categoryFilter');
             if (categoryFilterSelect) {
-                categoryFilterSelect.value = ''; // Reset dropdown
+                categoryFilterSelect.value = '';
             }
         });
 
-        // Load initial data with error handling
-        try {
-            await categories.loadCategories();
-            const tasksSnapshot = await utils.dbRef('tasks').once('value');
-            const tasks = tasksSnapshot.val() || {};
-            renderTasks(Object.values(tasks));
-        } catch (error) {
-            console.error('Error loading initial data:', error);
-            utils.showError('Kunne ikke laste data. Prøv å oppdatere siden.', 'error', 10000);
-        }
+        // Load initial data
+        await categories.loadCategories();
+        const tasksSnapshot = await utils.dbRef('tasks').once('value');
+        const tasks = tasksSnapshot.val() || {};
+        renderTasks(Object.values(tasks));
         
     } catch (error) {
         console.error('Critical initialization error:', error);
@@ -699,22 +670,3 @@ function updateProgress(tasks) {
         progressText.className = percentage === 100 ? 'progress-text complete' : 'progress-text';
     }
 }
-
-// Simplified initialization
-document.addEventListener('DOMContentLoaded', async () => {
-    // Simple connection monitoring
-    const connectedRef = db.ref('.info/connected');
-    connectedRef.on('value', (snapshot) => {
-        if (!snapshot.val()) {
-            utils.showError('Ingen tilkobling til server', 'error', 5000);
-        }
-    });
-
-    // Simple form handling
-    document.getElementById('taskForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const input = document.getElementById('taskInput');
-        const categorySelect = document.getElementById('categorySelect');
-        const text = input.value.trim();
-        
-        if

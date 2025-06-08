@@ -275,7 +275,7 @@ button:hover {
     width: auto;
 }
 
-/* Message Box */
+/* Message Box - Use only one positioning approach */
 .message-box {
     padding: 12px;
     margin: 10px 0;
@@ -331,6 +331,25 @@ button:hover {
     pointer-events: none;
 }
 
+.animal-container {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.animal-emoji {
+    font-size: 48px;
+}
+
+.sound-text {
+    font-size: 14px;
+    color: var(--baby-pink);
+    font-weight: bold;
+    margin-top: 4px;
+}
+
 /* Unified Frolicking Animation - Remove duplicate keyframes */
 .young-animal {
     display: flex;
@@ -368,41 +387,12 @@ button:hover {
 }
 
 /* Accessibility */
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0,0,0,0);
-    border: 0;
-}
-
-/* Better focus management */
 button:focus,
 input:focus,
 select:focus,
 [contenteditable]:focus {
     outline: 2px solid var(--baby-blue);
     outline-offset: 1px;
-}
-
-/* Skip to content for screen readers */
-.skip-link {
-    position: absolute;
-    top: -40px;
-    left: 6px;
-    background: var(--baby-blue);
-    color: white;
-    padding: 8px;
-    text-decoration: none;
-    border-radius: 4px;
-    z-index: 1000;
-}
-
-.skip-link:focus {
-    top: 6px;
 }
 
 /* Security: Prevent content injection */
@@ -412,64 +402,6 @@ select:focus,
     word-wrap: break-word;
     max-width: 100%;
     overflow-wrap: break-word;
-}
-
-/* Improved accessibility and keyboard navigation */
-[tabindex]:focus,
-button:focus,
-input:focus,
-select:focus,
-[contenteditable]:focus {
-    outline: 3px solid var(--baby-blue);
-    outline-offset: 2px;
-    z-index: 10;
-}
-
-/* Error states with better visual feedback */
-.input-error {
-    border-color: #ff4444 !important;
-    background-color: #ffebee !important;
-}
-
-.input-error:focus {
-    outline-color: #ff4444 !important;
-}
-
-/* Loading states */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-    position: relative;
-}
-
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid var(--baby-blue);
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Better message positioning */
-.message-box {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 90vw;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 /* Desktop Optimizations */
