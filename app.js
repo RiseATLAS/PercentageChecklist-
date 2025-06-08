@@ -541,15 +541,53 @@ function filterTasks(categoryId) {
 // Basic event handlers
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Simple connection monitoring
+        // Improved connection monitoring with retry logic
         const connectedRef = db.ref('.info/connected');
+        let isOnline = false;
+        let retryCount = 0;
+        const maxRetries = 3;
+        
         connectedRef.on('value', (snapshot) => {
-            if (!snapshot.val()) {
-                utils.showError('Ingen tilkobling til server', 'error', 5000);
+            const connected = snapshot.val();
+            
+            if (connected && !isOnline) {
+                isOnline = true;
+                retryCount = 0;
+                utils.showError('Tilkoblet til server', 'success', 2000);
+                // Reload data when connection is restored
+                loadInitialData();
+            } else if (!connected && isOnline) {
+                isOnline = false;
+                utils.showError('Tilkobling tapt. Arbeider offline...', 'error', 5000);
+            } else if (!connected && !isOnline && retryCount < maxRetries) {
+                retryCount++;
+                utils.showError(`Prøver å koble til på nytt (${retryCount}/${maxRetries})...`, 'error', 3000);
+                
+                // Try to reconnect after delay
+                setTimeout(() => {
+                    if (retryCount >= maxRetries) {
+                        utils.showError('Kan ikke koble til server. Sjekk internettforbindelsen.', 'error', 10000);
+                    }
+                }, 2000);
             }
         });
 
-        // Task form handling
+        // Initial data loading with better error handling
+        async function loadInitialData() {
+            try {
+                await categories.loadCategories();
+                const tasksSnapshot = await utils.dbRef('tasks').once('value');
+                const tasks = tasksSnapshot.val() || {};
+                renderTasks(Object.values(tasks));
+            } catch (error) {
+                console.error('Error loading initial data:', error);
+                utils.showError('Kunne ikke laste data. Prøver igjen...', 'error', 5000);
+                // Retry after 3 seconds
+                setTimeout(loadInitialData, 3000);
+            }
+        }
+
+        // Enhanced task form handling with offline support
         document.getElementById('taskForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const input = document.getElementById('taskInput');
@@ -564,22 +602,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                     timestamp: Date.now(),
                     categoryId: categorySelect?.value || ''
                 };
-                await utils.saveTask(newTask);
-                input.value = '';
                 
-                if (categorySelect) {
-                    categorySelect.selectedIndex = 0;
-                }
-                
-                // Reload tasks
-                const tasksSnapshot = await utils.dbRef('tasks').once('value');
-                const tasks = tasksSnapshot.val() || {};
-                
-                const currentFilter = document.getElementById('categoryFilter')?.value || '';
-                if (currentFilter) {
-                    filterTasks(currentFilter);
-                } else {
-                    renderTasks(Object.values(tasks));
+                try {
+                    await utils.saveTask(newTask);
+                    input.value = '';
+                    
+                    if (categorySelect) {
+                        categorySelect.selectedIndex = 0;
+                    }
+                    
+                    // Add task to UI immediately for better UX
+                    const taskList = document.getElementById('taskList');
+                    const taskElement = utils.createTaskElement(newTask);
+                    taskList.appendChild(taskElement);
+                    updateProgress(getAllTasks());
+                    
+                    utils.showError('Oppgave lagt til', 'success', 1000);
+                    
+                } catch (error) {
+                    console.error('Error adding task:', error);
+                    utils.showError('Kunne ikke lagre oppgave. Prøv igjen.', 'error');
                 }
             }
         });
@@ -610,14 +652,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // Load initial data
-        await categories.loadCategories();
-        const tasksSnapshot = await utils.dbRef('tasks').once('value');
-        const tasks = tasksSnapshot.val() || {};
-        renderTasks(Object.values(tasks));
+        await loadInitialData();
         
     } catch (error) {
         console.error('Critical initialization error:', error);
-        utils.showError('Kritisk feil ved oppstart. Kontakt support.', 'error', 15000);
+        utils.showError('Kritisk feil ved oppstart. Last siden på nytt.', 'error', 15000);
     }
 });
 
