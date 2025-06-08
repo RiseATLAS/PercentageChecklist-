@@ -228,11 +228,16 @@ const utils = {
 
         const celebrationId = `celebration-${Date.now()}`;
         try {
-            const config = this.assetsConfig[type]; // Update to use this.assetsConfig
+            if (!this.assetsConfig[type]) {
+                throw new Error(`Unknown celebration type: ${type}`);
+            }
+
+            const config = this.assetsConfig[type];
             const celebration = document.createElement('div');
             celebration.className = `celebration ${type}-celebration`;
             celebration.id = celebrationId;
-            celebration.dataset.celebrationId = celebrationId; // Add redundant ID for robustness
+            celebration.dataset.celebrationId = celebrationId;
+            celebration.style.setProperty('--duration', `${config.duration}ms`);
             
             const animalCount = Math.min(count, config.maxCount);
             celebration.innerHTML = Array.from({ length: animalCount }, 
