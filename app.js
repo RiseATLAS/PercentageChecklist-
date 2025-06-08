@@ -1,7 +1,9 @@
 /**
+ *  * Requirements:
+*  - The code should be simple and easy to understand.
+ *  - Code should focus on easy to read and maintainable code.
+ * Stability is important, so avoid unnecessary complexity.
  * 
- * 
- * Requirements:
  * 1. Basic Task Management:
  *    - Add new tasks
  *    - Mark tasks complete/incomplete
@@ -335,7 +337,7 @@ const utils = {
 // Category management
 const categories = {
     data: {},
-
+    
     async addCategory(name) {
         try {
             const id = Date.now().toString();
@@ -371,7 +373,6 @@ const categories = {
         }
     },
 
-    // Update category storage structure
     async storeTasksForCategory(categoryId) {
         try {
             const snapshot = await utils.dbRef('tasks').once('value');
@@ -385,10 +386,12 @@ const categories = {
                 }));
             
             if (tasks.length > 0) {
-                await utils.dbRef(`categories/${categoryId}`).update({
-                    storedTasks: tasks,
-                    'meta/lastUpdated': Date.now()
-                });
+                const updates = {
+                    [`categories/${categoryId}/storedTasks`]: tasks,
+                    [`categories/${categoryId}/meta/lastUpdated`]: Date.now(),
+                    [`categories/${categoryId}/meta/taskCount`]: tasks.length
+                };
+                await utils.dbRef().update(updates);
                 utils.showError(`Stored ${tasks.length} tasks`, 'success', 1000);
             }
         } catch (error) {
@@ -397,24 +400,20 @@ const categories = {
         }
     },
 
-    async getStoredTasks(categoryId) {
-        try {
-            const snapshot = await utils.dbRef(`categories/${categoryId}/storedTasks`).once('value');
-            return snapshot.val() || [];
-        } catch (error) {
-            console.error('Error loading stored tasks:', error);
-            utils.showError('Error loading stored tasks');
-            return [];
-        }
-    },
-
     async loadStoredTasks(categoryId) {
         try {
             if (!categoryId) throw new Error('Category ID required');
-            const tasks = await this.getStoredTasks(categoryId);
+            const snapshot = await utils.dbRef(`categories/${categoryId}/storedTasks`).once('value');
+            const tasks = snapshot.val() || [];
             
-            if (tasks.length > 0) {
-                renderTasks(tasks);
+            if (Array.isArray(tasks) && tasks.length > 0) {
+                // Ensure task data is complete
+                const processedTasks = tasks.map(task => ({
+                    ...task,
+                    categoryId, // Ensure category ID is set
+                    timestamp: task.timestamp || Date.now()
+                }));
+                renderTasks(processedTasks);
                 utils.showError(`Loaded ${tasks.length} tasks`, 'success', 1000);
             } else {
                 utils.showError('No stored tasks found', 'warning');
@@ -465,24 +464,21 @@ function getAllTasks() {
     }));
 }
 
-// Update filter function for better performance
+// Update the filter function
 function filterTasks(categoryId) {
-    const storedTasks = categories.getStoredTasks(categoryId);
-    if (storedTasks.tasks) {
-        renderTasks(storedTasks.tasks);
+    if (!categoryId) {
+        utils.dbRef('tasks').once('value', snapshot => {
+            const tasks = snapshot.val() || {};
+            renderTasks(Object.values(tasks));
+        });
         return;
     }
 
     utils.dbRef('tasks').once('value', snapshot => {
         const tasks = snapshot.val() || {};
         const filtered = Object.values(tasks)
-            .filter(task => !categoryId || task.categoryId === categoryId);
+            .filter(task => task.categoryId === categoryId);
         renderTasks(filtered);
-        
-        // Store filtered tasks if needed
-        if (categoryId && filtered.length > 0) {
-            categories.storeTasksForCategory(categoryId);
-        }
     });
 }
 
