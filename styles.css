@@ -264,3 +264,39 @@ button {
         width: 100%;
     }
 }
+
+/* Task Items */
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    margin: 8px 0;
+    background: var(--white);
+    border: 2px solid var(--baby-blue);
+    border-radius: var(--border-radius);
+    transition: all 0.2s ease;
+}
+
+.task-item.completed {
+    background: var(--baby-pink);
+    opacity: 0.8;
+    text-decoration: line-through;
+}
+
+.task-item input[type="checkbox"] {
+    min-width: var(--touch-target);
+    min-height: var(--touch-target);
+    margin: 0;
+}
+
+/* Animation Feedback */
+.task-item.completed {
+    animation: complete-task 0.3s ease-out;
+}
+
+@keyframes complete-task {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}

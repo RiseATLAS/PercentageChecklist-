@@ -76,24 +76,48 @@ const utils = {
     },
 
     createTaskElement(task) {
-        if (!task.id) {
-            task.id = Date.now().toString();
-        }
+        if (!task.id) task.id = Date.now().toString();
+        
         const li = document.createElement('li');
         li.dataset.id = task.id;
-        li.dataset.taskId = task.id; // Add redundant ID for robustness
+        li.dataset.taskId = task.id;
         li.className = task.completed ? 'task-item completed' : 'task-item';
         li.innerHTML = `
-            <input type="checkbox" ${task.completed ? 'checked' : ''}>
+            <input type="checkbox" 
+                   ${task.completed ? 'checked' : ''} 
+                   aria-label="Complete task">
             <span class="task-text" contenteditable="true">${task.text}</span>
-            <select class="category-select">
+            <select class="category-select" aria-label="Choose category">
                 <option value="">No Category</option>
                 ${Object.entries(categories.data).map(([id, cat]) => 
                     `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
                 ).join('')}
             </select>
-            <button class="delete" title="Delete task">×</button>
+            <button class="delete" title="Delete task" aria-label="Delete task">×</button>
         `;
+
+        // Add checkbox handler with debounce for animations
+        let celebrationTimeout;
+        const checkbox = li.querySelector('input[type="checkbox"]');
+        checkbox.addEventListener('change', async () => {
+            clearTimeout(celebrationTimeout);
+            task.completed = checkbox.checked;
+            li.classList.toggle('completed', task.completed);
+            
+            // Save first for better UX
+            await utils.saveTask(task);
+            updateProgress(getAllTasks());
+
+            // Trigger celebrations with slight delay
+            if (task.completed) {
+                celebrationTimeout = setTimeout(async () => {
+                    await utils.triggerCelebration('pig');
+                    if (task.categoryId) {
+                        await utils.checkCategoryCompletion(task.categoryId);
+                    }
+                }, 300);
+            }
+        });
 
         // Add visual feedback for editing
         const textSpan = li.querySelector('.task-text');
