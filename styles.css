@@ -92,7 +92,7 @@ button:hover {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     padding: 12px;
     margin: 8px 0;
     background: var(--white);
@@ -100,6 +100,8 @@ button:hover {
     border-radius: var(--border-radius);
     transition: all 0.2s ease;
     min-height: 60px;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .task-item.completed {
@@ -112,7 +114,7 @@ button:hover {
 }
 
 .task-text {
-    padding: 8px;
+    padding: 4px;
     border: none;
     background: transparent;
     outline: none;
@@ -122,6 +124,7 @@ button:hover {
     word-wrap: break-word;
     overflow-wrap: break-word;
     max-width: 100%;
+    min-width: 0;
 }
 
 .task-text.editing {
@@ -130,11 +133,13 @@ button:hover {
 }
 
 .category-select {
-    min-width: 100px;
-    max-width: 120px;
-    font-size: 14px;
-    height: 36px;
-    padding: 6px 8px;
+    min-width: 80px;
+    max-width: 100px;
+    font-size: 12px;
+    height: 32px;
+    padding: 4px 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .delete {
@@ -142,16 +147,16 @@ button:hover {
     color: #666;
     border: 2px solid #ddd;
     border-radius: var(--border-radius);
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     padding: 0;
     flex-shrink: 0;
-    min-height: 32px;
-    font-size: 16px;
+    min-height: 28px;
+    font-size: 14px;
     line-height: 1;
     transition: all 0.2s ease;
 }
@@ -522,6 +527,11 @@ select:focus,
     .task-item {
         grid-template-columns: auto 1fr 150px auto;
         min-height: 50px;
+        gap: 12px;
+    }
+    
+    .task-text {
+        padding: 8px;
     }
     
     .category-select {
@@ -536,5 +546,36 @@ select:focus,
         width: 36px;
         height: 36px;
         min-height: 36px;
+        font-size: 16px;
+    }
+    
+    /* ...existing code... */
+}
+
+/* Small screen adjustments */
+@media (max-width: 480px) {
+    .task-item {
+        gap: 6px;
+        padding: 10px;
+        grid-template-columns: auto 1fr 70px auto;
+    }
+    
+    .category-select {
+        min-width: 60px;
+        max-width: 70px;
+        font-size: 11px;
+        height: 28px;
+    }
+    
+    .delete {
+        width: 24px;
+        height: 24px;
+        min-height: 24px;
+        font-size: 12px;
+    }
+    
+    .task-text {
+        font-size: 14px;
+        padding: 2px;
     }
 }
