@@ -16,6 +16,7 @@
  *    - A button on categories allows all related tasks to be stored and retrieved
  *    - When a task is completed, a young pig should frolick across the screen
  *    - When a full category is completed, a herd young goats should frolick across the screen
+ *    - If i have chosen a category when creating tasks, the category field should not reset, so i can easily create more with the same category
  * 
  * 3. Progress Tracking:
  *    - Simple non intrusive progress bar showing completion percentage
@@ -236,7 +237,7 @@ const utils = {
                               data-original="${cat.name}">${cat.name}</span>
                         <button class="delete-category" data-category-id="${id}">×</button>
                         <button class="storage-toggle" data-category-id="${id}">
-                            ${cat.stored ? '📁 Hent ut' : '📂 Lagre'}
+                            ${cat.stored ? '📁 Hent ut' : '📂 Gjem'}
                         </button>
                     </div>
                 </div>
@@ -513,7 +514,12 @@ function filterTasks(categoryId) {
             tasks = tasks.filter(task => task.categoryId === categoryId);
         } else if (storedCategories.length > 0) {
             // If categories are stored and no filter is applied, show only stored category tasks
-            tasks = tasks.filter(task => storedCategories.includes(task.categoryId));
+            // Exclude tasks without categories (empty categoryId)
+            tasks = tasks.filter(task => 
+                task.categoryId && 
+                task.categoryId !== '' && 
+                storedCategories.includes(task.categoryId)
+            );
         }
         
         renderTasks(tasks);
@@ -594,9 +600,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     await utils.saveTask(newTask);
                     input.value = '';
                     
-                    if (categorySelect) {
-                        categorySelect.selectedIndex = 0;
-                    }
+                    // Don't reset category selection - keep it for easier batch creation
+                    // if (categorySelect) {
+                    //     categorySelect.selectedIndex = 0;
+                    // }
                     
                     // Refresh the current view to respect stored categories
                     const currentFilter = document.getElementById('categoryFilter')?.value || '';
