@@ -191,6 +191,7 @@ const utils = {
         return li;
     },
 
+    // Update category list generation
     updateCategoryFilter(categories) {
         const filter = document.getElementById('categoryFilter');
         const select = document.getElementById('categorySelect');
@@ -232,12 +233,20 @@ const utils = {
                 const categoryId = button.dataset.categoryId;
                 if (!categoryId) return;
 
-                if (button.classList.contains('store-btn')) {
-                    await categories.storeTasksForCategory(categoryId);
-                } else if (button.classList.contains('load-btn')) {
-                    await categories.loadStoredTasks(categoryId);
-                } else if (button.classList.contains('delete-category')) {
-                    await categories.deleteCategory(categoryId);
+                try {
+                    if (button.classList.contains('store-btn')) {
+                        await categories.storeTasksForCategory(categoryId);
+                    } else if (button.classList.contains('load-btn')) {
+                        const stored = await categories.getStoredTasks(categoryId);
+                        if (stored && stored.length > 0) {
+                            renderTasks(stored);
+                        }
+                    } else if (button.classList.contains('delete-category')) {
+                        await categories.deleteCategory(categoryId);
+                    }
+                } catch (error) {
+                    console.error('Category action error:', error);
+                    utils.showError('Error performing category action');
                 }
             });
         }
@@ -268,15 +277,8 @@ const utils = {
     },
 
     async playSound(soundId) {
-        try {
-            const sound = document.getElementById(soundId);
-            if (!sound) return;
-            
-            sound.currentTime = 0;
-            await sound.play().catch(() => {}); // Silently fail if sound can't play
-        } catch (error) {
-            // Ignore sound errors
-        }
+        // Disable sound playing since files don't exist
+        return Promise.resolve();
     },
 
     async triggerCelebration(type, count = 1) {

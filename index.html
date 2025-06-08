@@ -117,17 +117,13 @@
     
     <!-- Sound System -->
     <div hidden>
-        <audio id="pigSound" preload="none">
-            <source src="sounds/oink.mp3" type="audio/mpeg">
+        <audio id="pigSound">
+            <source src="data:audio/mpeg;base64," type="audio/mpeg">
         </audio>
-        <audio id="goatSound" preload="none">
-            <source src="sounds/baa.mp3" type="audio/mpeg">
+        <audio id="goatSound">
+            <source src="data:audio/mpeg;base64," type="audio/mpeg">
         </audio>
     </div>
-
-    <!-- Resource Loading -->
-    <link rel="preload" href="sounds/oink.mp3" as="fetch" crossorigin>
-    <link rel="preload" href="sounds/baa.mp3" as="fetch" crossorigin>
 
     <!-- Core Dependencies -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
