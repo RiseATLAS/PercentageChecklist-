@@ -502,7 +502,7 @@ function filterTasks(categoryId) {
     utils.dbRef('tasks').once('value', snapshot => {
         const allTasks = snapshot.val() || {};
         
-        // Get all stored categories
+        // Get all stored (hidden) categories
         const storedCategories = Object.entries(categories.data)
             .filter(([id, cat]) => cat.stored)
             .map(([id]) => id);
@@ -513,14 +513,14 @@ function filterTasks(categoryId) {
             // Normal filtering by selected category
             tasks = tasks.filter(task => task.categoryId === categoryId);
         } else if (storedCategories.length > 0) {
-            // If categories are stored and no filter is applied, show:
-            // 1. Tasks from stored categories
-            // 2. Uncategorized tasks (empty or no categoryId)
+            // If categories are stored (hidden), show:
+            // 1. Tasks from NON-stored categories only
+            // 2. Uncategorized tasks (always visible)
             tasks = tasks.filter(task => 
-                // Show stored category tasks
-                (task.categoryId && task.categoryId !== '' && storedCategories.includes(task.categoryId)) ||
-                // Always show uncategorized tasks
-                (!task.categoryId || task.categoryId === '')
+                // Hide stored category tasks
+                !(task.categoryId && task.categoryId !== '' && storedCategories.includes(task.categoryId)) &&
+                // Show everything else (uncategorized + non-stored categories)
+                true
             );
         }
         
