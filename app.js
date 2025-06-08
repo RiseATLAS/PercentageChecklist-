@@ -122,15 +122,15 @@ const utils = {
         li.innerHTML = `
             <input type="checkbox" 
                    ${task.completed ? 'checked' : ''} 
-                   aria-label="Complete task">
+                   aria-label="Fullfør oppgave">
             <span class="task-text" contenteditable="true">${task.text}</span>
-            <select class="category-select" aria-label="Choose category">
-                <option value="">No Category</option>
+            <select class="category-select" aria-label="Velg kategori">
+                <option value="">Ingen kategori</option>
                 ${Object.entries(categories.data).map(([id, cat]) => 
                     `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
                 ).join('')}
             </select>
-            <button class="delete" title="Delete task" aria-label="Delete task">×</button>
+            <button class="delete" title="Slett oppgave" aria-label="Slett oppgave">×</button>
         `;
 
         // Add checkbox handler with debounce for animations
@@ -168,7 +168,7 @@ const utils = {
             if (newText && newText !== textSpan.dataset.original) {
                 task.text = newText;
                 utils.saveTask(task);
-                utils.showError('Task updated', 'success', 500);
+                utils.showError('Oppgave oppdatert', 'success', 500);
             }
         });
 
@@ -178,7 +178,7 @@ const utils = {
         };
 
         li.querySelector('.delete').onclick = () => {
-            if (confirm('Delete this task?')) {
+            if (confirm('Slette denne oppgaven?')) {
                 utils.deleteTask(task.id);
                 li.remove();
                 updateProgress(getAllTasks());
@@ -193,7 +193,7 @@ const utils = {
         const filter = document.getElementById('categoryFilter');
         const select = document.getElementById('categorySelect');
         const dropdownHTML = `
-            <option value="">All Categories</option>
+            <option value="">Alle kategorier</option>
             ${Object.entries(categoriesData).map(([id, cat]) => 
                 `<option value="${id}">${cat.name}</option>`
             ).join('')}
@@ -247,7 +247,7 @@ const utils = {
             
         if (categoryTasks.length && categoryTasks.every(t => t.completed)) {
             await utils.triggerCelebration('goats', categoryTasks.length);
-            utils.showError('Category completed! 🎈', 'success', 2000);
+            utils.showError('Kategori fullført! 🎈', 'success', 2000);
         }
     },
 
@@ -353,7 +353,7 @@ const categories = {
             filterTasks(document.getElementById('categoryFilter')?.value || '');
             return id;
         } catch (error) {
-            utils.showError('Error adding category');
+            utils.showError('Feil ved å legge til kategori');
         }
     },
 
@@ -364,7 +364,7 @@ const categories = {
             utils.updateCategoryFilter(this.data);
             return this.data;
         } catch (error) {
-            utils.showError('Error loading categories');
+            utils.showError('Feil ved lasting av kategorier');
             console.error(error);
             return {};
         }
@@ -390,18 +390,35 @@ const categories = {
                 .filter(t => t.categoryId === categoryId);
 
             if (isStored) {
-                // Switch back to normal view
+                // Switch back to normal view - show all tasks
                 await utils.dbRef(`categories/${categoryId}`).update({ stored: false });
                 this.data[categoryId].stored = false;
-                renderTasks(Object.values(allTasks));
+                
+                // Check current filter and apply it
+                const currentFilter = document.getElementById('categoryFilter')?.value || '';
+                if (currentFilter) {
+                    // If there's a filter active, show filtered tasks
+                    const filteredTasks = Object.values(allTasks)
+                        .filter(t => t.categoryId === currentFilter);
+                    renderTasks(filteredTasks);
+                } else {
+                    // Show all tasks
+                    renderTasks(Object.values(allTasks));
+                }
             } else {
-                // Store and show category tasks
+                // Store and show only category tasks
                 if (categoryTasks.length) {
                     await utils.dbRef(`categories/${categoryId}`).update({ stored: true });
                     this.data[categoryId].stored = true;
                     renderTasks(categoryTasks);
+                    
+                    // Update the filter dropdown to show this category is selected
+                    const categoryFilter = document.getElementById('categoryFilter');
+                    if (categoryFilter) {
+                        categoryFilter.value = categoryId;
+                    }
                 } else {
-                    utils.showError('No tasks in category');
+                    utils.showError('Ingen oppgaver i kategorien');
                     return;
                 }
             }
@@ -409,13 +426,13 @@ const categories = {
             // Update UI
             utils.updateCategoryFilter(this.data);
             utils.showError(
-                isStored ? 'Showing all tasks' : 'Showing category tasks', 
+                isStored ? 'Viser alle oppgaver' : `Viser oppgaver fra ${category.name}`, 
                 'success', 
                 1000
             );
         } catch (error) {
             console.error('Toggle failed:', error);
-            utils.showError('Failed to toggle storage');
+            utils.showError('Kunne ikke bytte visning');
         }
     },
 
@@ -425,7 +442,7 @@ const categories = {
         
         if (!newName) { // Prevent empty category names
             element.textContent = originalName;
-            utils.showError('Category name cannot be empty.', 'error');
+            utils.showError('Kategorinavn kan ikke være tomt.', 'error');
             return;
         }
 
@@ -437,10 +454,10 @@ const categories = {
                 utils.updateCategoryFilter(this.data);
                 // Refresh task list to update category dropdowns in existing tasks
                 filterTasks(document.getElementById('categoryFilter')?.value || '');
-                utils.showError('Category name updated', 'success', 1000);
+                utils.showError('Kategorinavn oppdatert', 'success', 1000);
             } catch (error) {
                 element.textContent = originalName; // Revert on error
-                utils.showError('Error updating category name');
+                utils.showError('Feil ved oppdatering av kategorinavn');
             }
         }
         // If newName is the same as originalName, do nothing.
@@ -448,7 +465,7 @@ const categories = {
 
     // Add to categories object
     async deleteCategory(categoryId) {
-        if (!confirm('Delete this category? This will also unassign tasks from this category.')) return;
+        if (!confirm('Slette denne kategorien? Dette vil også fjerne oppgaver fra kategorien.')) return;
         
         try {
             // Find tasks associated with this category and update them
@@ -468,7 +485,7 @@ const categories = {
             // Wait for all task updates to complete
             if (tasksToUpdatePromises.length > 0) {
                 await Promise.all(tasksToUpdatePromises);
-                utils.showError(`Unassigned ${tasksToUpdatePromises.length} task(s) from the category.`, 'info', 1500);
+                utils.showError(`Fjernet ${tasksToUpdatePromises.length} oppgave(r) fra kategorien.`, 'info', 1500);
             }
 
             // Delete the category
@@ -479,10 +496,10 @@ const categories = {
             // Refresh task list to reflect unassigned tasks and removed category
             filterTasks(document.getElementById('categoryFilter')?.value || '');
             
-            utils.showError('Category deleted', 'success', 1000);
+            utils.showError('Kategori slettet', 'success', 1000);
         } catch (error) {
             console.error('Error deleting category:', error);
-            utils.showError('Error deleting category');
+            utils.showError('Feil ved sletting av kategori');
         }
     }
 };
@@ -597,7 +614,7 @@ function updateProgress(tasks) {
     }
     
     if (progressText) {
-        progressText.textContent = `Completed: ${completed}/${total} (${percentage}%)`;
+        progressText.textContent = `Fullført: ${completed}/${total} (${percentage}%)`;
         progressText.className = percentage === 100 ? 'progress-text complete' : 'progress-text';
     }
 }
