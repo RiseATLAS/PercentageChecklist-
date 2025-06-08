@@ -220,24 +220,8 @@ const utils = {
                 </div>
             `).join('');
 
-            const categoryList = document.getElementById('categoryList');
-            if (categoryList) {
-                categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
-                    <div class="category-item" data-category-id="${id}">
-                        <div class="category-header">
-                            <span class="category-name" contenteditable="true" 
-                                  data-original="${cat.name}">${cat.name}</span>
-                            <button class="delete-category" data-category-id="${id}">×</button>
-                            <button class="storage-toggle" data-category-id="${id}">
-                                ${cat.stored ? '📁 Normal' : '📂 Store'}
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-
-                // Use categories.handleClick instead of this.handleCategoryClick
-                categoryList.onclick = categories.handleClick.bind(categories);
-            }
+            // Bind event handler correctly
+            categoryList.onclick = (e) => categories.handleClick(e);
         }
     },
 
@@ -337,13 +321,16 @@ const utils = {
 const categories = {
     data: {},
 
+    // Bind methods to ensure 'this' context
     handleClick: function(e) {
         const button = e.target.closest('button');
         if (!button) return;
-
-        const categoryId = button.dataset.categoryId;
-        if (!categoryId) return;
-
+        
+        const item = button.closest('.category-item');
+        if (!item) return;
+        
+        const categoryId = item.dataset.categoryId;
+        
         if (button.classList.contains('storage-toggle')) {
             this.toggleStorage(categoryId);
         } else if (button.classList.contains('delete-category')) {
@@ -379,31 +366,50 @@ const categories = {
 
     // Simplified storage
     async toggleStorage(categoryId) {
-        const category = this.data[categoryId];
-        if (!category) return;
+        if (!this.data[categoryId]) {
+            utils.showError('Category not found');
+            return;
+        }
 
         try {
-            if (category.stored) {
-                // Show all tasks
-                await this.dbRef(`categories/${categoryId}`).update({ stored: false });
-                this.data[categoryId].stored = false;
-                const tasks = await utils.dbRef('tasks').once('value');
-                renderTasks(Object.values(tasks.val() || {}));
-            } else {
-                // Show only category tasks
-                const tasks = await utils.dbRef('tasks').once('value');
-                const categoryTasks = Object.values(tasks.val() || {})
-                    .filter(t => t.categoryId === categoryId);
+            const category = this.data[categoryId];
+            const isStored = category.stored || false;
 
+            // Load tasks from Firebase
+            const tasksSnap = await utils.dbRef('tasks').once('value');
+            const allTasks = tasksSnap.val() || {};
+            
+            // Filter tasks for this category
+            const categoryTasks = Object.values(allTasks)
+                .filter(t => t.categoryId === categoryId);
+
+            if (isStored) {
+                // Switch back to normal view
+                await utils.dbRef(`categories/${categoryId}`).update({ stored: false });
+                this.data[categoryId].stored = false;
+                renderTasks(Object.values(allTasks));
+            } else {
+                // Store and show category tasks
                 if (categoryTasks.length) {
                     await utils.dbRef(`categories/${categoryId}`).update({ stored: true });
                     this.data[categoryId].stored = true;
                     renderTasks(categoryTasks);
+                } else {
+                    utils.showError('No tasks in category');
+                    return;
                 }
             }
+
+            // Update UI
             utils.updateCategoryFilter(this.data);
+            utils.showError(
+                isStored ? 'Showing all tasks' : 'Showing category tasks', 
+                'success', 
+                1000
+            );
         } catch (error) {
-            utils.showError('Storage toggle failed');
+            console.error('Toggle failed:', error);
+            utils.showError('Failed to toggle storage');
         }
     },
 
