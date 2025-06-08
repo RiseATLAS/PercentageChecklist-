@@ -513,12 +513,14 @@ function filterTasks(categoryId) {
             // Normal filtering by selected category
             tasks = tasks.filter(task => task.categoryId === categoryId);
         } else if (storedCategories.length > 0) {
-            // If categories are stored and no filter is applied, show only stored category tasks
-            // Exclude tasks without categories (empty categoryId)
+            // If categories are stored and no filter is applied, show:
+            // 1. Tasks from stored categories
+            // 2. Uncategorized tasks (empty or no categoryId)
             tasks = tasks.filter(task => 
-                task.categoryId && 
-                task.categoryId !== '' && 
-                storedCategories.includes(task.categoryId)
+                // Show stored category tasks
+                (task.categoryId && task.categoryId !== '' && storedCategories.includes(task.categoryId)) ||
+                // Always show uncategorized tasks
+                (!task.categoryId || task.categoryId === '')
             );
         }
         
