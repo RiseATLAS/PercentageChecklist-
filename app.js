@@ -234,9 +234,14 @@ const utils = {
 
         try {
             if (button.classList.contains('storage-toggle')) {
-                await categories.toggleStorage(categoryId);
+                this.toggleStorage(categoryId);
             } else if (button.classList.contains('delete-category')) {
-                await categories.deleteCategory(categoryId);
+                this.deleteCategory(categoryId);
+            } else if (button.classList.contains('category-name')) {
+                const span = button.closest('.category-header').querySelector('.category-name');
+                if (span) {
+                    this.updateName(categoryId, span);
+                }
             }
         } catch (error) {
             utils.showError('Action failed');
@@ -325,16 +330,23 @@ const categories = {
     handleClick: function(e) {
         const button = e.target.closest('button');
         if (!button) return;
-        
-        const item = button.closest('.category-item');
-        if (!item) return;
-        
-        const categoryId = item.dataset.categoryId;
-        
-        if (button.classList.contains('storage-toggle')) {
-            this.toggleStorage(categoryId);
-        } else if (button.classList.contains('delete-category')) {
-            this.deleteCategory(categoryId);
+
+        const categoryId = button.dataset.categoryId;
+        if (!categoryId) return;
+
+        try {
+            if (button.classList.contains('storage-toggle')) {
+                this.toggleStorage(categoryId);
+            } else if (button.classList.contains('delete-category')) {
+                this.deleteCategory(categoryId);
+            } else if (button.classList.contains('category-name')) {
+                const span = button.closest('.category-header').querySelector('.category-name');
+                if (span) {
+                    this.updateName(categoryId, span);
+                }
+            }
+        } catch (error) {
+            utils.showError('Action failed');
         }
     },
 
