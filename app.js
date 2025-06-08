@@ -514,12 +514,16 @@ function getAllTasks() {
     }));
 }
 
-// Update filter function to be simpler
+// Update filter function to be more robust
 function filterTasks(categoryId) {
     utils.dbRef('tasks').once('value', snapshot => {
-        const tasks = Object.values(snapshot.val() || {})
+        const allTasks = snapshot.val() || {};
+        const tasks = Object.values(allTasks)
             .filter(task => !categoryId || task.categoryId === categoryId);
         renderTasks(tasks);
+    }).catch(error => {
+        console.error('Error filtering tasks:', error);
+        utils.showError('Feil ved filtrering av oppgaver');
     });
 }
 
@@ -552,10 +556,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
             await utils.saveTask(newTask);
             input.value = '';
-            // Refresh task list to show the new task
+            categorySelect.value = '';
+            
+            // Reload and display tasks properly
             const tasksSnapshot = await utils.dbRef('tasks').once('value');
             const tasks = tasksSnapshot.val() || {};
-            renderTasks(Object.values(tasks));
+            
+            // Check if we're currently filtering and maintain that filter
+            const currentFilter = document.getElementById('categoryFilter')?.value || '';
+            if (currentFilter) {
+                filterTasks(currentFilter);
+            } else {
+                renderTasks(Object.values(tasks));
+            }
         }
     };
 
@@ -582,19 +595,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderTasks(Object.values(tasks));
 });
 
-// Simplified task rendering
+// Simplified task rendering with better error handling
 function renderTasks(tasks) {
     const taskList = document.getElementById('taskList');
+    if (!taskList) return;
+    
     taskList.innerHTML = '';
     
-    const fragment = document.createDocumentFragment();
-    tasks.forEach(task => {
-        const elem = utils.createTaskElement(task);
-        fragment.appendChild(elem);
-    });
-    
-    taskList.appendChild(fragment);
-    updateProgress(tasks);
+    try {
+        const fragment = document.createDocumentFragment();
+        tasks.forEach(task => {
+            // Ensure task has required properties
+            if (task && task.text) {
+                const elem = utils.createTaskElement(task);
+                fragment.appendChild(elem);
+            }
+        });
+        
+        taskList.appendChild(fragment);
+        updateProgress(tasks);
+    } catch (error) {
+        console.error('Error rendering tasks:', error);
+        utils.showError('Feil ved visning av oppgaver');
+    }
 }
 
 // Update progress calculation
