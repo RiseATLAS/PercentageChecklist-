@@ -213,66 +213,34 @@ const utils = {
                         <span class="category-name" contenteditable="true" 
                               data-original="${cat.name}">${cat.name}</span>
                         <button class="delete-category" data-category-id="${id}">×</button>
-                    </div>
-                    <div class="category-actions">
-                        <button class="store-btn" data-action="store" data-category-id="${id}">
-                            Store 📥
-                        </button>
-                        <button class="load-btn" data-action="load" data-category-id="${id}">
-                            Load 📤
+                        <button class="storage-toggle" data-category-id="${id}">
+                            ${cat.stored ? '📁 Normal' : '📂 Store'}
                         </button>
                     </div>
                 </div>
             `).join('');
 
-            // Add event delegation
             categoryList.addEventListener('click', async (e) => {
                 const button = e.target.closest('button');
-                if (!button) return;
+                if (!button || !button.classList.contains('storage-toggle')) return;
 
                 const categoryId = button.dataset.categoryId;
                 if (!categoryId) return;
 
-                try {
-                    if (button.classList.contains('store-btn')) {
-                        await categories.storeTasksForCategory(categoryId);
-                    } else if (button.classList.contains('load-btn')) {
-                        const stored = await categories.getStoredTasks(categoryId);
-                        if (stored && stored.length > 0) {
-                            renderTasks(stored);
-                        }
-                    } else if (button.classList.contains('delete-category')) {
-                        await categories.deleteCategory(categoryId);
-                    }
-                } catch (error) {
-                    console.error('Category action error:', error);
-                    utils.showError('Error performing category action');
-                }
+                await categories.toggleStorage(categoryId);
             });
         }
     },
 
     // Update category completion tracking
     async checkCategoryCompletion(categoryId) {
-        try {
-            const tasksSnapshot = await this.dbRef('tasks').once('value');
-            const tasks = tasksSnapshot.val() || {};
-            const categoryTasks = Object.values(tasks)
-                .filter(t => t.categoryId === categoryId);
+        const tasks = await utils.dbRef('tasks').once('value');
+        const categoryTasks = Object.values(tasks.val() || {})
+            .filter(t => t.categoryId === categoryId);
             
-            if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
-                await this.triggerCelebration('goats', categoryTasks.length);
-                
-                const completionUpdate = {
-                    [`categories/${categoryId}/meta/lastCompleted`]: Date.now(),
-                    [`categories/${categoryId}/meta/completedCount`]: (this.data[categoryId]?.meta?.completedCount || 0) + 1
-                };
-                await this.dbRef().update(completionUpdate);
-                
-                utils.showError('Category completed! 🎈', 'success', 2000);
-            }
-        } catch (error) {
-            console.error('Error checking category completion:', error);
+        if (categoryTasks.length && categoryTasks.every(t => t.completed)) {
+            await utils.triggerCelebration('goats', categoryTasks.length);
+            utils.showError('Category completed! 🎈', 'success', 2000);
         }
     },
 
@@ -333,32 +301,25 @@ const utils = {
             console.error('Celebration error:', error);
             document.querySelectorAll(`[data-celebration="${celebrationId}"]`).forEach(el => el.remove());
         }
-    }
+    },
+
+    // Remove saveData method as it's no longer needed
 };
 
 // Category management
 const categories = {
     data: {},
-
+    
     async addCategory(name) {
         try {
             const id = Date.now().toString();
-            const category = {
-                id,
-                name,
-                timestamp: Date.now(),
-                tasks: [],
-                meta: {
-                    created: Date.now()
-                }
-            };
+            const category = { id, name, stored: false };
             await utils.dbRef(`categories/${id}`).set(category);
             this.data[id] = category;
             utils.updateCategoryFilter(this.data);
             return id;
         } catch (error) {
             utils.showError('Error adding category');
-            console.error(error);
         }
     },
 
@@ -375,52 +336,34 @@ const categories = {
         }
     },
 
-    async storeTasksForCategory(categoryId) {
+    // Simplified storage
+    async toggleStorage(categoryId) {
         try {
-            const snapshot = await utils.dbRef('tasks').once('value');
-            const tasks = Object.values(snapshot.val() || {})
-                .filter(t => t.categoryId === categoryId)
-                .map(({ id, text, completed }) => ({ id, text, completed }));
-
-            if (tasks.length === 0) {
-                utils.showError('No tasks to store', 'warning');
-                return;
+            const isStored = this.data[categoryId].stored;
+            
+            if (isStored) {
+                // Load normal tasks
+                const tasks = await utils.dbRef('tasks').once('value');
+                renderTasks(Object.values(tasks.val() || {}));
+                this.data[categoryId].stored = false;
+            } else {
+                // Store and load category tasks
+                const tasks = Object.values(await utils.dbRef('tasks').once('value').val() || {})
+                    .filter(t => t.categoryId === categoryId);
+                
+                if (tasks.length) {
+                    await utils.dbRef(`categories/${categoryId}`).update({ 
+                        stored: true,
+                        tasks 
+                    });
+                    this.data[categoryId].stored = true;
+                    renderTasks(tasks);
+                }
             }
-
-            await utils.dbRef(`categories/${categoryId}`).update({
-                storedTasks: tasks,
-                'meta/lastUpdate': Date.now()
-            });
-            utils.showError(`Stored ${tasks.length} tasks`, 'success', 1000);
+            
+            utils.updateCategoryFilter(this.data);
         } catch (error) {
-            console.error('Storage error:', error);
-            utils.showError('Failed to store tasks');
-        }
-    },
-
-    async loadStoredTasks(categoryId) {
-        if (!categoryId) return;
-        
-        try {
-            const snapshot = await utils.dbRef(`categories/${categoryId}/storedTasks`).once('value');
-            const tasks = snapshot.val();
-
-            if (!Array.isArray(tasks) || tasks.length === 0) {
-                utils.showError('No stored tasks found', 'warning');
-                return;
-            }
-
-            const processedTasks = tasks.map(task => ({
-                ...task,
-                categoryId,
-                timestamp: Date.now()
-            }));
-
-            renderTasks(processedTasks);
-            utils.showError(`Loaded ${tasks.length} tasks`, 'success', 1000);
-        } catch (error) {
-            console.error('Load error:', error);
-            utils.showError('Failed to load tasks');
+            utils.showError('Storage toggle failed');
         }
     },
 
@@ -464,21 +407,12 @@ function getAllTasks() {
     }));
 }
 
-// Update the filter function
+// Update filter function to be simpler
 function filterTasks(categoryId) {
-    if (!categoryId) {
-        utils.dbRef('tasks').once('value', snapshot => {
-            const tasks = snapshot.val() || {};
-            renderTasks(Object.values(tasks));
-        });
-        return;
-    }
-
     utils.dbRef('tasks').once('value', snapshot => {
-        const tasks = snapshot.val() || {};
-        const filtered = Object.values(tasks)
-            .filter(task => task.categoryId === categoryId);
-        renderTasks(filtered);
+        const tasks = Object.values(snapshot.val() || {})
+            .filter(task => !categoryId || task.categoryId === categoryId);
+        renderTasks(tasks);
     });
 }
 
