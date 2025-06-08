@@ -386,7 +386,7 @@ const categories = {
         }
     },
 
-    // Simplified storage
+    // Simplified storage - allow multiple categories to be stored
     async toggleStorage(categoryId) {
         if (!this.data[categoryId]) {
             utils.showError('Kategori ikke funnet');
@@ -406,43 +406,57 @@ const categories = {
                 .filter(t => t.categoryId === categoryId);
 
             if (isStored) {
-                // Switch back to normal view
+                // Remove from storage - set stored to false
                 await utils.dbRef(`categories/${categoryId}`).update({ stored: false });
                 this.data[categoryId].stored = false;
                 
-                // Reset filter and show all tasks
-                const categoryFilter = document.getElementById('categoryFilter');
-                if (categoryFilter) {
-                    categoryFilter.value = '';
+                // Show current view based on what other categories are stored
+                const remainingStoredCategories = Object.entries(this.data)
+                    .filter(([id, cat]) => id !== categoryId && cat.stored)
+                    .map(([id]) => id);
+                
+                if (remainingStoredCategories.length > 0) {
+                    // Show tasks from remaining stored categories
+                    const storedTasks = Object.values(allTasks)
+                        .filter(t => remainingStoredCategories.includes(t.categoryId));
+                    renderTasks(storedTasks);
+                    utils.showError(`Fjernet ${category.name} fra lagrede kategorier`, 'success', 1000);
+                } else {
+                    // No stored categories left, show all tasks
+                    const categoryFilter = document.getElementById('categoryFilter');
+                    if (categoryFilter) {
+                        categoryFilter.value = '';
+                    }
+                    renderTasks(Object.values(allTasks));
+                    utils.showError('Viser alle oppgaver', 'success', 1000);
                 }
-                renderTasks(Object.values(allTasks));
+                
             } else {
-                // Store and show only category tasks
+                // Add to storage
                 if (categoryTasks.length) {
                     await utils.dbRef(`categories/${categoryId}`).update({ stored: true });
                     this.data[categoryId].stored = true;
                     
-                    // Show only this category's tasks
-                    renderTasks(categoryTasks);
+                    // Get all stored categories including this one
+                    const allStoredCategories = Object.entries(this.data)
+                        .filter(([id, cat]) => cat.stored)
+                        .map(([id]) => id);
                     
-                    // Update the filter dropdown to show this category is selected
-                    const categoryFilter = document.getElementById('categoryFilter');
-                    if (categoryFilter) {
-                        categoryFilter.value = categoryId;
-                    }
+                    // Show tasks from all stored categories
+                    const storedTasks = Object.values(allTasks)
+                        .filter(t => allStoredCategories.includes(t.categoryId));
+                    renderTasks(storedTasks);
+                    
+                    utils.showError(`Lagt til ${category.name} i lagrede kategorier`, 'success', 1000);
                 } else {
                     utils.showError('Ingen oppgaver i kategorien');
                     return;
                 }
             }
 
-            // Update UI
+            // Update UI to reflect storage states
             utils.updateCategoryFilter(this.data);
-            utils.showError(
-                isStored ? 'Viser alle oppgaver' : `Viser oppgaver fra ${category.name}`, 
-                'success', 
-                1000
-            );
+            
         } catch (error) {
             console.error('Toggle failed:', error);
             utils.showError('Kunne ikke bytte visning');
@@ -525,12 +539,28 @@ function getAllTasks() {
     }));
 }
 
-// Update filter function to be more robust
+// Update filter function to respect multiple stored categories
 function filterTasks(categoryId) {
     utils.dbRef('tasks').once('value', snapshot => {
         const allTasks = snapshot.val() || {};
-        const tasks = Object.values(allTasks)
-            .filter(task => !categoryId || task.categoryId === categoryId);
+        
+        // Get all stored categories
+        const storedCategories = Object.entries(categories.data)
+            .filter(([id, cat]) => cat.stored)
+            .map(([id]) => id);
+        
+        let tasks;
+        if (categoryId) {
+            // Normal filtering by selected category
+            tasks = Object.values(allTasks).filter(task => task.categoryId === categoryId);
+        } else if (storedCategories.length > 0) {
+            // If categories are stored and no filter is applied, show only stored category tasks
+            tasks = Object.values(allTasks).filter(task => storedCategories.includes(task.categoryId));
+        } else {
+            // Show all tasks only if no categories are stored
+            tasks = Object.values(allTasks);
+        }
+        
         renderTasks(tasks);
     }).catch(error => {
         console.error('Error filtering tasks:', error);
@@ -611,11 +641,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         categorySelect.selectedIndex = 0;
                     }
                     
-                    // Add task to UI immediately for better UX
-                    const taskList = document.getElementById('taskList');
-                    const taskElement = utils.createTaskElement(newTask);
-                    taskList.appendChild(taskElement);
-                    updateProgress(getAllTasks());
+                    // Refresh the current view to respect stored categories
+                    const currentFilter = document.getElementById('categoryFilter')?.value || '';
+                    filterTasks(currentFilter);
                     
                     utils.showError('Oppgave lagt til', 'success', 1000);
                     
