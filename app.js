@@ -45,6 +45,22 @@ const db = firebase.database();
 
 // Simplified utilities
 const utils = {
+    // Celebration configuration
+    assetsConfig: {
+        pig: { 
+            emoji: '🐷', 
+            sound: 'pigSound',
+            duration: 1500,
+            maxCount: 1
+        },
+        goats: { 
+            emoji: '🐐', 
+            sound: 'goatSound',
+            duration: 2500,
+            maxCount: 3
+        }
+    },
+
     dbRef(path = null) {
         return path ? db.ref(path) : db.ref();
     },
@@ -212,7 +228,7 @@ const utils = {
 
         const celebrationId = `celebration-${Date.now()}`;
         try {
-            const config = assetsConfig[type];
+            const config = this.assetsConfig[type]; // Update to use this.assetsConfig
             const celebration = document.createElement('div');
             celebration.className = `celebration ${type}-celebration`;
             celebration.id = celebrationId;
