@@ -1,4 +1,6 @@
 /**
+ * 
+ * 
  * Requirements:
  * 1. Basic Task Management:
  *    - Add new tasks
@@ -188,7 +190,6 @@ const utils = {
     },
 
     updateCategoryFilter(categories) {
-        // Update dropdowns
         const filter = document.getElementById('categoryFilter');
         const select = document.getElementById('categorySelect');
         const dropdownHTML = `
@@ -201,15 +202,14 @@ const utils = {
         if (filter) filter.innerHTML = dropdownHTML;
         if (select) select.innerHTML = dropdownHTML;
 
-        // Update category list with editable names
         const categoryList = document.getElementById('categoryList');
         if (categoryList) {
             categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
-                <div class="category-item" data-category="${id}">
+                <div class="category-item" data-category-id="${id}">
                     <div class="category-header">
                         <span class="category-name" contenteditable="true" 
                               data-original="${cat.name}">${cat.name}</span>
-                        <button class="delete-category" data-action="delete" data-category-id="${id}">×</button>
+                        <button class="delete-category" data-category-id="${id}">×</button>
                     </div>
                     <div class="category-actions">
                         <button class="store-btn" data-action="store" data-category-id="${id}">
@@ -222,24 +222,20 @@ const utils = {
                 </div>
             `).join('');
 
-            // Add event delegation for category actions
+            // Add event delegation
             categoryList.addEventListener('click', async (e) => {
                 const button = e.target.closest('button');
                 if (!button) return;
 
-                const { action, categoryId } = button.dataset;
+                const categoryId = button.dataset.categoryId;
                 if (!categoryId) return;
 
-                switch (action) {
-                    case 'store':
-                        await this.storeTasksForCategory(categoryId);
-                        break;
-                    case 'load':
-                        await this.loadStoredTasks(categoryId);
-                        break;
-                    case 'delete':
-                        await this.deleteCategory(categoryId);
-                        break;
+                if (button.classList.contains('store-btn')) {
+                    await categories.storeTasksForCategory(categoryId);
+                } else if (button.classList.contains('load-btn')) {
+                    await categories.loadStoredTasks(categoryId);
+                } else if (button.classList.contains('delete-category')) {
+                    await categories.deleteCategory(categoryId);
                 }
             });
         }
