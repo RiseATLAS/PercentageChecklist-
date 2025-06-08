@@ -62,24 +62,11 @@ const db = firebase.database();
 
 // Simplified utilities
 const utils = {
-    // Input sanitization for security
+    // Simplified input sanitization - only essential security
     sanitizeInput(text) {
         if (!text) return '';
-        return text.toString()
-            .trim()
-            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-            .replace(/<[^>]*>/g, '')
-            .substring(0, 100); // Limit length
+        return text.toString().trim().substring(0, 100);
     },
-
-    // Debounced save to prevent excessive Firebase calls
-    debouncedSave: (() => {
-        const timeouts = new Map();
-        return (key, fn, delay = 1000) => {
-            clearTimeout(timeouts.get(key));
-            timeouts.set(key, setTimeout(fn, delay));
-        };
-    })(),
 
     // Animation constants
     ANIMATION_CONFIG: {
@@ -157,97 +144,52 @@ const utils = {
         const li = document.createElement('li');
         li.dataset.id = task.id;
         li.className = task.completed ? 'task-item completed' : 'task-item';
-        li.setAttribute('role', 'listitem');
         
-        // Sanitize task text before display
+        // Simplified - no excessive ARIA
         const sanitizedText = this.sanitizeInput(task.text);
         
         li.innerHTML = `
             <input type="checkbox" 
                    ${task.completed ? 'checked' : ''} 
-                   aria-label="Fullfør oppgave: ${sanitizedText}"
-                   tabindex="0">
-            <span class="task-text" 
-                  contenteditable="true" 
-                  aria-label="Rediger oppgave"
-                  data-original="${sanitizedText}"
-                  tabindex="0">${sanitizedText}</span>
-            <select class="category-select" 
-                    aria-label="Velg kategori for oppgave"
-                    tabindex="0">
+                   aria-label="Fullfør oppgave">
+            <span class="task-text" contenteditable="true">${sanitizedText}</span>
+            <select class="category-select" aria-label="Velg kategori">
                 <option value="">Ingen kategori</option>
                 ${Object.entries(categories.data).map(([id, cat]) => 
-                    `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${this.sanitizeInput(cat.name)}</option>`
+                    `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
                 ).join('')}
             </select>
-            <button class="delete" 
-                    title="Slett oppgave" 
-                    aria-label="Slett oppgave: ${sanitizedText}"
-                    tabindex="0">×</button>
+            <button class="delete" title="Slett oppgave" aria-label="Slett oppgave">×</button>
         `;
 
-        // Improved checkbox handler with error recovery
+        // Simplified event handlers
         const checkbox = li.querySelector('input[type="checkbox"]');
         checkbox.addEventListener('change', async () => {
-            const originalState = task.completed;
-            try {
-                task.completed = checkbox.checked;
-                li.classList.toggle('completed', task.completed);
-                
-                await this.saveTask(task);
-                updateProgress(getAllTasks());
+            task.completed = checkbox.checked;
+            li.classList.toggle('completed', task.completed);
+            
+            await utils.saveTask(task);
+            updateProgress(getAllTasks());
 
-                if (task.completed) {
-                    setTimeout(async () => {
-                        try {
-                            await utils.triggerCelebration('pig');
-                            if (task.categoryId) {
-                                await utils.checkCategoryCompletion(task.categoryId);
-                            }
-                        } catch (error) {
-                            console.error('Celebration error:', error);
-                        }
-                    }, 300);
-                }
-            } catch (error) {
-                console.error('Error updating task:', error);
-                // Revert to original state
-                task.completed = originalState;
-                checkbox.checked = originalState;
-                li.classList.toggle('completed', originalState);
-                utils.showError('Kunne ikke oppdatere oppgave');
+            if (task.completed) {
+                setTimeout(async () => {
+                    await utils.triggerCelebration('pig');
+                    if (task.categoryId) {
+                        await utils.checkCategoryCompletion(task.categoryId);
+                    }
+                }, 300);
             }
         });
 
-        // Secure and debounced text editing
+        // Simple text editing without over-engineering
         const textSpan = li.querySelector('.task-text');
-        
-        textSpan.addEventListener('input', () => {
-            this.debouncedSave(`task-${task.id}`, async () => {
-                const newText = this.sanitizeInput(textSpan.textContent);
-                const originalText = textSpan.dataset.original;
-                
-                if (newText && newText !== originalText) {
-                    try {
-                        task.text = newText;
-                        await this.saveTask(task);
-                        textSpan.dataset.original = newText;
-                        utils.showError('Oppgave lagret', 'success', 1000);
-                    } catch (error) {
-                        console.error('Save error:', error);
-                        textSpan.textContent = originalText;
-                        utils.showError('Kunne ikke lagre endringer');
-                    }
-                }
-            });
-        });
-
-        // Prevent HTML injection in contenteditable
-        textSpan.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const text = (e.clipboardData || window.clipboardData).getData('text');
-            const sanitized = this.sanitizeInput(text);
-            document.execCommand('insertText', false, sanitized);
+        textSpan.addEventListener('blur', async () => {
+            const newText = this.sanitizeInput(textSpan.textContent);
+            if (newText && newText !== task.text) {
+                task.text = newText;
+                await utils.saveTask(task);
+                utils.showError('Oppgave oppdatert', 'success', 500);
+            }
         });
 
         li.querySelector('.category-select').onchange = (e) => {
@@ -345,10 +287,6 @@ const utils = {
 
         const celebrationId = `celebration-${Date.now()}`;
         try {
-            if (!this.assetsConfig[type]) {
-                throw new Error(`Unknown celebration type: ${type}`);
-            }
-
             const config = this.assetsConfig[type];
             const celebration = document.createElement('div');
             celebration.className = `celebration ${config.className}`;
@@ -358,8 +296,8 @@ const utils = {
             const animalCount = Math.min(count, config.maxCount);
             celebration.innerHTML = Array.from({ length: animalCount }, 
                 (_, i) => `
-                    <div class="young-animal frolicking" 
-                         style="--index: ${i}; --delay: ${i * 200}ms"
+                    <div class="young-animal" 
+                         style="--delay: ${i * 200}ms"
                          data-celebration-id="${celebrationId}">
                         <div class="animal-container">
                             <span class="animal-emoji">${config.emoji}</span>
@@ -372,7 +310,6 @@ const utils = {
 
             stage.appendChild(celebration);
 
-            // Handle animation cleanup with better error handling
             return new Promise(resolve => {
                 const cleanup = () => {
                     if (celebration.parentNode) {
@@ -381,16 +318,11 @@ const utils = {
                     resolve();
                 };
                 
-                celebration.addEventListener('animationend', cleanup, { once: true });
-                setTimeout(cleanup, config.duration + 500); // Extra buffer
+                setTimeout(cleanup, config.duration + 500);
             });
 
         } catch (error) {
             console.error('Celebration error:', error);
-            // Cleanup any orphaned elements
-            document.querySelectorAll(`[data-celebration-id="${celebrationId}"]`).forEach(el => {
-                if (el.parentNode) el.remove();
-            });
         }
     },
 
@@ -743,7 +675,7 @@ function renderTasks(tasks) {
     }
 }
 
-// Update progress calculation
+// Update progress calculation with proper aria updates
 function updateProgress(tasks) {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
@@ -754,6 +686,7 @@ function updateProgress(tasks) {
     
     if (progressBar) {
         progressBar.style.width = `${percentage}%`;
+        progressBar.setAttribute('aria-valuenow', percentage);
         progressBar.style.backgroundColor = 
             percentage === 100 ? '#4CAF50' : 
             percentage > 75 ? '#8BC34A' :
@@ -766,3 +699,22 @@ function updateProgress(tasks) {
         progressText.className = percentage === 100 ? 'progress-text complete' : 'progress-text';
     }
 }
+
+// Simplified initialization
+document.addEventListener('DOMContentLoaded', async () => {
+    // Simple connection monitoring
+    const connectedRef = db.ref('.info/connected');
+    connectedRef.on('value', (snapshot) => {
+        if (!snapshot.val()) {
+            utils.showError('Ingen tilkobling til server', 'error', 5000);
+        }
+    });
+
+    // Simple form handling
+    document.getElementById('taskForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('taskInput');
+        const categorySelect = document.getElementById('categorySelect');
+        const text = input.value.trim();
+        
+        if

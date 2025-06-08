@@ -331,40 +331,11 @@ button:hover {
     pointer-events: none;
 }
 
+/* Unified Frolicking Animation - Remove duplicate keyframes */
 .young-animal {
     display: flex;
     flex-direction: column;
     align-items: center;
-    animation: celebrate var(--duration, 2s) ease-in-out;
-}
-
-.animal-container {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.animal-emoji {
-    font-size: 48px;
-}
-
-.sound-text {
-    font-size: 14px;
-    color: var(--baby-pink);
-    font-weight: bold;
-    margin-top: 4px;
-}
-
-@keyframes celebrate {
-    0% { transform: translateX(-100vw); }
-    50% { transform: translateX(0) translateY(-20px); }
-    100% { transform: translateX(100vw); }
-}
-
-/* Improved Frolicking Animations */
-.young-animal.frolicking {
     animation: frolick var(--duration, 2s) ease-in-out;
     animation-delay: var(--delay, 0ms);
 }
@@ -413,8 +384,8 @@ button:focus,
 input:focus,
 select:focus,
 [contenteditable]:focus {
-    outline: 3px solid var(--baby-blue);
-    outline-offset: 2px;
+    outline: 2px solid var(--baby-blue);
+    outline-offset: 1px;
 }
 
 /* Skip to content for screen readers */
