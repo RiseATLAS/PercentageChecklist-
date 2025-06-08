@@ -77,7 +77,11 @@ const utils = {
 
     async saveTask(task) {
         try {
-            await this.dbRef(`tasks/${task.id}`).set(task);
+            if (!task?.id) return;
+            await this.dbRef(`tasks/${task.id}`).set({
+                ...task,
+                updatedAt: Date.now()
+            });
         } catch (error) {
             console.error('Error saving task:', error);
         }
@@ -217,14 +221,17 @@ const utils = {
 
     async checkCategoryCompletion(categoryId) {
         try {
-            const snapshot = await this.dbRef('tasks').once('value');
-            const tasks = snapshot.val() || {};
+            const tasksSnapshot = await this.dbRef('tasks').once('value');
+            const tasks = tasksSnapshot.val() || {};
             const categoryTasks = Object.values(tasks)
                 .filter(t => t.categoryId === categoryId);
             
             if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
                 await this.triggerCelebration('goats', categoryTasks.length);
-                await this.dbRef(`categories/${categoryId}/meta/lastCompleted`).set(Date.now());
+                await this.dbRef(`categories/${categoryId}`).update({
+                    lastCompleted: Date.now(),
+                    completedTasks: categoryTasks.length
+                });
                 this.showError('Category completed! 🎈', 'success', 2000);
             }
         } catch (error) {
@@ -306,7 +313,15 @@ const categories = {
     async addCategory(name) {
         try {
             const id = Date.now().toString();
-            const category = { id, name, timestamp: Date.now() };
+            const category = {
+                id,
+                name,
+                timestamp: Date.now(),
+                tasks: [],
+                meta: {
+                    created: Date.now()
+                }
+            };
             await utils.dbRef(`categories/${id}`).set(category);
             this.data[id] = category;
             utils.updateCategoryFilter(this.data);
@@ -337,9 +352,9 @@ const categories = {
                 .filter(t => t.categoryId === categoryId);
             
             if (tasks.length > 0) {
-                await utils.dbRef(`categories/${categoryId}/stored`).set({
-                    tasks,
-                    timestamp: Date.now()
+                await utils.dbRef(`categories/${categoryId}`).update({
+                    storedTasks: tasks,
+                    lastUpdated: Date.now()
                 });
                 utils.showError(`Stored ${tasks.length} tasks`, 'success', 1000);
             }
@@ -355,6 +370,23 @@ const categories = {
         } catch (error) {
             utils.showError('Error loading stored tasks');
             return {};
+        }
+    },
+
+    async loadStoredTasks(categoryId) {
+        try {
+            const stored = await utils.dbRef(`categories/${categoryId}/stored`).once('value');
+            const storedData = stored.val() || {};
+            
+            if (storedData.tasks && storedData.tasks.length > 0) {
+                renderTasks(storedData.tasks);
+                utils.showError(`Loaded ${storedData.tasks.length} tasks`, 'success', 1000);
+            } else {
+                utils.showError('No stored tasks found', 'warning');
+            }
+        } catch (error) {
+            console.error('Error loading stored tasks:', error);
+            utils.showError('Error loading stored tasks');
         }
     },
 
