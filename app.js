@@ -178,11 +178,9 @@ const utils = {
         };
 
         li.querySelector('.delete').onclick = () => {
-            if (confirm('Slette denne oppgaven?')) {
-                utils.deleteTask(task.id);
-                li.remove();
-                updateProgress(getAllTasks());
-            }
+            utils.deleteTask(task.id);
+            li.remove();
+            updateProgress(getAllTasks());
         };
 
         return li;
@@ -397,26 +395,23 @@ const categories = {
                 .filter(t => t.categoryId === categoryId);
 
             if (isStored) {
-                // Switch back to normal view - show all tasks
+                // Switch back to normal view
                 await utils.dbRef(`categories/${categoryId}`).update({ stored: false });
                 this.data[categoryId].stored = false;
                 
-                // Check current filter and apply it
-                const currentFilter = document.getElementById('categoryFilter')?.value || '';
-                if (currentFilter) {
-                    // If there's a filter active, show filtered tasks
-                    const filteredTasks = Object.values(allTasks)
-                        .filter(t => t.categoryId === currentFilter);
-                    renderTasks(filteredTasks);
-                } else {
-                    // Show all tasks
-                    renderTasks(Object.values(allTasks));
+                // Reset filter and show all tasks
+                const categoryFilter = document.getElementById('categoryFilter');
+                if (categoryFilter) {
+                    categoryFilter.value = '';
                 }
+                renderTasks(Object.values(allTasks));
             } else {
                 // Store and show only category tasks
                 if (categoryTasks.length) {
                     await utils.dbRef(`categories/${categoryId}`).update({ stored: true });
                     this.data[categoryId].stored = true;
+                    
+                    // Show only this category's tasks
                     renderTasks(categoryTasks);
                     
                     // Update the filter dropdown to show this category is selected
