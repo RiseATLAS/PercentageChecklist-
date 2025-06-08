@@ -220,8 +220,24 @@ const utils = {
                 </div>
             `).join('');
 
-            // Use categories.handleClick instead of this.handleCategoryClick
-            categoryList.onclick = categories.handleClick;
+            const categoryList = document.getElementById('categoryList');
+            if (categoryList) {
+                categoryList.innerHTML = Object.entries(categories).map(([id, cat]) => `
+                    <div class="category-item" data-category-id="${id}">
+                        <div class="category-header">
+                            <span class="category-name" contenteditable="true" 
+                                  data-original="${cat.name}">${cat.name}</span>
+                            <button class="delete-category" data-category-id="${id}">×</button>
+                            <button class="storage-toggle" data-category-id="${id}">
+                                ${cat.stored ? '📁 Normal' : '📂 Store'}
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Use categories.handleClick instead of this.handleCategoryClick
+                categoryList.onclick = categories.handleClick.bind(categories);
+            }
         }
     },
 
@@ -320,22 +336,18 @@ const utils = {
 // Category management
 const categories = {
     data: {},
-    
-    handleClick: async function(e) {
+
+    handleClick: function(e) {
         const button = e.target.closest('button');
         if (!button) return;
 
         const categoryId = button.dataset.categoryId;
         if (!categoryId) return;
 
-        try {
-            if (button.classList.contains('storage-toggle')) {
-                await this.toggleStorage(categoryId);
-            } else if (button.classList.contains('delete-category')) {
-                await this.deleteCategory(categoryId);
-            }
-        } catch (error) {
-            utils.showError('Action failed');
+        if (button.classList.contains('storage-toggle')) {
+            this.toggleStorage(categoryId);
+        } else if (button.classList.contains('delete-category')) {
+            this.deleteCategory(categoryId);
         }
     },
 
@@ -367,15 +379,18 @@ const categories = {
 
     // Simplified storage
     async toggleStorage(categoryId) {
-        try {
-            const category = this.data[categoryId];
-            if (!category) return;
+        const category = this.data[categoryId];
+        if (!category) return;
 
+        try {
             if (category.stored) {
-                await utils.dbRef(`categories/${categoryId}`).update({ stored: false });
+                // Show all tasks
+                await this.dbRef(`categories/${categoryId}`).update({ stored: false });
                 this.data[categoryId].stored = false;
-                filterTasks(''); // Show all tasks
+                const tasks = await utils.dbRef('tasks').once('value');
+                renderTasks(Object.values(tasks.val() || {}));
             } else {
+                // Show only category tasks
                 const tasks = await utils.dbRef('tasks').once('value');
                 const categoryTasks = Object.values(tasks.val() || {})
                     .filter(t => t.categoryId === categoryId);
