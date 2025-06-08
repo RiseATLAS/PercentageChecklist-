@@ -224,11 +224,23 @@ const utils = {
             
             if (categoryTasks.length > 0 && categoryTasks.every(t => t.completed)) {
                 await this.triggerCelebration('goats', categoryTasks.length);
-                await this.dbRef(`categories/${categoryId}/lastCompleted`).set(Date.now());
+                await this.dbRef(`categories/${categoryId}/meta/lastCompleted`).set(Date.now());
                 this.showError('Category completed! 🎈', 'success', 2000);
             }
         } catch (error) {
             console.error('Error checking category completion:', error);
+        }
+    },
+
+    async playSound(soundId) {
+        try {
+            const sound = document.getElementById(soundId);
+            if (!sound) return;
+            
+            sound.currentTime = 0;
+            await sound.play().catch(() => {}); // Silently fail if sound can't play
+        } catch (error) {
+            // Ignore sound errors
         }
     },
 
@@ -248,11 +260,6 @@ const utils = {
             celebration.dataset.celebrationId = celebrationId;
             celebration.style.setProperty('--duration', `${config.duration}ms`);
             celebration.style.setProperty('--delay-between', `${this.ANIMATION_CONFIG.DELAY_BETWEEN}ms`);
-
-            celebration.className = `celebration ${type}-celebration`;
-            celebration.id = celebrationId;
-            celebration.dataset.celebrationId = celebrationId;
-            celebration.style.setProperty('--duration', `${config.duration}ms`);
             
             const animalCount = Math.min(count, config.maxCount);
             celebration.innerHTML = Array.from({ length: animalCount }, 
@@ -271,13 +278,11 @@ const utils = {
 
             stage.appendChild(celebration);
 
-            const sound = document.getElementById(config.sound);
-            if (sound?.play) {
-                sound.currentTime = 0;
-                await sound.play().catch(() => {});
-            }
+            // Try to play sound but don't wait for it
+            this.playSound(config.sound);
 
-            await new Promise(resolve => {
+            // Handle animation cleanup
+            return new Promise(resolve => {
                 const cleanup = () => {
                     celebration.remove();
                     resolve();
@@ -325,16 +330,6 @@ const categories = {
         }
     },
 
-    async getStoredTasks(categoryId) {
-        try {
-            const snapshot = await utils.dbRef(`categoryTasks/${categoryId}`).once('value');
-            return snapshot.val() || {};
-        } catch (error) {
-            utils.showError('Error loading stored tasks');
-            return {};
-        }
-    },
-
     async storeTasksForCategory(categoryId) {
         try {
             const snapshot = await utils.dbRef('tasks').once('value');
@@ -342,9 +337,9 @@ const categories = {
                 .filter(t => t.categoryId === categoryId);
             
             if (tasks.length > 0) {
-                await utils.dbRef(`categoryTasks/${categoryId}`).set({
+                await utils.dbRef(`categories/${categoryId}/stored`).set({
                     tasks,
-                    storedAt: Date.now()
+                    timestamp: Date.now()
                 });
                 utils.showError(`Stored ${tasks.length} tasks`, 'success', 1000);
             }
@@ -353,17 +348,13 @@ const categories = {
         }
     },
 
-    async loadStoredTasks(categoryId) {
+    async getStoredTasks(categoryId) {
         try {
-            const stored = await this.getStoredTasks(categoryId);
-            if (stored.tasks && stored.tasks.length > 0) {
-                renderTasks(stored.tasks);
-                utils.showError(`Loaded ${stored.tasks.length} tasks`, 'success', 1000);
-            } else {
-                utils.showError('No stored tasks found', 'warning');
-            }
+            const snapshot = await utils.dbRef(`categories/${categoryId}/stored`).once('value');
+            return snapshot.val() || {};
         } catch (error) {
             utils.showError('Error loading stored tasks');
+            return {};
         }
     },
 
