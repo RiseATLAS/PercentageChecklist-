@@ -518,7 +518,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Add new task with category
-    document.getElementById('taskForm').onsubmit = (e) => {
+    document.getElementById('taskForm').onsubmit = async (e) => {
         e.preventDefault();
         const input = e.target.querySelector('input');
         const categorySelect = e.target.querySelector('select');
@@ -531,8 +531,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 timestamp: Date.now(),
                 categoryId: categorySelect?.value || ''
             };
-            utils.saveTask(newTask);
+            await utils.saveTask(newTask);
             input.value = '';
+            // Refresh task list to show the new task
+            const tasksSnapshot = await utils.dbRef('tasks').once('value');
+            const tasks = tasksSnapshot.val() || {};
+            renderTasks(Object.values(tasks));
         }
     };
 
