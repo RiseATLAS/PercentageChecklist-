@@ -397,65 +397,22 @@ const categories = {
             const category = this.data[categoryId];
             const isStored = category.stored || false;
 
-            // Load tasks from Firebase
-            const tasksSnap = await utils.dbRef('tasks').once('value');
-            const allTasks = tasksSnap.val() || {};
-            
-            // Filter tasks for this category
-            const categoryTasks = Object.values(allTasks)
-                .filter(t => t.categoryId === categoryId);
-
             if (isStored) {
                 // Remove from storage - set stored to false
                 await utils.dbRef(`categories/${categoryId}`).update({ stored: false });
                 this.data[categoryId].stored = false;
-                
-                // Show current view based on what other categories are stored
-                const remainingStoredCategories = Object.entries(this.data)
-                    .filter(([id, cat]) => id !== categoryId && cat.stored)
-                    .map(([id]) => id);
-                
-                if (remainingStoredCategories.length > 0) {
-                    // Show tasks from remaining stored categories
-                    const storedTasks = Object.values(allTasks)
-                        .filter(t => remainingStoredCategories.includes(t.categoryId));
-                    renderTasks(storedTasks);
-                    // Removed: utils.showError(`Fjernet ${category.name} fra lagrede kategorier`, 'success', 1000);
-                } else {
-                    // No stored categories left, show all tasks
-                    const categoryFilter = document.getElementById('categoryFilter');
-                    if (categoryFilter) {
-                        categoryFilter.value = '';
-                    }
-                    renderTasks(Object.values(allTasks));
-                    // Removed: utils.showError('Viser alle oppgaver', 'success', 1000);
-                }
-                
             } else {
-                // Add to storage
-                if (categoryTasks.length) {
-                    await utils.dbRef(`categories/${categoryId}`).update({ stored: true });
-                    this.data[categoryId].stored = true;
-                    
-                    // Get all stored categories including this one
-                    const allStoredCategories = Object.entries(this.data)
-                        .filter(([id, cat]) => cat.stored)
-                        .map(([id]) => id);
-                    
-                    // Show tasks from all stored categories
-                    const storedTasks = Object.values(allTasks)
-                        .filter(t => allStoredCategories.includes(t.categoryId));
-                    renderTasks(storedTasks);
-                    
-                    // Removed: utils.showError(`Lagt til ${category.name} i lagrede kategorier`, 'success', 1000);
-                } else {
-                    utils.showError('Ingen oppgaver i kategorien');
-                    return;
-                }
+                // Add to storage - set stored to true
+                await utils.dbRef(`categories/${categoryId}`).update({ stored: true });
+                this.data[categoryId].stored = true;
             }
 
             // Update UI to reflect storage states
             utils.updateCategoryFilter(this.data);
+            
+            // Refresh the current view based on stored categories
+            const currentFilter = document.getElementById('categoryFilter')?.value || '';
+            filterTasks(currentFilter);
             
         } catch (error) {
             console.error('Toggle failed:', error);
@@ -608,7 +565,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await categories.loadCategories();
                 const tasksSnapshot = await utils.dbRef('tasks').once('value');
                 const tasks = tasksSnapshot.val() || {};
-                renderTasks(Object.values(tasks));
+                
+                // Check if any categories are stored and filter accordingly
+                filterTasks('');
             } catch (error) {
                 console.error('Error loading initial data:', error);
                 utils.showError('Kunne ikke laste data. Prøver igjen...', 'error', 5000);
@@ -736,4 +695,5 @@ function updateProgress(tasks) {
         progressText.textContent = `Fullført: ${completed}/${total} (${percentage}%)`;
         progressText.className = percentage === 100 ? 'progress-text complete' : 'progress-text';
     }
+}    }
 }
