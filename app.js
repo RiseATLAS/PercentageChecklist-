@@ -529,6 +529,17 @@ function filterTasks(categoryId) {
 
 // Basic event handlers
 document.addEventListener('DOMContentLoaded', async () => {
+    // Add category form handler
+    document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('categoryInput'); // Use correct ID
+        const name = input.value.trim();
+        if (name) {
+            await categories.addCategory(name);
+            input.value = '';
+        }
+    });
+
     // Add new task with category
     document.getElementById('taskForm').onsubmit = async (e) => {
         e.preventDefault();
@@ -545,7 +556,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
             await utils.saveTask(newTask);
             input.value = '';
-            categorySelect.value = '';
+            
+            // Reset select to placeholder option
+            if (categorySelect) {
+                categorySelect.selectedIndex = 0; // Reset to "Velg kategori"
+            }
             
             // Reload and display tasks properly
             const tasksSnapshot = await utils.dbRef('tasks').once('value');
