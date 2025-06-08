@@ -8,16 +8,19 @@
  *    - Edit task text
  * 
  * 2. Categories:
- *    - Add tasks to categories
  *    - Category names can be edited
  *    - Filter tasks by category
  *    - Tasks can be assigned to categories
  *    - Categories can contain tasks
  *    - A button on categories allows all related tasks to be stored and retrieved
  *    - When a task is completed, a young pig should frolick across the screen
- *    - When a full category is completed, a herd young goats should frolick across the screen
+ *    - When a full category is completed, a herd of young goats should frolick across the screen
  *    - If i have chosen a category when creating tasks, the category field should not reset, so i can easily create more with the same category
- * 
+ *    - If a category is deleted, delete its tasks too
+ *    - If a category is stored, hide all tasks in that category
+ *    - If a category is visible, show all tasks in that category
+
+
  * 3. Progress Tracking:
  *    - Simple non intrusive progress bar showing completion percentage
  * 
@@ -450,27 +453,26 @@ const categories = {
 
     // Add to categories object
     async deleteCategory(categoryId) {
-        if (!confirm('Slette denne kategorien? Dette vil også fjerne oppgaver fra kategorien.')) return;
+        if (!confirm('Slette denne kategorien? Dette vil også slette alle oppgaver i kategorien.')) return;
         
         try {
-            // Find tasks associated with this category and update them
+            // Find tasks associated with this category and delete them
             const tasksSnapshot = await utils.dbRef('tasks').once('value');
             const allTasks = tasksSnapshot.val() || {};
-            const tasksToUpdatePromises = [];
+            const tasksToDeletePromises = [];
 
             for (const taskId in allTasks) {
                 if (allTasks[taskId].categoryId === categoryId) {
-                    // Create a promise to update each relevant task's categoryId to empty string
-                    tasksToUpdatePromises.push(
-                        utils.dbRef(`tasks/${taskId}/categoryId`).set('')
+                    // Create a promise to delete each task in this category
+                    tasksToDeletePromises.push(
+                        utils.dbRef(`tasks/${taskId}`).remove()
                     );
                 }
             }
             
-            // Wait for all task updates to complete
-            if (tasksToUpdatePromises.length > 0) {
-                await Promise.all(tasksToUpdatePromises);
-                // Removed: utils.showError(`Fjernet ${tasksToUpdatePromises.length} oppgave(r) fra kategorien.`, 'info', 1500);
+            // Wait for all task deletions to complete
+            if (tasksToDeletePromises.length > 0) {
+                await Promise.all(tasksToDeletePromises);
             }
 
             // Delete the category
@@ -478,10 +480,9 @@ const categories = {
             delete this.data[categoryId];
             utils.updateCategoryFilter(this.data);
             
-            // Refresh task list to reflect unassigned tasks and removed category
+            // Refresh task list to reflect deleted tasks and removed category
             filterTasks(document.getElementById('categoryFilter')?.value || '');
             
-            // Removed: utils.showError('Kategori slettet', 'success', 1000);
         } catch (error) {
             console.error('Error deleting category:', error);
             utils.showError('Feil ved sletting av kategori');
