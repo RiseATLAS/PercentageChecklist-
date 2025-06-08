@@ -208,20 +208,40 @@ const utils = {
                 <div class="category-item" data-category="${id}">
                     <div class="category-header">
                         <span class="category-name" contenteditable="true" 
-                              onfocus="this.dataset.original = this.textContent"
-                              onblur="categories.updateName('${id}', this)">${cat.name}</span>
-                        <button class="delete-category" onclick="categories.deleteCategory('${id}')">×</button>
+                              data-original="${cat.name}">${cat.name}</span>
+                        <button class="delete-category" data-action="delete" data-category-id="${id}">×</button>
                     </div>
                     <div class="category-actions">
-                        <button class="store-btn" onclick="categories.storeTasksForCategory('${id}')">
+                        <button class="store-btn" data-action="store" data-category-id="${id}">
                             Store 📥
                         </button>
-                        <button class="load-btn" onclick="categories.loadStoredTasks('${id}')">
+                        <button class="load-btn" data-action="load" data-category-id="${id}">
                             Load 📤
                         </button>
                     </div>
                 </div>
             `).join('');
+
+            // Add event delegation for category actions
+            categoryList.addEventListener('click', async (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                const { action, categoryId } = button.dataset;
+                if (!categoryId) return;
+
+                switch (action) {
+                    case 'store':
+                        await this.storeTasksForCategory(categoryId);
+                        break;
+                    case 'load':
+                        await this.loadStoredTasks(categoryId);
+                        break;
+                    case 'delete':
+                        await this.deleteCategory(categoryId);
+                        break;
+                }
+            });
         }
     },
 
@@ -319,7 +339,7 @@ const utils = {
 // Category management
 const categories = {
     data: {},
-    
+
     async addCategory(name) {
         try {
             const id = Date.now().toString();
@@ -371,7 +391,7 @@ const categories = {
             if (tasks.length > 0) {
                 await utils.dbRef(`categories/${categoryId}`).update({
                     storedTasks: tasks,
-                    lastUpdated: Date.now()
+                    'meta/lastUpdated': Date.now()
                 });
                 utils.showError(`Stored ${tasks.length} tasks`, 'success', 1000);
             }
@@ -383,22 +403,21 @@ const categories = {
 
     async getStoredTasks(categoryId) {
         try {
-            const snapshot = await this.dbRef(`categories/${categoryId}/stored`).once('value');
-            return snapshot.val() || {};
+            const snapshot = await utils.dbRef(`categories/${categoryId}/storedTasks`).once('value');
+            return snapshot.val() || [];
         } catch (error) {
+            console.error('Error loading stored tasks:', error);
             utils.showError('Error loading stored tasks');
-            return {};
+            return [];
         }
     },
 
     async loadStoredTasks(categoryId) {
         try {
-            if (!categoryId) throw new Error('Category ID is required');
+            if (!categoryId) throw new Error('Category ID required');
+            const tasks = await this.getStoredTasks(categoryId);
             
-            const snapshot = await utils.dbRef(`categories/${categoryId}/storedTasks`).once('value');
-            const tasks = snapshot.val() || [];
-            
-            if (Array.isArray(tasks) && tasks.length > 0) {
+            if (tasks.length > 0) {
                 renderTasks(tasks);
                 utils.showError(`Loaded ${tasks.length} tasks`, 'success', 1000);
             } else {
