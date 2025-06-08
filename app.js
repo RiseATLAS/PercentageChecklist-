@@ -339,7 +339,7 @@ const utils = {
 // Category management
 const categories = {
     data: {},
-    
+
     async addCategory(name) {
         try {
             const id = Date.now().toString();
@@ -380,49 +380,47 @@ const categories = {
             const snapshot = await utils.dbRef('tasks').once('value');
             const tasks = Object.values(snapshot.val() || {})
                 .filter(t => t.categoryId === categoryId)
-                .map(t => ({
-                    id: t.id,
-                    text: t.text,
-                    completed: t.completed,
-                    timestamp: t.timestamp
-                }));
-            
-            if (tasks.length > 0) {
-                const updates = {
-                    [`categories/${categoryId}/storedTasks`]: tasks,
-                    [`categories/${categoryId}/meta/lastUpdated`]: Date.now(),
-                    [`categories/${categoryId}/meta/taskCount`]: tasks.length
-                };
-                await utils.dbRef().update(updates);
-                utils.showError(`Stored ${tasks.length} tasks`, 'success', 1000);
+                .map(({ id, text, completed }) => ({ id, text, completed }));
+
+            if (tasks.length === 0) {
+                utils.showError('No tasks to store', 'warning');
+                return;
             }
+
+            await utils.dbRef(`categories/${categoryId}`).update({
+                storedTasks: tasks,
+                'meta/lastUpdate': Date.now()
+            });
+            utils.showError(`Stored ${tasks.length} tasks`, 'success', 1000);
         } catch (error) {
-            console.error('Error storing tasks:', error);
-            utils.showError('Error storing tasks');
+            console.error('Storage error:', error);
+            utils.showError('Failed to store tasks');
         }
     },
 
     async loadStoredTasks(categoryId) {
+        if (!categoryId) return;
+        
         try {
-            if (!categoryId) throw new Error('Category ID required');
             const snapshot = await utils.dbRef(`categories/${categoryId}/storedTasks`).once('value');
-            const tasks = snapshot.val() || [];
-            
-            if (Array.isArray(tasks) && tasks.length > 0) {
-                // Ensure task data is complete
-                const processedTasks = tasks.map(task => ({
-                    ...task,
-                    categoryId, // Ensure category ID is set
-                    timestamp: task.timestamp || Date.now()
-                }));
-                renderTasks(processedTasks);
-                utils.showError(`Loaded ${tasks.length} tasks`, 'success', 1000);
-            } else {
+            const tasks = snapshot.val();
+
+            if (!Array.isArray(tasks) || tasks.length === 0) {
                 utils.showError('No stored tasks found', 'warning');
+                return;
             }
+
+            const processedTasks = tasks.map(task => ({
+                ...task,
+                categoryId,
+                timestamp: Date.now()
+            }));
+
+            renderTasks(processedTasks);
+            utils.showError(`Loaded ${tasks.length} tasks`, 'success', 1000);
         } catch (error) {
-            console.error('Error loading stored tasks:', error);
-            utils.showError('Error loading stored tasks');
+            console.error('Load error:', error);
+            utils.showError('Failed to load tasks');
         }
     },
 
