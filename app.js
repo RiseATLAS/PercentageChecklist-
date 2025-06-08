@@ -45,19 +45,29 @@ const db = firebase.database();
 
 // Simplified utilities
 const utils = {
+    // Animation constants
+    ANIMATION_CONFIG: {
+        PIG_DURATION: 1500,
+        GOAT_DURATION: 2500,
+        DELAY_BETWEEN: 200,
+        MIN_DURATION: 500
+    },
+
     // Celebration configuration
     assetsConfig: {
         pig: { 
             emoji: '🐷', 
             sound: 'pigSound',
             duration: 1500,
-            maxCount: 1
+            maxCount: 1,
+            className: 'pig-celebration'
         },
         goats: { 
             emoji: '🐐', 
             sound: 'goatSound',
             duration: 2500,
-            maxCount: 3
+            maxCount: 3,
+            className: 'goats-celebration'
         }
     },
 
@@ -234,6 +244,11 @@ const utils = {
 
             const config = this.assetsConfig[type];
             const celebration = document.createElement('div');
+            celebration.className = `celebration ${config.className}`;
+            celebration.dataset.celebrationId = celebrationId;
+            celebration.style.setProperty('--duration', `${config.duration}ms`);
+            celebration.style.setProperty('--delay-between', `${this.ANIMATION_CONFIG.DELAY_BETWEEN}ms`);
+
             celebration.className = `celebration ${type}-celebration`;
             celebration.id = celebrationId;
             celebration.dataset.celebrationId = celebrationId;
