@@ -50,6 +50,9 @@
  */
 
 // Firebase config
+// Note: API keys in Firebase are public by design. Security is enforced through:
+// 1. Firebase Security Rules (database access control)
+// 2. API key restrictions in Google Cloud Console (limit to specific domains)
 const firebaseConfig = {
     apiKey: "AIzaSyAicCfg3-F-OSr0r38-fvS2DPMjcFj0L9o",
     authDomain: "percentagechecklist.firebaseapp.com",

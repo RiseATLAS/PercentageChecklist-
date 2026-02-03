@@ -70,8 +70,8 @@ A beautiful, mobile-first task management application with categories, progress 
 
 3. **Start using**
    - No build process required!
-   - No installation needed!
-   - Just open and start organizing!
+   - Works immediately with the demo Firebase project
+   - For your own project, replace the Firebase config in `app.js`
 
 ## 📱 Usage
 
@@ -138,14 +138,25 @@ PercentageChecklist--main/
 └── README.md          # This file
 ```
 
-## 🔐 Firebase Configuration
+## 🔐 Firebase Configuration & Security
 
-The app uses Firebase Realtime Database for data storage. The configuration is already set up in `app.js`. If you want to use your own Firebase project:
+The app uses Firebase Realtime Database. **Firebase API keys are meant to be public** - they're visible in all client-side code. Security is enforced through:
 
-1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable Realtime Database
-3. Replace the `firebaseConfig` object in `app.js` with your project's configuration
-4. Update the database rules for security
+1. **Firebase Security Rules** (database access control)
+2. **API Key Restrictions** in Google Cloud Console
+
+### To Secure Your Firebase Project:
+
+1. **Add API Key Restrictions:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+   - Find your API key
+   - Add HTTP referrer restrictions (e.g., `*.github.io/*`, your domain)
+
+2. **Set Firebase Security Rules:**
+   - Go to Firebase Console → Realtime Database → Rules
+   - Implement authentication-based rules (not currently set in this demo)
+
+**Note:** This is a demo project. For production use, implement Firebase Authentication and proper security rules.
 
 ## 🎯 Code Philosophy
 
