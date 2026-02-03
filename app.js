@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         console.error('Firebase connection failed after max retries');
                         utils.showError('Kan ikke koble til server. Sjekk internettforbindelsen.', 'error', 10000);
                     }
-                }, 2000);
+                }, 2000); 
             }
             
             // Mark as initialized after first callback
