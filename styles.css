@@ -84,6 +84,30 @@ body {
     position: relative;
 }
 
+/* Input with Button Inside */
+.input-with-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-with-button input {
+    width: 100%;
+    padding-right: 60px; /* Make room for the button */
+}
+
+.input-with-button button {
+    position: absolute;
+    right: 4px;
+    width: 48px;
+    min-height: 36px;
+    padding: 8px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
 input, select, button {
     min-height: var(--touch-target);
     padding: 14px 18px;
@@ -699,6 +723,10 @@ input[type="checkbox"] {
         flex-direction: row;
         align-items: end;
         gap: 10px;
+    }
+    
+    .input-with-button {
+        flex: 1;
     }
     
     .input-group {

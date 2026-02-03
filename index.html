@@ -19,15 +19,17 @@
             <!-- Task Section -->
             <div class="task-section">
                 <form id="taskForm" class="input-form">
-                    <input type="text" 
-                           id="taskInput"
-                           name="taskText"
-                           placeholder="Legg til ny oppgave" 
-                           required>
+                    <div class="input-with-button">
+                        <input type="text" 
+                               id="taskInput"
+                               name="taskText"
+                               placeholder="Legg til ny oppgave" 
+                               required>
+                        <button type="submit">+</button>
+                    </div>
                     <select id="categorySelect" name="taskCategory" aria-label="Velg kategori for ny oppgave" title="Kategori">
                         <option value="" disabled selected>Velg kategori</option>
                     </select>
-                    <button type="submit">+</button>
                 </form>
 
                 <div class="progress-section">
@@ -62,12 +64,14 @@
             <!-- Category Section -->
             <div class="category-section">
                 <form id="categoryForm" class="input-form">
-                    <input type="text" 
-                           id="categoryInput"
-                           name="categoryName"
-                           placeholder="Lag en ny kategori" 
-                           required>
-                    <button type="submit">+</button>
+                    <div class="input-with-button">
+                        <input type="text" 
+                               id="categoryInput"
+                               name="categoryName"
+                               placeholder="Lag en ny kategori" 
+                               required>
+                        <button type="submit">+</button>
+                    </div>
                 </form>
                 
                 <div class="filter-section">
