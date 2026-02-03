@@ -87,7 +87,7 @@ body {
 input, select, button {
     min-height: var(--touch-target);
     padding: 14px 18px;
-    border: 2px solid var(--baby-blue);
+    border: 2px solid #555;
     border-radius: var(--border-radius);
     font-size: 16px;
     background: var(--white);
@@ -98,7 +98,7 @@ input, select, button {
 }
 
 input:focus, select:focus {
-    border-color: #6BB6FF;
+    border-color: var(--baby-blue);
     box-shadow: 0 0 0 3px rgba(137, 207, 240, 0.2);
     outline: none;
 }
@@ -140,7 +140,7 @@ button:active {
     padding: 14px;
     margin: 10px 0;
     background: var(--white);
-    border: 2px solid var(--baby-blue);
+    border: 2px solid #555;
     border-radius: var(--border-radius);
     transition: var(--transition);
     min-height: 60px;
@@ -152,7 +152,7 @@ button:active {
 .task-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border-color: #6BB6FF;
+    border-color: var(--baby-blue);
 }
 
 .task-item.completed {
@@ -202,7 +202,7 @@ button:active {
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #fff9e6 0%, #ffe6b3 100%);
-    border: 2px solid #ffd966;
+    border: 2px solid #555;
     font-weight: 600;
     color: #996300;
 }
@@ -220,13 +220,13 @@ button:active {
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #e6f7ff 0%, #b3e0ff 100%);
-    border: 2px solid var(--baby-blue);
+    border: 2px solid #555;
     font-weight: 500;
     color: #006699;
 }
 
 .category-select:focus {
-    border-color: #6BB6FF;
+    border-color: var(--baby-blue);
     box-shadow: 0 0 0 3px rgba(137, 207, 240, 0.2);
 }
 
@@ -435,7 +435,7 @@ button:active {
     padding: 14px;
     margin: 10px 0;
     background: var(--white);
-    border: 2px solid var(--baby-pink);
+    border: 2px solid #555;
     border-radius: var(--border-radius);
     transition: var(--transition);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -444,7 +444,7 @@ button:active {
 .category-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border-color: #FFB3B3;
+    border-color: var(--baby-pink);
 }
 
 .category-header {
