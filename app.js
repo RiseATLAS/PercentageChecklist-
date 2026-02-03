@@ -279,6 +279,9 @@ const utils = {
             `;
         }
 
+        // Update category pills
+        this.updateCategoryPills(categoriesData);
+
         const categoryList = document.getElementById('categoryList');
         if (categoryList) {
             categoryList.innerHTML = Object.entries(categoriesData).map(([id, cat]) => `
@@ -314,6 +317,38 @@ const utils = {
                 });
             });
         }
+    },
+
+    // New function to render category pills
+    updateCategoryPills(categoriesData) {
+        const pillsContainer = document.getElementById('categoryPills');
+        if (!pillsContainer) return;
+
+        if (Object.keys(categoriesData).length === 0) {
+            pillsContainer.innerHTML = '<span style="color: #999; font-size: 13px; font-style: italic;">Ingen kategorier ennå</span>';
+            return;
+        }
+
+        pillsContainer.innerHTML = Object.entries(categoriesData).map(([id, cat]) => {
+            const isHidden = cat.stored || false;
+            const iconClass = isHidden ? 'hidden' : 'visible';
+            const icon = isHidden ? '👁️‍🗨️' : '👁️';
+            
+            return `
+                <div class="category-pill ${iconClass}" data-category-id="${id}" data-stored="${isHidden}">
+                    <span class="category-pill-icon">${icon}</span>
+                    <span class="category-pill-name">${cat.name}</span>
+                </div>
+            `;
+        }).join('');
+
+        // Add click handlers to pills
+        pillsContainer.querySelectorAll('.category-pill').forEach(pill => {
+            pill.addEventListener('click', async () => {
+                const categoryId = pill.dataset.categoryId;
+                await categories.toggleStorage(categoryId);
+            });
+        });
     },
 
     // Update category completion tracking
