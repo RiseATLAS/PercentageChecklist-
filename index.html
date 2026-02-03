@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="no">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sjekkliste</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Fixed position error messages -->
+    <div id="errorMessages" class="message-box" role="alert"></div>
+
+    <div class="container">
+        <div class="main-section">
+            <!-- Task Section -->
+            <div class="task-section">
+                <form id="taskForm" class="input-form">
+                    <input type="text" 
+                           id="taskInput"
+                           name="taskText"
+                           placeholder="Legg til ny oppgave" 
+                           required>
+                    <select id="categorySelect" name="taskCategory" aria-label="Velg kategori for ny oppgave" title="Kategori">
+                        <option value="" disabled selected>Velg kategori</option>
+                    </select>
+                    <button type="submit">+</button>
+                </form>
+
+                <div class="progress-section">
+                    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Fremdriftsindikator" title="Oppgaver fullført"></div>
+                    <div class="progress-text"></div>
+                </div>
+                
+                <div class="sort-section">
+                    <label for="taskSort">Sorter oppgaver:</label>
+                    <div class="sort-controls">
+                        <select id="taskSort" name="taskSort" class="task-sort">
+                            <option value="creation">Opprettelsestid (nyest først)</option>
+                            <option value="creation-asc">Opprettelsestid (eldst først)</option>
+                            <option value="alphabet">Alfabetisk (A-Å)</option>
+                            <option value="alphabet-desc">Alfabetisk (Å-A)</option>
+                            <option value="category">Kategori</option>
+                            <option value="completed">Fullførte sist</option>
+                            <option value="completed-first">Fullførte først</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <ul id="taskList" class="task-list"></ul>
+            </div>
+
+            <!-- Category Section -->
+            <div class="category-section">
+                <form id="categoryForm" class="input-form">
+                    <input type="text" 
+                           id="categoryInput"
+                           name="categoryName"
+                           placeholder="Lag en ny kategori" 
+                           required>
+                    <button type="submit">+</button>
+                </form>
+                
+                <div class="filter-section">
+                    <label for="categoryFilter">Filtrer etter kategori:</label>
+                    <div class="filter-controls">
+                        <select id="categoryFilter" 
+                                name="categoryFilter" 
+                                class="category-filter"></select>
+                        <button id="clearFilter" class="clear-filter" type="button">Vis alle</button>
+                    </div>
+                </div>
+                
+                <div id="categoryList" class="category-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animation System -->
+    <div class="animation-container" aria-hidden="true">
+        <div class="animation-stage"></div>
+    </div>
+
+    <!-- Core Dependencies - Updated versions -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <!-- Application Code -->
+    <script src="app.js"></script>
+</body>
+</html>
