@@ -917,7 +917,7 @@ function updateProgress(tasks) {
         }
         
         if (progressText) {
-            progressText.textContent = `Fullført: ${completed}/${total} (${percentage}%)`;
+            progressText.textContent = `${percentage}%`;
             progressText.className = percentage === 100 ? 'progress-text complete' : 'progress-text';
         }
     } catch (error) {
