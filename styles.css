@@ -342,14 +342,19 @@ button:active {
 /* Category Pills Section */
 .category-pills-section {
     margin: 20px 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .category-pills-section label {
-    display: block;
-    margin-bottom: 10px;
+    display: inline-block;
+    margin: 0;
     font-weight: bold;
     font-size: 14px;
     color: #333;
+    flex-shrink: 0;
 }
 
 .category-pills {
@@ -357,6 +362,7 @@ button:active {
     flex-wrap: wrap;
     gap: 8px;
     min-height: 36px;
+    flex: 1;
 }
 
 .category-pill {
@@ -829,12 +835,13 @@ input[type="checkbox"] {
     }
     
     .category-pills-section {
-        margin: 12px 0 10px 0;
+        margin: 10px 0 8px 0;
+        gap: 8px;
     }
     
     .category-pills-section label {
-        margin-bottom: 8px;
-        font-size: 13px;
+        margin: 0;
+        font-size: 12px;
     }
     
     .category-pills {
@@ -850,7 +857,7 @@ input[type="checkbox"] {
     
     .sort-progress-section {
         flex-direction: row;
-        gap: 12px;
+        gap: 8px;
         align-items: center;
         margin: 10px 0;
         flex-wrap: nowrap;
@@ -859,35 +866,40 @@ input[type="checkbox"] {
     .sort-section {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         flex: 1;
         min-width: 0;
     }
     
     .sort-section label {
-        font-size: 13px;
+        font-size: 12px;
         flex-shrink: 0;
     }
     
     .task-sort {
         flex: 1;
         min-width: 0;
-        font-size: 13px;
-        padding: 6px 10px;
+        font-size: 12px;
+        padding: 6px 8px;
         min-height: 32px;
     }
     
     .progress-section {
-        width: 50px;
-        height: 32px;
-        min-width: 50px;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
         flex-shrink: 0;
-        border-radius: 20px;
+        border-radius: 50%;
+    }
+    
+    .progress-bar {
+        border-radius: 50%;
     }
     
     .progress-text {
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 800;
+        letter-spacing: -0.5px;
     }
     
     .task-item {
