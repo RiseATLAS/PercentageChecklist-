@@ -258,22 +258,13 @@ const utils = {
         return li;
     },
 
-    // Update category list generation
-    updateCategoryFilter(categoriesData) { // Renamed parameter for clarity
-        const filter = document.getElementById('categoryFilter');
+    // Update category dropdown and display
+    updateCategoryFilter(categoriesData) {
         const select = document.getElementById('categorySelect');
         
         // Get visible (non-stored) categories
         const visibleCategories = Object.entries(categoriesData).filter(([id, cat]) => !cat.stored);
         
-        const dropdownHTML = `
-            <option value="">Alle kategorier</option>
-            ${Object.entries(categoriesData).map(([id, cat]) => 
-                `<option value="${id}">${cat.name}</option>`
-            ).join('')}
-        `;
-
-        if (filter) filter.innerHTML = dropdownHTML;
         if (select) {
             // If only one category is visible, default to it
             if (visibleCategories.length === 1) {
@@ -473,7 +464,7 @@ const categories = {
             this.data[id] = category;
             utils.updateCategoryFilter(this.data);
             // Refresh task list to update category dropdowns in existing tasks
-            filterTasks(document.getElementById('categoryFilter')?.value || '');
+            filterTasks('');
             return id;
         } catch (error) {
             console.error('Error adding category:', error);
@@ -520,8 +511,7 @@ const categories = {
             utils.updateCategoryFilter(this.data);
             
             // Refresh the current view based on stored categories
-            const currentFilter = document.getElementById('categoryFilter')?.value || '';
-            filterTasks(currentFilter);
+            filterTasks('');
             
         } catch (error) {
             console.error('Toggle storage error:', error, { categoryId });
@@ -548,7 +538,7 @@ const categories = {
                 // data-original will be updated in the re-render by updateCategoryFilter
                 utils.updateCategoryFilter(this.data);
                 // Refresh task list to update category dropdowns in existing tasks
-                filterTasks(document.getElementById('categoryFilter')?.value || '');
+                filterTasks('');
             } catch (error) {
                 console.error('Error updating category name:', error, { categoryId, newName });
                 element.textContent = originalName; // Revert on error
@@ -588,7 +578,7 @@ const categories = {
             utils.updateCategoryFilter(this.data);
             
             // Refresh task list to reflect deleted tasks and removed category
-            filterTasks(document.getElementById('categoryFilter')?.value || '');
+            filterTasks('');
             
         } catch (error) {
             console.error('Error deleting category:', error);
@@ -798,8 +788,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // }
                     
                     // Refresh the current view to respect stored categories
-                    const currentFilter = document.getElementById('categoryFilter')?.value || '';
-                    filterTasks(currentFilter);
+                    filterTasks('');
                     
                 } catch (error) {
                     console.error('Error adding task:', error);
@@ -837,24 +826,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Category filter listener
-        document.getElementById('categoryFilter')?.addEventListener('change', (e) => {
-            filterTasks(e.target.value);
-        });
-
         // Task sort listener
         document.getElementById('taskSort')?.addEventListener('change', (e) => {
-            const currentFilter = document.getElementById('categoryFilter')?.value || '';
-            filterTasks(currentFilter);
-        });
-
-        // Clear filter listener
-        document.getElementById('clearFilter')?.addEventListener('click', () => {
             filterTasks('');
-            const categoryFilterSelect = document.getElementById('categoryFilter');
-            if (categoryFilterSelect) {
-                categoryFilterSelect.value = '';
-            }
         });
 
         // Load initial data
