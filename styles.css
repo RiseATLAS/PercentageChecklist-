@@ -318,7 +318,6 @@ button:active {
     height: 100%;
     background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-    border-radius: var(--border-radius);
     width: 0%;
     box-shadow: 0 2px 8px rgba(137, 207, 240, 0.4);
 }
@@ -888,12 +887,14 @@ input[type="checkbox"] {
         width: 36px;
         height: 36px;
         min-width: 36px;
-        flex-shrink: 0;
+        max-width: 36px;
+        flex: 0 0 36px;
         border-radius: 50%;
+        overflow: hidden;
     }
     
     .progress-bar {
-        border-radius: 50%;
+        border-radius: 0;
     }
     
     .progress-text {
