@@ -690,7 +690,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }, 2000); 
             }
             
-            // Mark as initialized after first callback
+            // Mark as initialized after first callback 
             if (!hasInitialized) {
                 hasInitialized = true;
             }
