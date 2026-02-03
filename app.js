@@ -262,6 +262,10 @@ const utils = {
     updateCategoryFilter(categoriesData) { // Renamed parameter for clarity
         const filter = document.getElementById('categoryFilter');
         const select = document.getElementById('categorySelect');
+        
+        // Get visible (non-stored) categories
+        const visibleCategories = Object.entries(categoriesData).filter(([id, cat]) => !cat.stored);
+        
         const dropdownHTML = `
             <option value="">Alle kategorier</option>
             ${Object.entries(categoriesData).map(([id, cat]) => 
@@ -271,12 +275,24 @@ const utils = {
 
         if (filter) filter.innerHTML = dropdownHTML;
         if (select) {
-            select.innerHTML = `
-                <option value="" disabled selected>Velg kategori</option>
-                ${Object.entries(categoriesData).map(([id, cat]) => 
-                    `<option value="${id}">${cat.name}</option>`
-                ).join('')}
-            `;
+            // If only one category is visible, default to it
+            if (visibleCategories.length === 1) {
+                const [singleCategoryId, singleCategory] = visibleCategories[0];
+                select.innerHTML = `
+                    <option value="${singleCategoryId}" selected>${singleCategory.name}</option>
+                    ${Object.entries(categoriesData)
+                        .filter(([id]) => id !== singleCategoryId)
+                        .map(([id, cat]) => `<option value="${id}">${cat.name}</option>`).join('')}
+                    <option value="">Ingen kategori</option>
+                `;
+            } else {
+                select.innerHTML = `
+                    <option value="" disabled selected>Velg kategori</option>
+                    ${Object.entries(categoriesData).map(([id, cat]) => 
+                        `<option value="${id}">${cat.name}</option>`
+                    ).join('')}
+                `;
+            }
         }
 
         // Update category pills
@@ -332,12 +348,10 @@ const utils = {
         pillsContainer.innerHTML = Object.entries(categoriesData).map(([id, cat]) => {
             const isHidden = cat.stored || false;
             const iconClass = isHidden ? 'hidden' : 'visible';
-            const statusText = isHidden ? 'Skjult' : 'Vist';
             
             return `
                 <div class="category-pill ${iconClass}" data-category-id="${id}" data-stored="${isHidden}">
                     <span class="category-pill-name">${cat.name}</span>
-                    <span class="category-pill-icon">${statusText}</span>
                 </div>
             `;
         }).join('');

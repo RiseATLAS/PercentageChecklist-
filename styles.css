@@ -1,8 +1,25 @@
 /*
 requirements
 - WHite, baby blue, baby pink are primary colors
-- rounded corners of all boxes
-- modern design, usable for both phone computer, focus on phone  */
+- rounded corners of albutton {
+    background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
+    color: var(--white);
+    font-weight: 600;
+    border: 2px solid #555;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(137, 207, 240, 0.3);
+}
+
+button:hover {
+    background: linear-gradient(135deg, #6BB6FF 0%, var(--baby-blue) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(137, 207, 240, 0.4);
+}
+
+button:active {
+    transform: translateY(0);
+}sign, usable for both phone computer, focus on phone  */
 
 /* Setup and Variables */
 :root {
@@ -216,7 +233,7 @@ button:active {
 .delete {
     background: transparent;
     color: #ff6b6b;
-    border: 2px solid #ffcccc;
+    border: 2px solid #555;
     border-radius: 50%;
     width: 32px;
     height: 32px;
@@ -235,7 +252,7 @@ button:active {
 
 .delete:hover {
     background: #ff6b6b;
-    border-color: #ff6b6b;
+    border-color: #555;
     color: white;
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
@@ -307,7 +324,7 @@ button:active {
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
-    border: 2px solid #000000;
+    border: 2px solid #555;
     -webkit-user-select: none;
     user-select: none;
     white-space: nowrap;
@@ -317,7 +334,7 @@ button:active {
 .category-pill.visible {
     background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
     color: white;
-    border-color: #000000;
+    border-color: #555;
     box-shadow: 0 2px 6px rgba(137, 207, 240, 0.3);
 }
 
@@ -331,7 +348,7 @@ button:active {
 .category-pill.hidden {
     background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
     color: #666;
-    border-color: #000000;
+    border-color: #555;
     opacity: 0.7;
 }
 
@@ -340,11 +357,6 @@ button:active {
     background: linear-gradient(135deg, #d0d0d0 0%, #c0c0c0 100%);
     transform: translateY(-2px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.category-pill-icon {
-    font-size: 16px;
-    line-height: 1;
 }
 
 .category-pill-name {
@@ -392,19 +404,23 @@ button:active {
 }
 
 .sort-section label {
-    display: block;
-    margin-bottom: 8px;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 0;
     font-weight: bold;
+    vertical-align: middle;
 }
 
 .sort-controls {
-    display: flex;
+    display: inline-flex;
     gap: 10px;
-    flex-direction: column;
+    align-items: center;
+    vertical-align: middle;
 }
 
 .task-sort {
-    width: 100%;
+    width: auto;
+    min-width: 200px;
 }
 
 /* Category Items */
