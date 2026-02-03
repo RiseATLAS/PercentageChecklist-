@@ -174,17 +174,19 @@ const utils = {
                    ${task.completed ? 'checked' : ''} 
                    aria-label="Fullfør oppgave">
             <span class="task-text" contenteditable="true">${sanitizedText}</span>
-            <select class="responsibility-select" aria-label="Velg ansvarlig" title="Ansvarlig">
-                <option value="Begge" ${responsibility === 'Begge' ? 'selected' : ''}>Begge</option>
-                <option value="Petter" ${responsibility === 'Petter' ? 'selected' : ''}>Petter</option>
-                <option value="Sofie" ${responsibility === 'Sofie' ? 'selected' : ''}>Sofie</option>
-            </select>
-            <select class="category-select" aria-label="Velg kategori">
-                <option value="">Ingen kategori</option>
-                ${Object.entries(categories.data).map(([id, cat]) => 
-                    `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
-                ).join('')}
-            </select>
+            <div class="select-container">
+                <select class="category-select" aria-label="Velg kategori">
+                    <option value="">Ingen kategori</option>
+                    ${Object.entries(categories.data).map(([id, cat]) => 
+                        `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
+                    ).join('')}
+                </select>
+                <select class="responsibility-select" aria-label="Velg ansvarlig" title="Ansvarlig">
+                    <option value="Begge" ${responsibility === 'Begge' ? 'selected' : ''}>Begge</option>
+                    <option value="Petter" ${responsibility === 'Petter' ? 'selected' : ''}>Petter</option>
+                    <option value="Sofie" ${responsibility === 'Sofie' ? 'selected' : ''}>Sofie</option>
+                </select>
+            </div>
             <button class="delete" title="Slett oppgave" aria-label="Slett oppgave">×</button>
         `;
 

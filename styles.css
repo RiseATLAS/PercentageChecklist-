@@ -115,7 +115,9 @@ button:active {
 
 .task-item {
     display: grid;
-    grid-template-columns: auto 1fr auto auto auto;
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas: 
+        "checkbox text selects delete";
     align-items: center;
     gap: 10px;
     padding: 14px;
@@ -166,13 +168,20 @@ button:active {
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* Responsibility Select - New */
+/* Select Container - Stack category and responsibility */
+.select-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 120px;
+}
+
+/* Responsibility Select */
 .responsibility-select {
-    min-width: 70px;
-    max-width: 85px;
-    font-size: 12px;
-    height: 34px;
-    padding: 4px 8px;
+    width: 100%;
+    font-size: 13px;
+    height: 32px;
+    padding: 4px 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #fff9e6 0%, #ffe6b3 100%);
@@ -187,11 +196,10 @@ button:active {
 }
 
 .category-select {
-    min-width: 80px;
-    max-width: 100px;
-    font-size: 12px;
-    height: 34px;
-    padding: 4px 8px;
+    width: 100%;
+    font-size: 13px;
+    height: 32px;
+    padding: 4px 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #e6f7ff 0%, #b3e0ff 100%);
@@ -633,7 +641,7 @@ input[type="checkbox"] {
     }
     
     .task-item {
-        grid-template-columns: auto 1fr 85px 150px auto;
+        grid-template-columns: auto 1fr 180px auto;
         min-height: 50px;
         gap: 14px;
     }
@@ -642,20 +650,20 @@ input[type="checkbox"] {
         padding: 8px;
     }
     
+    .select-container {
+        min-width: 180px;
+    }
+    
     .responsibility-select {
-        min-width: 80px;
-        max-width: 85px;
-        height: 40px;
-        padding: 8px 12px;
+        height: 36px;
+        padding: 6px 12px;
         font-size: 14px;
     }
     
     .category-select {
-        min-width: 140px;
-        max-width: 150px;
-        height: 40px;
-        padding: 8px 12px;
-        font-size: 15px;
+        height: 36px;
+        padding: 6px 12px;
+        font-size: 14px;
     }
     
     .delete {
@@ -679,23 +687,20 @@ input[type="checkbox"] {
     }
     
     .task-item {
-        gap: 6px;
-        padding: 10px;
-        grid-template-columns: auto 1fr 65px 70px auto;
+        gap: 8px;
+        padding: 12px;
+        grid-template-columns: auto 1fr 100px auto;
     }
     
-    .responsibility-select {
-        min-width: 60px;
-        max-width: 65px;
-        font-size: 11px;
-        height: 30px;
+    .select-container {
+        min-width: 100px;
     }
     
+    .responsibility-select,
     .category-select {
-        min-width: 60px;
-        max-width: 70px;
-        font-size: 11px;
+        font-size: 12px;
         height: 30px;
+        padding: 4px 8px;
     }
     
     .delete {
@@ -707,7 +712,7 @@ input[type="checkbox"] {
     
     .task-text {
         font-size: 14px;
-        padding: 2px;
+        padding: 4px;
     }
 }
 
