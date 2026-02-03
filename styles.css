@@ -87,7 +87,7 @@ body {
 input, select, button {
     min-height: var(--touch-target);
     padding: 14px 18px;
-    border: 2px solid #555;
+    border: 2px solid #ddd;
     border-radius: var(--border-radius);
     font-size: 16px;
     background: var(--white);
@@ -95,6 +95,10 @@ input, select, button {
     width: 100%;
     transition: var(--transition);
     font-family: inherit;
+}
+
+button {
+    border: 2px solid #555;
 }
 
 input:focus, select:focus {
@@ -107,7 +111,7 @@ button {
     background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
     color: var(--white);
     font-weight: 600;
-    border: 2px solid #000000;
+    border: 2px solid #555;
     cursor: pointer;
     transition: var(--transition);
     box-shadow: 0 2px 8px rgba(137, 207, 240, 0.3);
@@ -140,7 +144,7 @@ button:active {
     padding: 14px;
     margin: 10px 0;
     background: var(--white);
-    border: 2px solid #555;
+    border: 2px solid #ddd;
     border-radius: var(--border-radius);
     transition: var(--transition);
     min-height: 60px;
@@ -202,7 +206,7 @@ button:active {
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #fff9e6 0%, #ffe6b3 100%);
-    border: 2px solid #555;
+    border: 2px solid #ddd;
     font-weight: 600;
     color: #996300;
 }
@@ -220,7 +224,7 @@ button:active {
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #e6f7ff 0%, #b3e0ff 100%);
-    border: 2px solid #555;
+    border: 2px solid #ddd;
     font-weight: 500;
     color: #006699;
 }
@@ -389,7 +393,7 @@ button:active {
 
 .clear-filter {
     background: linear-gradient(135deg, var(--baby-pink) 0%, #FFB3B3 100%);
-    border: 2px solid #000000;
+    border: 2px solid #555;
     width: 100%;
     box-shadow: 0 2px 6px rgba(244, 194, 194, 0.3);
 }
@@ -435,7 +439,7 @@ button:active {
     padding: 14px;
     margin: 10px 0;
     background: var(--white);
-    border: 2px solid #555;
+    border: 2px solid #ddd;
     border-radius: var(--border-radius);
     transition: var(--transition);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -502,7 +506,7 @@ button:active {
 .storage-toggle {
     background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
     color: white;
-    border: 2px solid #000000;
+    border: 2px solid #555;
     border-radius: var(--border-radius);
     padding: 8px 14px;
     font-size: 13px;

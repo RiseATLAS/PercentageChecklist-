@@ -305,10 +305,10 @@ const utils = {
                     <div class="category-header">
                         <span class="category-name" contenteditable="true" 
                               data-original="${cat.name}">${cat.name}</span>
-                        <button class="delete-category" data-category-id="${id}">×</button>
                         <button class="storage-toggle" data-category-id="${id}">
                             ${cat.stored ? 'Hent ut' : 'Gjem'}
                         </button>
+                        <button class="delete-category" data-category-id="${id}">×</button>
                     </div>
                 </div>
             `).join('');
