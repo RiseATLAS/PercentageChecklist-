@@ -291,7 +291,7 @@ const utils = {
                               data-original="${cat.name}">${cat.name}</span>
                         <button class="delete-category" data-category-id="${id}">×</button>
                         <button class="storage-toggle" data-category-id="${id}">
-                            ${cat.stored ? '📁 Hent ut' : '📂 Gjem'}
+                            ${cat.stored ? 'Hent ut' : 'Gjem'}
                         </button>
                     </div>
                 </div>
@@ -332,12 +332,12 @@ const utils = {
         pillsContainer.innerHTML = Object.entries(categoriesData).map(([id, cat]) => {
             const isHidden = cat.stored || false;
             const iconClass = isHidden ? 'hidden' : 'visible';
-            const icon = isHidden ? '👁️‍🗨️' : '👁️';
+            const statusText = isHidden ? 'Skjult' : 'Vist';
             
             return `
                 <div class="category-pill ${iconClass}" data-category-id="${id}" data-stored="${isHidden}">
-                    <span class="category-pill-icon">${icon}</span>
                     <span class="category-pill-name">${cat.name}</span>
+                    <span class="category-pill-icon">${statusText}</span>
                 </div>
             `;
         }).join('');
@@ -706,9 +706,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 isOnline = true;
                 retryCount = 0;
                 
-                // Only show success message if we were previously offline (not on initial load)
+                // Only reload data if we were previously offline (not on initial load)
                 if (hasInitialized) {
-                    console.log('Reconnected to Firebase');
                     // Reload data when connection is restored
                     loadInitialData();
                 }
@@ -718,7 +717,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 utils.showError('Tilkobling tapt. Arbeider offline...', 'error', 5000);
             } else if (!connected && !isOnline && hasInitialized && retryCount < maxRetries) {
                 retryCount++;
-                console.warn(`Firebase reconnection attempt ${retryCount}/${maxRetries}`);
+                console.error(`Firebase reconnection attempt ${retryCount}/${maxRetries}`);
                 utils.showError(`Prøver å koble til på nytt (${retryCount}/${maxRetries})...`, 'error', 3000);
                 
                 // Try to reconnect after delay
@@ -739,14 +738,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Initial data loading with better error handling
         async function loadInitialData() {
             try {
-                console.log('Loading initial data...');
                 await categories.loadCategories();
                 const tasksSnapshot = await utils.dbRef('tasks').once('value');
                 const tasks = tasksSnapshot.val() || {};
                 
                 // Check if any categories are stored and filter accordingly
                 filterTasks('');
-                console.log('Initial data loaded successfully');
             } catch (error) {
                 console.error('Error loading initial data:', error);
                 utils.showError('Kunne ikke laste data. Prøver igjen...', 'error', 5000);
