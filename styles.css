@@ -211,15 +211,34 @@ button:active {
     padding: 4px 10px;
     overflow: hidden;
     text-overflow: ellipsis;
-    background: linear-gradient(135deg, #fff9e6 0%, #ffe6b3 100%);
+    background: linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%);
     border: 2px solid #ddd;
     font-weight: 600;
-    color: #996300;
+    color: #555;
+    transition: var(--transition);
+}
+
+/* Petter - Baby Blue */
+.responsibility-select[data-value="Petter"] {
+    background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
+    color: white;
+}
+
+/* Sofie - Baby Pink */
+.responsibility-select[data-value="Sofie"] {
+    background: linear-gradient(135deg, var(--baby-pink) 0%, #FFD6D6 100%);
+    color: #8B4545;
+}
+
+/* Begge - Baby Green */
+.responsibility-select[data-value="Begge"] {
+    background: linear-gradient(135deg, #A8E6CF 0%, #7ED7B0 100%);
+    color: #2D6A4F;
 }
 
 .responsibility-select:focus {
-    border-color: #ffcc00;
-    box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+    border-color: var(--baby-blue);
+    box-shadow: 0 0 0 3px rgba(137, 207, 240, 0.2);
 }
 
 .category-select {

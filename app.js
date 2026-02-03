@@ -181,7 +181,7 @@ const utils = {
                         `<option value="${id}" ${task.categoryId === id ? 'selected' : ''}>${cat.name}</option>`
                     ).join('')}
                 </select>
-                <select class="responsibility-select" aria-label="Velg ansvarlig" title="Ansvarlig">
+                <select class="responsibility-select" data-value="${responsibility}" aria-label="Velg ansvarlig" title="Ansvarlig">
                     <option value="Begge" ${responsibility === 'Begge' ? 'selected' : ''}>Begge</option>
                     <option value="Petter" ${responsibility === 'Petter' ? 'selected' : ''}>Petter</option>
                     <option value="Sofie" ${responsibility === 'Sofie' ? 'selected' : ''}>Sofie</option>
@@ -226,6 +226,8 @@ const utils = {
 
         li.querySelector('.responsibility-select').onchange = async (e) => {
             task.responsibility = e.target.value;
+            // Update data-value attribute to trigger color change
+            e.target.setAttribute('data-value', e.target.value);
             try {
                 await utils.saveTask(task);
             } catch (error) {
