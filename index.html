@@ -31,11 +31,6 @@
                         <option value="" disabled selected>Velg kategori</option>
                     </select>
                 </form>
-
-                <div class="progress-section">
-                    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Fremdriftsindikator" title="Oppgaver fullført"></div>
-                    <div class="progress-text"></div>
-                </div>
                 
                 <!-- Category Pills -->
                 <div class="category-pills-section">
@@ -43,18 +38,25 @@
                     <div id="categoryPills" class="category-pills"></div>
                 </div>
                 
-                <div class="sort-section">
-                    <label for="taskSort">Sorter oppgaver:</label>
-                    <div class="sort-controls">
-                        <select id="taskSort" name="taskSort" class="task-sort">
-                            <option value="creation">Opprettelsestid (nyest først)</option>
-                            <option value="creation-asc">Opprettelsestid (eldst først)</option>
-                            <option value="alphabet">Alfabetisk (A-Å)</option>
-                            <option value="alphabet-desc">Alfabetisk (Å-A)</option>
-                            <option value="category">Kategori</option>
-                            <option value="completed">Fullførte sist</option>
-                            <option value="completed-first">Fullførte først</option>
-                        </select>
+                <div class="sort-progress-section">
+                    <div class="sort-section">
+                        <label for="taskSort">Sorter:</label>
+                        <div class="sort-controls">
+                            <select id="taskSort" name="taskSort" class="task-sort">
+                                <option value="creation">Opprettet</option>
+                                <option value="creation-asc">Opprettelsestid (eldst først)</option>
+                                <option value="alphabet">Alfabetisk (A-Å)</option>
+                                <option value="alphabet-desc">Alfabetisk (Å-A)</option>
+                                <option value="category">Kategori</option>
+                                <option value="completed">Fullførte sist</option>
+                                <option value="completed-first">Fullførte først</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Fremdriftsindikator" title="Oppgaver fullført"></div>
+                        <div class="progress-text"></div>
                     </div>
                 </div>
                 

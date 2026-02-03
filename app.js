@@ -787,6 +787,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     await utils.saveTask(newTask);
                     input.value = '';
                     
+                    // Hide category select when input is cleared
+                    if (categorySelect) {
+                        categorySelect.classList.remove('show');
+                    }
+                    
                     // Don't reset category selection - keep it for easier batch creation
                     // if (categorySelect) {
                     //     categorySelect.selectedIndex = 0;
@@ -802,6 +807,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
         });
+        
+        // Show/hide category select based on task input
+        const taskInput = document.getElementById('taskInput');
+        const categorySelect = document.getElementById('categorySelect');
+        
+        if (taskInput && categorySelect) {
+            taskInput.addEventListener('input', (e) => {
+                if (e.target.value.trim().length > 0) {
+                    categorySelect.classList.add('show');
+                } else {
+                    categorySelect.classList.remove('show');
+                }
+            });
+        }
 
         // Category form handler
         document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
