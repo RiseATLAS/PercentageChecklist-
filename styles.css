@@ -703,20 +703,6 @@ input[type="checkbox"] {
         flex-shrink: 0;
     }
     
-    .filter-controls {
-        flex-direction: row;
-        align-items: center;
-    }
-    
-    .category-filter {
-        flex: 1;
-    }
-    
-    .clear-filter {
-        width: auto;
-        flex-shrink: 0;
-    }
-    
     .sort-controls {
         flex-direction: row;
         align-items: center;

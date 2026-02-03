@@ -826,10 +826,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Task sort listener
-        document.getElementById('taskSort')?.addEventListener('change', (e) => {
-            filterTasks('');
-        });
+        // Task sort listener - Save preference to localStorage
+        const taskSortSelect = document.getElementById('taskSort');
+        if (taskSortSelect) {
+            // Load saved sort preference
+            const savedSort = localStorage.getItem('taskSort');
+            if (savedSort) {
+                taskSortSelect.value = savedSort;
+            }
+            
+            // Save when changed
+            taskSortSelect.addEventListener('change', (e) => {
+                localStorage.setItem('taskSort', e.target.value);
+                filterTasks('');
+            });
+        }
 
         // Load initial data
         await loadInitialData();
