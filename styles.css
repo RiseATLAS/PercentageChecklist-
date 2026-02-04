@@ -49,8 +49,7 @@
     --border-radius-small: 8px;
     --border-radius-pill: 20px;
     --border-width: 2px;
-    --border-color-light: #ddd;
-    --border-color-dark: #555;
+    --border-color: #ccc;
     
     /* Effects */
     --box-shadow: 0 4px 16px rgba(0,0,0,0.08);
@@ -141,7 +140,7 @@ body {
 input, select, button {
     min-height: var(--touch-target);
     padding: 14px 18px;
-    border: var(--border-width) solid var(--border-color-light);
+    border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 16px;
     background: var(--white);
@@ -152,7 +151,7 @@ input, select, button {
 }
 
 button {
-    border: var(--border-width) solid var(--border-color-dark);
+    border: var(--border-width) solid var(--border-color);
 }
 
 input:focus, select:focus {
@@ -165,7 +164,7 @@ button {
     background: linear-gradient(135deg, var(--baby-blue) 0%, var(--baby-blue-dark) 100%);
     color: var(--white);
     font-weight: 600;
-    border: var(--border-width) solid var(--border-color-dark);
+    border: var(--border-width) solid var(--border-color);
     cursor: pointer;
     transition: var(--transition);
     box-shadow: 0 2px 8px rgba(137, 207, 240, 0.3);
@@ -198,7 +197,7 @@ button:active {
     padding: 14px;
     margin: 10px 0;
     background: var(--white);
-    border: var(--border-width) solid var(--border-color-light);
+    border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius);
     transition: var(--transition);
     min-height: 60px;
@@ -260,7 +259,7 @@ button:active {
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, var(--gray-light) 0%, var(--gray-medium) 100%);
-    border: var(--border-width) solid var(--border-color-light);
+    border: var(--border-width) solid var(--border-color);
     font-weight: 600;
     color: var(--text-secondary);
     transition: var(--transition);
@@ -297,7 +296,7 @@ button:active {
     overflow: hidden;
     text-overflow: ellipsis;
     background: var(--bg-category-select);
-    border: var(--border-width) solid var(--border-color-light);
+    border: var(--border-width) solid var(--border-color);
     font-weight: 500;
     color: var(--text-category);
 }
@@ -310,7 +309,7 @@ button:active {
 .delete {
     background: transparent;
     color: var(--error);
-    border: var(--border-width) solid var(--border-color-dark);
+    border: var(--border-width) solid var(--border-color);
     border-radius: 50%;
     width: 32px;
     height: 32px;
@@ -329,7 +328,7 @@ button:active {
 
 .delete:hover {
     background: var(--error);
-    border-color: var(--border-color-dark);
+    border-color: var(--border-color);
     color: white;
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
@@ -441,7 +440,7 @@ button:active {
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
-    border: var(--border-width) solid var(--border-color-dark);
+    border: var(--border-width) solid var(--border-color);
     -webkit-user-select: none;
     user-select: none;
     white-space: nowrap;
@@ -451,7 +450,7 @@ button:active {
 .category-pill.visible {
     background: linear-gradient(135deg, var(--baby-blue) 0%, var(--baby-blue-dark) 100%);
     color: white;
-    border-color: var(--border-color-dark);
+    border-color: var(--border-color);
     box-shadow: 0 2px 6px rgba(137, 207, 240, 0.3);
 }
 
@@ -465,7 +464,7 @@ button:active {
 .category-pill.hidden {
     background: linear-gradient(135deg, var(--gray-light) 0%, var(--gray-medium) 100%);
     color: var(--text-tertiary);
-    border-color: var(--border-color-dark);
+    border-color: var(--border-color);
     opacity: 0.7;
 }
 
@@ -495,7 +494,7 @@ button:active {
     padding: 14px;
     margin: 10px 0;
     background: var(--white);
-    border: var(--border-width) solid var(--border-color-light);
+    border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius);
     transition: var(--transition);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -535,7 +534,7 @@ button:active {
 .delete-category {
     background: transparent;
     color: var(--error);
-    border: var(--border-width) solid var(--border-color-dark);
+    border: var(--border-width) solid var(--border-color);
     border-radius: 50%;
     width: 34px;
     height: 34px;
@@ -553,7 +552,7 @@ button:active {
 
 .delete-category:hover {
     background: var(--error);
-    border-color: var(--border-color-dark);
+    border-color: var(--border-color);
     color: white;
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
@@ -562,7 +561,7 @@ button:active {
 .storage-toggle {
     background: linear-gradient(135deg, var(--baby-pink) 0%, var(--baby-pink-dark) 100%);
     color: white;
-    border: var(--border-width) solid var(--border-color-dark);
+    border: var(--border-width) solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 8px 14px;
     font-size: 13px;
