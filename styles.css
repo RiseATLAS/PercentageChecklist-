@@ -1,16 +1,58 @@
 /* Setup and Variables */
 :root {
+    /* Primary Colors - Baby Blue & Baby Pink */
     --baby-blue: #89CFF0;
+    --baby-blue-dark: #6BB6FF;
     --baby-pink: #F4C2C2;
+    --baby-pink-dark: #FFB3B3;
+    --baby-pink-light: #FFD6D6;
     --baby-green: #A8E6CF;
+    --baby-green-dark: #7ED7B0;
     --white: #ffffff;
+    
+    /* UI Backgrounds - Baby Blue & Pink Theme */
+    --bg-body: linear-gradient(135deg, #E8F4F8 0%, #F5E8F0 100%);
+    --bg-progress: linear-gradient(135deg, var(--baby-pink) 20%, var(--baby-blue) 80%);
+    --bg-category-select: linear-gradient(135deg, var(--baby-blue) 0%, var(--baby-blue-dark) 100%);
+    --bg-neutral: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    
+    /* Text Colors */
+    --text-primary: #333;
+    --text-secondary: #555;
+    --text-tertiary: #666;
+    --text-category: #ffffff;
+    --text-pink: #8B4545;
+    --text-green: #2D6A4F;
+    
+    /* Neutral Colors */
+    --gray-light: #e8e8e8;
+    --gray-medium: #d0d0d0;
+    --gray-dark: #c0c0c0;
+    
+    /* Status Colors */
     --success: #4CAF50;
+    --success-bg: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+    --success-border: #c8e6c9;
+    --success-text: #2e7d32;
+    
+    --error: #ff6b6b;
+    --error-bg: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+    --error-border: #ffcdd2;
+    --error-text: #c62828;
+    
+    --info-bg: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    --info-border: #bbdefb;
+    --info-text: #1565c0;
+    
+    /* Borders */
     --border-radius: 12px;
     --border-radius-small: 8px;
     --border-radius-pill: 20px;
     --border-width: 2px;
     --border-color-light: #ddd;
     --border-color-dark: #555;
+    
+    /* Effects */
     --box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     --box-shadow-hover: 0 6px 20px rgba(0,0,0,0.12);
     --touch-target: 44px;
@@ -22,7 +64,7 @@ body {
     font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     margin: 0;
     padding: 10px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: var(--bg-body);
     min-height: 100vh;
     line-height: 1.6;
     -webkit-tap-highlight-color: transparent;
@@ -120,7 +162,7 @@ input:focus, select:focus {
 }
 
 button {
-    background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
+    background: linear-gradient(135deg, var(--baby-blue) 0%, var(--baby-blue-dark) 100%);
     color: var(--white);
     font-weight: 600;
     border: var(--border-width) solid var(--border-color-dark);
@@ -130,7 +172,7 @@ button {
 }
 
 button:hover {
-    background: linear-gradient(135deg, #6BB6FF 0%, var(--baby-blue) 100%);
+    background: linear-gradient(135deg, var(--baby-blue-dark) 0%, var(--baby-blue) 100%);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(137, 207, 240, 0.4);
 }
@@ -172,7 +214,7 @@ button:active {
 }
 
 .task-item.completed {
-    background: linear-gradient(135deg, var(--baby-pink) 0%, #FFD6D6 100%);
+    background: linear-gradient(135deg, var(--baby-pink) 0%, var(--baby-pink-light) 100%);
     opacity: 0.85;
 }
 
@@ -217,29 +259,29 @@ button:active {
     padding: 4px 10px;
     overflow: hidden;
     text-overflow: ellipsis;
-    background: linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%);
+    background: linear-gradient(135deg, var(--gray-light) 0%, var(--gray-medium) 100%);
     border: var(--border-width) solid var(--border-color-light);
     font-weight: 600;
-    color: #555;
+    color: var(--text-secondary);
     transition: var(--transition);
 }
 
 /* Petter - Baby Blue */
 .responsibility-select[data-value="Petter"] {
-    background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
+    background: linear-gradient(135deg, var(--baby-blue) 0%, var(--baby-blue-dark) 100%);
     color: white;
 }
 
 /* Sofie - Baby Pink */
 .responsibility-select[data-value="Sofie"] {
-    background: linear-gradient(135deg, var(--baby-pink) 0%, #FFD6D6 100%);
-    color: #8B4545;
+    background: linear-gradient(135deg, var(--baby-pink) 0%, var(--baby-pink-light) 100%);
+    color: var(--text-pink);
 }
 
 /* Begge - Baby Green */
 .responsibility-select[data-value="Begge"] {
-    background: linear-gradient(135deg, #A8E6CF 0%, #7ED7B0 100%);
-    color: #2D6A4F;
+    background: linear-gradient(135deg, var(--baby-green) 0%, var(--baby-green-dark) 100%);
+    color: var(--text-green);
 }
 
 .responsibility-select:focus {
@@ -254,10 +296,10 @@ button:active {
     padding: 4px 10px;
     overflow: hidden;
     text-overflow: ellipsis;
-    background: linear-gradient(135deg, #e6f7ff 0%, #b3e0ff 100%);
+    background: var(--bg-category-select);
     border: var(--border-width) solid var(--border-color-light);
     font-weight: 500;
-    color: #006699;
+    color: var(--text-category);
 }
 
 .category-select:focus {
@@ -267,7 +309,7 @@ button:active {
 
 .delete {
     background: transparent;
-    color: #ff6b6b;
+    color: var(--error);
     border: var(--border-width) solid var(--border-color-dark);
     border-radius: 50%;
     width: 32px;
@@ -286,7 +328,7 @@ button:active {
 }
 
 .delete:hover {
-    background: #ff6b6b;
+    background: var(--error);
     border-color: var(--border-color-dark);
     color: white;
     transform: rotate(90deg) scale(1.1);
@@ -331,7 +373,7 @@ button:active {
 .progress-section {
     flex: 1;
     min-width: 200px;
-    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    background: var(--bg-progress);
     border-radius: var(--border-radius);
     overflow: hidden;
     height: 32px;
@@ -341,7 +383,7 @@ button:active {
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
+    background: linear-gradient(135deg, var(--baby-blue) 0%, var(--baby-blue-dark) 100%);
     transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
     width: 0%;
     box-shadow: 0 2px 8px rgba(137, 207, 240, 0.4);
@@ -353,7 +395,7 @@ button:active {
     left: 50%;
     transform: translate(-50%, -50%);
     font-weight: 700;
-    color: #333;
+    color: var(--text-primary);
     font-size: 13px;
     text-shadow: 0 1px 2px rgba(255,255,255,0.8);
 }
@@ -377,7 +419,7 @@ button:active {
     margin: 0;
     font-weight: bold;
     font-size: 14px;
-    color: #333;
+    color: var(--text-primary);
     flex-shrink: 0;
 }
 
@@ -407,29 +449,29 @@ button:active {
 
 /* Visible category pill (shown) */
 .category-pill.visible {
-    background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
+    background: linear-gradient(135deg, var(--baby-blue) 0%, var(--baby-blue-dark) 100%);
     color: white;
     border-color: var(--border-color-dark);
     box-shadow: 0 2px 6px rgba(137, 207, 240, 0.3);
 }
 
 .category-pill.visible:hover {
-    background: linear-gradient(135deg, #6BB6FF 0%, var(--baby-blue) 100%);
+    background: linear-gradient(135deg, var(--baby-blue-dark) 0%, var(--baby-blue) 100%);
     transform: translateY(-2px);
     box-shadow: 0 4px 10px rgba(137, 207, 240, 0.4);
 }
 
 /* Hidden category pill (stored) */
 .category-pill.hidden {
-    background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
-    color: #666;
+    background: linear-gradient(135deg, var(--gray-light) 0%, var(--gray-medium) 100%);
+    color: var(--text-tertiary);
     border-color: var(--border-color-dark);
     opacity: 0.7;
 }
 
 .category-pill.hidden:hover {
     opacity: 1;
-    background: linear-gradient(135deg, #d0d0d0 0%, #c0c0c0 100%);
+    background: linear-gradient(135deg, var(--gray-medium) 0%, var(--gray-dark) 100%);
     transform: translateY(-2px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
@@ -492,7 +534,7 @@ button:active {
 
 .delete-category {
     background: transparent;
-    color: #ff6b6b;
+    color: var(--error);
     border: var(--border-width) solid var(--border-color-dark);
     border-radius: 50%;
     width: 34px;
@@ -510,7 +552,7 @@ button:active {
 }
 
 .delete-category:hover {
-    background: #ff6b6b;
+    background: var(--error);
     border-color: var(--border-color-dark);
     color: white;
     transform: rotate(90deg) scale(1.1);
@@ -518,7 +560,7 @@ button:active {
 }
 
 .storage-toggle {
-    background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
+    background: linear-gradient(135deg, var(--baby-pink) 0%, var(--baby-pink-dark) 100%);
     color: white;
     border: var(--border-width) solid var(--border-color-dark);
     border-radius: var(--border-radius);
@@ -529,14 +571,14 @@ button:active {
     min-height: auto;
     width: auto;
     transition: var(--transition);
-    box-shadow: 0 2px 6px rgba(137, 207, 240, 0.3);
+    box-shadow: 0 2px 6px rgba(244, 194, 194, 0.3);
     font-weight: 600;
 }
 
 .storage-toggle:hover {
-    background: linear-gradient(135deg, #6BB6FF 0%, var(--baby-blue) 100%);
+    background: linear-gradient(135deg, var(--baby-pink-dark) 0%, var(--baby-pink) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(137, 207, 240, 0.4);
+    box-shadow: 0 4px 10px rgba(244, 194, 194, 0.4);
 }
 
 /* Message Box - Fixed positioning to prevent layout shift */
@@ -558,22 +600,22 @@ button:active {
 }
 
 .message-box.error {
-    background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-    color: #c62828;
-    border: var(--border-width) solid #ffcdd2;
+    background: var(--error-bg);
+    color: var(--error-text);
+    border: var(--border-width) solid var(--error-border);
     animation: shake 0.5s;
 }
 
 .message-box.success {
-    background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
-    color: #2e7d32;
-    border: var(--border-width) solid #c8e6c9;
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: var(--border-width) solid var(--success-border);
 }
 
 .message-box.info {
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    color: #1565c0;
-    border: var(--border-width) solid #bbdefb;
+    background: var(--info-bg);
+    color: var(--info-text);
+    border: var(--border-width) solid var(--info-border);
 }
 
 /* Add shake animation for error messages */
