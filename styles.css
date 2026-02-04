@@ -2,9 +2,15 @@
 :root {
     --baby-blue: #89CFF0;
     --baby-pink: #F4C2C2;
+    --baby-green: #A8E6CF;
     --white: #ffffff;
     --success: #4CAF50;
-    --border-radius: 16px;
+    --border-radius: 12px;
+    --border-radius-small: 8px;
+    --border-radius-pill: 20px;
+    --border-width: 2px;
+    --border-color-light: #ddd;
+    --border-color-dark: #555;
     --box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     --box-shadow-hover: 0 6px 20px rgba(0,0,0,0.12);
     --touch-target: 44px;
@@ -85,7 +91,7 @@ body {
     width: 32px;
     min-height: 32px;
     padding: 4px;
-    border-radius: 8px;
+    border-radius: var(--border-radius-small);
     font-size: 18px;
     font-weight: bold;
 }
@@ -93,7 +99,7 @@ body {
 input, select, button {
     min-height: var(--touch-target);
     padding: 14px 18px;
-    border: 2px solid #ddd;
+    border: var(--border-width) solid var(--border-color-light);
     border-radius: var(--border-radius);
     font-size: 16px;
     background: var(--white);
@@ -104,7 +110,7 @@ input, select, button {
 }
 
 button {
-    border: 2px solid #555;
+    border: var(--border-width) solid var(--border-color-dark);
 }
 
 input:focus, select:focus {
@@ -117,7 +123,7 @@ button {
     background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
     color: var(--white);
     font-weight: 600;
-    border: 2px solid #555;
+    border: var(--border-width) solid var(--border-color-dark);
     cursor: pointer;
     transition: var(--transition);
     box-shadow: 0 2px 8px rgba(137, 207, 240, 0.3);
@@ -150,7 +156,7 @@ button:active {
     padding: 14px;
     margin: 10px 0;
     background: var(--white);
-    border: 2px solid #ddd;
+    border: var(--border-width) solid var(--border-color-light);
     border-radius: var(--border-radius);
     transition: var(--transition);
     min-height: 60px;
@@ -191,7 +197,7 @@ button:active {
 
 .task-text.editing {
     background: rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
+    border-radius: var(--border-radius-small);
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
 }
 
@@ -212,7 +218,7 @@ button:active {
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%);
-    border: 2px solid #ddd;
+    border: var(--border-width) solid var(--border-color-light);
     font-weight: 600;
     color: #555;
     transition: var(--transition);
@@ -249,7 +255,7 @@ button:active {
     overflow: hidden;
     text-overflow: ellipsis;
     background: linear-gradient(135deg, #e6f7ff 0%, #b3e0ff 100%);
-    border: 2px solid #ddd;
+    border: var(--border-width) solid var(--border-color-light);
     font-weight: 500;
     color: #006699;
 }
@@ -262,7 +268,7 @@ button:active {
 .delete {
     background: transparent;
     color: #ff6b6b;
-    border: 2px solid #555;
+    border: var(--border-width) solid var(--border-color-dark);
     border-radius: 50%;
     width: 32px;
     height: 32px;
@@ -281,7 +287,7 @@ button:active {
 
 .delete:hover {
     background: #ff6b6b;
-    border-color: #555;
+    border-color: var(--border-color-dark);
     color: white;
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
@@ -388,12 +394,12 @@ button:active {
     align-items: center;
     gap: 6px;
     padding: 8px 14px;
-    border-radius: 20px;
+    border-radius: var(--border-radius-pill);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
-    border: 2px solid #555;
+    border: var(--border-width) solid var(--border-color-dark);
     -webkit-user-select: none;
     user-select: none;
     white-space: nowrap;
@@ -403,7 +409,7 @@ button:active {
 .category-pill.visible {
     background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
     color: white;
-    border-color: #555;
+    border-color: var(--border-color-dark);
     box-shadow: 0 2px 6px rgba(137, 207, 240, 0.3);
 }
 
@@ -417,7 +423,7 @@ button:active {
 .category-pill.hidden {
     background: linear-gradient(135deg, #e0e0e0 0%, #d0d0d0 100%);
     color: #666;
-    border-color: #555;
+    border-color: var(--border-color-dark);
     opacity: 0.7;
 }
 
@@ -447,7 +453,7 @@ button:active {
     padding: 14px;
     margin: 10px 0;
     background: var(--white);
-    border: 2px solid #ddd;
+    border: var(--border-width) solid var(--border-color-light);
     border-radius: var(--border-radius);
     transition: var(--transition);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -480,14 +486,14 @@ button:active {
 
 .category-name.editing {
     background: rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
+    border-radius: var(--border-radius-small);
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .delete-category {
     background: transparent;
     color: #ff6b6b;
-    border: 2px solid #ffcccc;
+    border: var(--border-width) solid var(--border-color-dark);
     border-radius: 50%;
     width: 34px;
     height: 34px;
@@ -505,7 +511,7 @@ button:active {
 
 .delete-category:hover {
     background: #ff6b6b;
-    border-color: #ff6b6b;
+    border-color: var(--border-color-dark);
     color: white;
     transform: rotate(90deg) scale(1.1);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
@@ -514,7 +520,7 @@ button:active {
 .storage-toggle {
     background: linear-gradient(135deg, var(--baby-blue) 0%, #6BB6FF 100%);
     color: white;
-    border: 2px solid #555;
+    border: var(--border-width) solid var(--border-color-dark);
     border-radius: var(--border-radius);
     padding: 8px 14px;
     font-size: 13px;
@@ -554,20 +560,20 @@ button:active {
 .message-box.error {
     background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
     color: #c62828;
-    border: 2px solid #ffcdd2;
+    border: var(--border-width) solid #ffcdd2;
     animation: shake 0.5s;
 }
 
 .message-box.success {
     background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
     color: #2e7d32;
-    border: 2px solid #c8e6c9;
+    border: var(--border-width) solid #c8e6c9;
 }
 
 .message-box.info {
     background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
     color: #1565c0;
-    border: 2px solid #bbdefb;
+    border: var(--border-width) solid #bbdefb;
 }
 
 /* Add shake animation for error messages */
@@ -825,7 +831,7 @@ input[type="checkbox"] {
     .category-pill {
         padding: 6px 12px;
         font-size: 12px;
-        border-radius: 16px;
+        border-radius: var(--border-radius-pill);
     }
     
     .sort-progress-section {
